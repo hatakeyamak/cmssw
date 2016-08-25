@@ -40,7 +40,7 @@ def customise(process):
 
     process.AllRecHitsValidation.ecalselector = cms.untracked.string('no')
     
-    process.local_validation = cms.Path(process.hcalSimHitStudy+process.hcalDigisValidationSequence+process.hcalRecHitsValidationSequence)
+    process.local_validation = cms.Path(process.hcalSimHitStudy+process.hcalDigisValidationSequence)
     process.schedule.append(process.local_validation)
 
     process.schedule.append(process.endjob_step)

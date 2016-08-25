@@ -4,10 +4,8 @@ from Configuration.StandardSequences.Eras import eras
 from Validation.RecoMuon.PostProcessor_cff import *
 from Validation.RecoTrack.PostProcessorTracker_cfi import *
 from Validation.MuonIsolation.PostProcessor_cff import *
-from Validation.CaloTowers.CaloTowersPostProcessor_cff import *
 from Validation.HcalHits.SimHitsPostProcessor_cff import *
 from Validation.HcalDigis.HcalDigisPostProcessor_cff import *
-from Validation.HcalRecHits.hcalRecHitsPostProcessor_cff import *
 from Validation.EventGenerator.PostProcessor_cff import *
 from Validation.RecoEgamma.photonPostProcessor_cff import *
 from Validation.RecoEgamma.electronPostValidationSequence_cff import *
@@ -28,10 +26,8 @@ postValidation = cms.Sequence(
       recoMuonPostProcessors
     + postValidationTracking
     + MuIsoValPostProcessor
-    + calotowersPostProcessor
     + hcalSimHitsPostProcessor
     + hcaldigisPostProcessor
-    + hcalrechitsPostProcessor
     + electronPostValidationSequence + photonPostProcessor
     + pfJetClient + pfMETClient + pfJetResClient + pfElectronClient
     + rpcRecHitPostValidation_step
