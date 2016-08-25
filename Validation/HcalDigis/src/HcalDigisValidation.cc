@@ -61,6 +61,22 @@ HcalDigisValidation::~HcalDigisValidation() {
 }
 
 
+void HcalDigisValidation::dqmBeginRun(const edm::Run& run, const edm::EventSetup& es){
+  
+  edm::ESHandle<HcalDDDRecConstants> pHRNDC;
+  es.get<HcalRecNumberingRecord>().get( pHRNDC );
+  hcons = &(*pHRNDC);
+  
+  maxDepth_[1] = hcons->getMaxDepth(0); // HB
+  maxDepth_[2] = hcons->getMaxDepth(1); // HE
+  maxDepth_[3] = hcons->getMaxDepth(3); // HO
+  maxDepth_[4] = hcons->getMaxDepth(2); // HF
+  maxDepth_[0] = TMath::Max(maxDepth_[1],maxDepth_[2]);
+  maxDepth_[0] = TMath::Max(maxDepth_[0],maxDepth_[3]);
+  maxDepth_[0] = TMath::Max(maxDepth_[0],maxDepth_[4]); // any of HB/HE/HO/HF
+
+}
+
 void HcalDigisValidation::bookHistograms(DQMStore::IBooker &ib, edm::Run const &run, edm::EventSetup const &es)
 {
 
@@ -166,6 +182,13 @@ void HcalDigisValidation::booking(DQMStore::IBooker &ib, const std::string bsubd
         gainLim = HistLim(160, 0., 1.6);
     }
 
+    int isubdet=0;
+    if      (bsubdet=="HB") isubdet=1;
+    else if (bsubdet=="HE") isubdet=2;
+    else if (bsubdet=="HO") isubdet=3;
+    else if (bsubdet=="HF") isubdet=4;
+    else std::cout << "Warning: not HB/HE/HF/HO " << bsubdet << std::endl;
+
     Char_t histo[100];
     const char * sub = bsubdet.c_str();
     if (bnoise == 0) {
@@ -173,7 +196,30 @@ void HcalDigisValidation::booking(DQMStore::IBooker &ib, const std::string bsubd
         sprintf(histo, "HcalDigiTask_Ndigis_%s", sub);
         book1D(ib, histo, Ndigis);
 
+	//KH
+	std::cout << "subdet_ "
+		  << "outputFile_ "
+		  << "inputTag_ "
+		  << "mc_ "
+		  << "mode_ "
+		  << "dirName_" << std::endl;
+	std::cout << subdet_ << " " 
+		  << outputFile_ << " "
+		  << inputTag_ << " "
+		  << mc_ << " "
+		  << mode_ << " "
+		  << dirName_ << std::endl;
+	std::cout<< maxDepth_[0] << " "
+		 << maxDepth_[1] << " "
+		 << maxDepth_[2] << " "
+		 << maxDepth_[3] << std::endl;
+
         // maps of occupancies
+	for (int depth = 1; depth <= maxDepth_[isubdet]; depth++) {
+	  sprintf(histo, "HcalDigiTask_ieta_iphi_occupancy_map_depth%d_%s", depth, sub);
+	  book2D(ib, histo, ietaLim, iphiLim);
+        }
+	/* KH
         sprintf(histo, "HcalDigiTask_ieta_iphi_occupancy_map_depth1_%s", sub);
         book2D(ib, histo, ietaLim, iphiLim);
 
@@ -185,8 +231,14 @@ void HcalDigisValidation::booking(DQMStore::IBooker &ib, const std::string bsubd
 
         sprintf(histo, "HcalDigiTask_ieta_iphi_occupancy_map_depth4_%s", sub);
         book2D(ib, histo, ietaLim, iphiLim);
+	*/
 
         // occupancies vs ieta
+	for (int depth = 1; depth <= maxDepth_[isubdet]; depth++) {
+	  sprintf(histo, "HcalDigiTask_occupancy_vs_ieta_depth%d_%s", depth, sub);
+	  book1D(ib, histo, ietaLim);
+        }
+	/* KH
         sprintf(histo, "HcalDigiTask_occupancy_vs_ieta_depth1_%s", sub);
         book1D(ib, histo, ietaLim);
 
@@ -198,6 +250,7 @@ void HcalDigisValidation::booking(DQMStore::IBooker &ib, const std::string bsubd
 
         sprintf(histo, "HcalDigiTask_occupancy_vs_ieta_depth4_%s", sub);
         book1D(ib, histo, ietaLim);
+	*/
 
 
         // maps of sum of amplitudes (sum lin.digis(4,5,6,7) - ped) all depths
@@ -218,6 +271,11 @@ void HcalDigisValidation::booking(DQMStore::IBooker &ib, const std::string bsubd
         sprintf(histo, "HcalDigiTask_number_of_amplitudes_above_10fC_%s", sub);
         book1D(ib, histo, ndigis);
 
+	for (int depth = 1; depth <= maxDepth_[isubdet]; depth++) {
+	  sprintf(histo, "HcalDigiTask_ADC0_adc_depth%d_%s", depth, sub);
+	  book1D(ib, histo, pedestal);
+        }
+	/* KH
         sprintf(histo, "HcalDigiTask_ADC0_adc_depth1_%s", sub);
         book1D(ib, histo, pedestal);
         sprintf(histo, "HcalDigiTask_ADC0_adc_depth2_%s", sub);
@@ -226,7 +284,13 @@ void HcalDigisValidation::booking(DQMStore::IBooker &ib, const std::string bsubd
         book1D(ib, histo, pedestal);
         sprintf(histo, "HcalDigiTask_ADC0_adc_depth4_%s", sub);
         book1D(ib, histo, pedestal);
+	*/
 
+	for (int depth = 1; depth <= maxDepth_[isubdet]; depth++) {
+	  sprintf(histo, "HcalDigiTask_ADC0_fC_depth%d_%s", depth, sub);
+	  book1D(ib, histo, pedestalfC);
+        }
+	/* KH
         sprintf(histo, "HcalDigiTask_ADC0_fC_depth1_%s", sub);
         book1D(ib, histo, pedestalfC);
         sprintf(histo, "HcalDigiTask_ADC0_fC_depth2_%s", sub);
@@ -235,9 +299,16 @@ void HcalDigisValidation::booking(DQMStore::IBooker &ib, const std::string bsubd
         book1D(ib, histo, pedestalfC);
         sprintf(histo, "HcalDigiTask_ADC0_fC_depth4_%s", sub);
         book1D(ib, histo, pedestalfC);
+	*/
 
         sprintf(histo, "HcalDigiTask_signal_amplitude_%s", sub);
         book1D(ib, histo, digiAmp);
+	//
+	for (int depth = 1; depth <= maxDepth_[isubdet]; depth++) {
+	  sprintf(histo, "HcalDigiTask_signal_amplitude_depth%d_%s", depth, sub);
+	  book1D(ib, histo, digiAmp);
+        }
+	/* KH
         sprintf(histo, "HcalDigiTask_signal_amplitude_depth1_%s", sub);
         book1D(ib, histo, digiAmp);
         sprintf(histo, "HcalDigiTask_signal_amplitude_depth2_%s", sub);
@@ -246,6 +317,7 @@ void HcalDigisValidation::booking(DQMStore::IBooker &ib, const std::string bsubd
         book1D(ib, histo, digiAmp);
         sprintf(histo, "HcalDigiTask_signal_amplitude_depth4_%s", sub);
         book1D(ib, histo, digiAmp);
+	*/
 
         sprintf(histo, "HcalDigiTask_signal_amplitude_vs_bin_all_depths_%s", sub);
         book2D(ib, histo, nbin, digiAmp);
@@ -256,10 +328,16 @@ void HcalDigisValidation::booking(DQMStore::IBooker &ib, const std::string bsubd
         sprintf(histo, "HcalDigiTask_all_amplitudes_vs_bin_depth2_%s", sub);
         book2D(ib, histo, nbin, digiAmp);
 */
+	for (int depth = 1; depth <= maxDepth_[isubdet]; depth++) {
+	  sprintf(histo, "HcalDigiTask_all_amplitudes_vs_bin_1D_depth%d_%s", depth, sub);
+	  book1D(ib, histo, nbin);
+        }
+	/* KH
         sprintf(histo, "HcalDigiTask_all_amplitudes_vs_bin_1D_depth1_%s", sub);
         book1D(ib, histo, nbin);
         sprintf(histo, "HcalDigiTask_all_amplitudes_vs_bin_1D_depth2_%s", sub);
         book1D(ib, histo, nbin);
+	*/
 
         sprintf(histo, "HcalDigiTask_bin_5_frac_%s", sub);
         book1D(ib, histo, frac);
@@ -269,6 +347,11 @@ void HcalDigisValidation::booking(DQMStore::IBooker &ib, const std::string bsubd
         if (bmc == 1) {
             sprintf(histo, "HcalDigiTask_amplitude_vs_simhits_%s", sub);
             book2D(ib, histo, sime, digiAmp);
+	    for (int depth = 1; depth <= maxDepth_[isubdet]; depth++) {
+	      sprintf(histo, "HcalDigiTask_amplitude_vs_simhits_depth%d_%s", depth, sub);
+	      book2D(ib, histo, sime, digiAmp);
+	    }
+	    /* KH
             sprintf(histo, "HcalDigiTask_amplitude_vs_simhits_depth1_%s", sub);
             book2D(ib, histo, sime, digiAmp);
             sprintf(histo, "HcalDigiTask_amplitude_vs_simhits_depth2_%s", sub);
@@ -277,9 +360,15 @@ void HcalDigisValidation::booking(DQMStore::IBooker &ib, const std::string bsubd
             book2D(ib, histo, sime, digiAmp);
             sprintf(histo, "HcalDigiTask_amplitude_vs_simhits_depth4_%s", sub);
             book2D(ib, histo, sime, digiAmp);
+	    */
 
             sprintf(histo, "HcalDigiTask_amplitude_vs_simhits_profile_%s", sub);
             bookPf(ib, histo, sime, digiAmp);
+	    for (int depth = 1; depth <= maxDepth_[isubdet]; depth++) {
+	      sprintf(histo, "HcalDigiTask_amplitude_vs_simhits_profile_depth%d_%s", depth, sub);
+	      bookPf(ib, histo, sime, digiAmp);
+	    }
+	    /* KH
             sprintf(histo, "HcalDigiTask_amplitude_vs_simhits_profile_depth1_%s", sub);
             bookPf(ib, histo, sime, digiAmp);
             sprintf(histo, "HcalDigiTask_amplitude_vs_simhits_profile_depth2_%s", sub);
@@ -288,9 +377,15 @@ void HcalDigisValidation::booking(DQMStore::IBooker &ib, const std::string bsubd
             bookPf(ib, histo, sime, digiAmp);
             sprintf(histo, "HcalDigiTask_amplitude_vs_simhits_profile_depth4_%s", sub);
             bookPf(ib, histo, sime, digiAmp);
+	    */
 
             sprintf(histo, "HcalDigiTask_ratio_amplitude_vs_simhits_%s", sub);
             book1D(ib, histo, ratio);
+	    for (int depth = 1; depth <= maxDepth_[isubdet]; depth++) {
+	      sprintf(histo, "HcalDigiTask_ratio_amplitude_vs_simhits_depth%d_%s", depth, sub);
+	      book1D(ib, histo, ratio);
+	    }
+	    /* KH
             sprintf(histo, "HcalDigiTask_ratio_amplitude_vs_simhits_depth1_%s", sub);
             book1D(ib, histo, ratio);
             sprintf(histo, "HcalDigiTask_ratio_amplitude_vs_simhits_depth2_%s", sub);
@@ -299,14 +394,56 @@ void HcalDigisValidation::booking(DQMStore::IBooker &ib, const std::string bsubd
             book1D(ib, histo, ratio);
             sprintf(histo, "HcalDigiTask_ratio_amplitude_vs_simhits_depth4_%s", sub);
             book1D(ib, histo, ratio);
+	    */
         }//mc only
 
     } else { // noise only
 
         // EVENT "1" distributions of all cells properties
 
+      //KH
+      for (int depth = 1; depth <= maxDepth_[isubdet]; depth++) {
+	sprintf(histo, "HcalDigiTask_gain_capId0_Depth%d_%s", depth, sub);
+	book1D(ib, histo, gainLim);
+	sprintf(histo, "HcalDigiTask_gain_capId1_Depth%d_%s", depth, sub);
+	book1D(ib, histo, gainLim);
+	sprintf(histo, "HcalDigiTask_gain_capId2_Depth%d_%s", depth, sub);
+	book1D(ib, histo, gainLim);
+	sprintf(histo, "HcalDigiTask_gain_capId3_Depth%d_%s", depth, sub);
+	book1D(ib, histo, gainLim);
 
+	sprintf(histo, "HcalDigiTask_gainWidth_capId0_Depth%d_%s", depth, sub);
+	book1D(ib, histo, gainWidthLim);
+	sprintf(histo, "HcalDigiTask_gainWidth_capId1_Depth%d_%s", depth, sub);
+	book1D(ib, histo, gainWidthLim);
+	sprintf(histo, "HcalDigiTask_gainWidth_capId2_Depth%d_%s", depth, sub);
+	book1D(ib, histo, gainWidthLim);
+	sprintf(histo, "HcalDigiTask_gainWidth_capId3_Depth%d_%s", depth, sub);
+	book1D(ib, histo, gainWidthLim);
+
+	sprintf(histo, "HcalDigiTask_pedestal_capId0_Depth%d_%s", depth, sub);
+	book1D(ib, histo, pedLim);
+	sprintf(histo, "HcalDigiTask_pedestal_capId1_Depth%d_%s", depth, sub);
+	book1D(ib, histo, pedLim);
+	sprintf(histo, "HcalDigiTask_pedestal_capId2_Depth%d_%s", depth, sub);
+	book1D(ib, histo, pedLim);
+	sprintf(histo, "HcalDigiTask_pedestal_capId3_Depth%d_%s", depth, sub);
+	book1D(ib, histo, pedLim);
+
+	sprintf(histo, "HcalDigiTask_pedestal_width_capId0_Depth%d_%s", depth, sub);
+	book1D(ib, histo, pedWidthLim);
+	sprintf(histo, "HcalDigiTask_pedestal_width_capId1_Depth%d_%s", depth, sub);
+	book1D(ib, histo, pedWidthLim);
+	sprintf(histo, "HcalDigiTask_pedestal_width_capId2_Depth%d_%s", depth, sub);
+	book1D(ib, histo, pedWidthLim);
+	sprintf(histo, "HcalDigiTask_pedestal_width_capId3_Depth%d_%s", depth, sub);
+	book1D(ib, histo, pedWidthLim);
+
+      }
+
+      /* KH
         if (subdet_ == "HB" || subdet_ == "HE" || subdet_ == "HF") {
+
             sprintf(histo, "HcalDigiTask_gain_capId0_Depth1_%s", sub);
             book1D(ib, histo, gainLim);
             sprintf(histo, "HcalDigiTask_gain_capId1_Depth1_%s", sub);
@@ -459,7 +596,17 @@ void HcalDigisValidation::booking(DQMStore::IBooker &ib, const std::string bsubd
             book1D(ib, histo, pedWidthLim);
 
         }
+      */ 
 
+      //KH
+      for (int depth = 1; depth <= maxDepth_[isubdet]; depth++) {
+        sprintf(histo, "HcalDigiTask_gainMap_Depth%d_%s", depth, sub);
+        book2D(ib, histo, ietaLim, iphiLim);
+        sprintf(histo, "HcalDigiTask_pwidthMap_Depth%d_%s", depth, sub);
+        book2D(ib, histo, ietaLim, iphiLim);	
+      }
+
+      /* KH
         sprintf(histo, "HcalDigiTask_gainMap_Depth1_%s", sub);
         book2D(ib, histo, ietaLim, iphiLim);
         sprintf(histo, "HcalDigiTask_gainMap_Depth2_%s", sub);
@@ -477,6 +624,7 @@ void HcalDigisValidation::booking(DQMStore::IBooker &ib, const std::string bsubd
         book2D(ib, histo, ietaLim, iphiLim);
         sprintf(histo, "HcalDigiTask_pwidthMap_Depth4_%s", sub);
         book2D(ib, histo, ietaLim, iphiLim);
+      */
 
     } //end of noise-only
 }//book
@@ -687,11 +835,16 @@ template<class Digi> void HcalDigisValidation::reco(const edm::Event& iEvent, co
 
     int indigis = 0;
     //  amplitude for signal cell at diff. depths
+    std::vector<double> v_ampl_c;
+    v_ampl_c.push_back(0.);
+    for (int depth = 1; depth <= maxDepth_[isubdet]; depth++) v_ampl_c.push_back(0.);
+    /* KH
     double ampl1_c = 0.;
     double ampl2_c = 0.;
     double ampl3_c = 0.;
     double ampl4_c = 0.;
     double ampl_c = 0.;
+    */
 
     // is set to 1 if "seed" SimHit is found
     int seedSimHit = 0;
@@ -764,12 +917,16 @@ template<class Digi> void HcalDigisValidation::reco(const edm::Event& iEvent, co
 
 
         //  amplitude for signal cell at diff. depths
+	std::vector<double> v_ampl;
+	v_ampl.push_back(0.);
+	for (int depth = 1; depth <= maxDepth_[isubdet]; depth++) v_ampl.push_back(0.);
+	/* KH
         double ampl = 0.;
         double ampl1 = 0.;
         double ampl2 = 0.;
         double ampl3 = 0.;
         double ampl4 = 0.;
-
+	*/
 
         // Gains, pedestals (once !) and only for "noise" case
         if (((nevent1 == 1 && isubdet == 1) ||
@@ -801,7 +958,6 @@ template<class Digi> void HcalDigisValidation::reco(const edm::Event& iEvent, co
         // No-noise case, only single  subdet selected  ===========================
 
         if (sub == isubdet && noise_ == 0) {
-
 
             HcalCalibrations calibrations = conditions->getHcalCalibrations(cell);
 
@@ -840,53 +996,71 @@ template<class Digi> void HcalDigisValidation::reco(const edm::Event& iEvent, co
                 }
 */
                 if (val > 100.) {
+		  fill1D("HcalDigiTask_ADC0_adc_depth" + str(depth) + "_" + subdet_, noiseADC);
+		  strtmp = "HcalDigiTask_all_amplitudes_vs_bin_1D_depth" + str(depth) + "_" + subdet_;
+		  /* KH
                     if (depth == 1) strtmp = "HcalDigiTask_all_amplitudes_vs_bin_1D_depth1_" + subdet_;
                     else strtmp = "HcalDigiTask_all_amplitudes_vs_bin_1D_depth2_" + subdet_;
-                    fill1D(strtmp, double(ii), val);
+		  */ 
+		  fill1D(strtmp, double(ii), val);
                 }
 
                 if (closen == 1) {
-                    strtmp = "HcalDigiTask_signal_amplitude_vs_bin_all_depths_" + subdet_;
-                    fill2D(strtmp, double(ii), val);
+		  strtmp = "HcalDigiTask_signal_amplitude_vs_bin_all_depths_" + subdet_;
+		  fill2D(strtmp, double(ii), val);
                 }
 
 
                 // HB/HE/HO
                 if (isubdet != 4 && ii >= 4 && ii <= 7) {
+                    v_ampl[0] += val;
+                    v_ampl[depth] += val;
+		    /* KH
                     ampl += val;
                     if (depth == 1) ampl1 += val;
                     if (depth == 2) ampl2 += val;
                     if (depth == 3) ampl3 += val;
                     if (depth == 4) ampl4 += val;
+		    */
 
                     if (closen == 1) {
+                        v_ampl_c[0] += val;
+                        v_ampl_c[depth] += val;
+			/* KH
                         ampl_c += val;
                         if (depth == 1) ampl1_c += val;
                         if (depth == 2) ampl2_c += val;
                         if (depth == 3) ampl3_c += val;
                         if (depth == 4) ampl4_c += val;
+			*/
                     }
                 }
 
                 // HF
                 if (isubdet == 4 && ii >= 2 && ii <= 4) {
+                    v_ampl[0] += val;
+                    v_ampl[depth] += val;
+		    /* KH
                     ampl += val;
                     if (depth == 1) ampl1 += val;
                     if (depth == 2) ampl2 += val;
                     if (depth == 3) ampl3 += val;
                     if (depth == 4) ampl4 += val;
+		    */
                     if (closen == 1) {
+                        v_ampl_c[0] += val;
+                        v_ampl_c[depth] += val;
+			/* KH
                         ampl_c += val;
                         if (depth == 1) ampl1_c += val;
                         if (depth == 2) ampl2_c += val;
                         if (depth == 3) ampl3_c += val;
                         if (depth == 4) ampl4_c += val;
-
+			*/
                     }
                 }
             }
             // end of time bucket sample
-
 
             // maps of sum of amplitudes (sum lin.digis(4,5,6,7) - ped) all depths
 /*
@@ -901,20 +1075,22 @@ template<class Digi> void HcalDigisValidation::reco(const edm::Event& iEvent, co
 */
             // just 1D of all cells' amplitudes
             strtmp = "HcalDigiTask_sum_all_amplitudes_" + subdet_;
-            fill1D(strtmp, ampl);
+            fill1D(strtmp, v_ampl[0]);
 
-
-            if (ampl1 > 10. || ampl2 > 10. || ampl3 > 10. || ampl4 > 10.) indigis++;
+	    std::vector<int> v_ampl_sub(v_ampl.begin() + 1, v_ampl.end()); // remove element 0, which is the sum of any depth
+	    double ampl_max = *std::max_element(v_ampl_sub.begin(),v_ampl_sub.end());
+	    if (ampl_max>10.) indigis++;
+            //KH if (ampl1 > 10. || ampl2 > 10. || ampl3 > 10. || ampl4 > 10.) indigis++;
 
             // fraction 5,6 bins if ampl. is big.
-            if (ampl1 > 30. && depth == 1 && closen == 1 && isubdet != 4) {
+            if (v_ampl[1] > 30. && depth == 1 && closen == 1 && isubdet != 4) {
 	      double fBin5 = tool[4] - calibrations.pedestal((*digiItr)[4].capid());
 	      double fBin67 = tool[5] + tool[6]
 		- calibrations.pedestal((*digiItr)[5].capid())
 		- calibrations.pedestal((*digiItr)[6].capid());
 	      
-	      fBin5 /= ampl1;
-	      fBin67 /= ampl1;
+	      fBin5 /= v_ampl[1];
+	      fBin67 /= v_ampl[1];
 	      
 	      strtmp = "HcalDigiTask_bin_5_frac_" + subdet_;
 	      fill1D(strtmp, fBin5);
@@ -924,20 +1100,24 @@ template<class Digi> void HcalDigisValidation::reco(const edm::Event& iEvent, co
 	    }
 	    
 	    //Special for HF
-	    if (isubdet == 4 && ampl1 > 30. && depth == 1) {
+	    if (isubdet == 4 && v_ampl[1] > 30. && depth == 1) {
 	      double fBin5 = tool[2] - calibrations.pedestal((*digiItr)[2].capid());
 	      double fBin67 = tool[3] + tool[4]
 		- calibrations.pedestal((*digiItr)[3].capid())
 		- calibrations.pedestal((*digiItr)[4].capid());
-	      fBin5 /= ampl1;
-	      fBin67 /= ampl1;
+	      fBin5 /= v_ampl[1];
+	      fBin67 /= v_ampl[1];
 	      strtmp = "HcalDigiTask_bin_5_frac_" + subdet_;
 	      fill1D(strtmp, fBin5);
 	      strtmp = "HcalDigiTask_bin_6_7_frac_" + subdet_;
 	      fill1D(strtmp, fBin67);
             }
 	    
-	    
+            strtmp = "HcalDigiTask_signal_amplitude_" + subdet_;
+            fill1D(strtmp, v_ampl[0]);
+            strtmp = "HcalDigiTask_signal_amplitude_depth" + str(depth) + "_" + subdet_;
+            fill1D(strtmp, v_ampl[depth]);
+	    /*
             strtmp = "HcalDigiTask_signal_amplitude_" + subdet_;
             fill1D(strtmp, ampl);
             strtmp = "HcalDigiTask_signal_amplitude_depth1_" + subdet_;
@@ -948,6 +1128,7 @@ template<class Digi> void HcalDigisValidation::reco(const edm::Event& iEvent, co
             fill1D(strtmp, ampl3);
             strtmp = "HcalDigiTask_signal_amplitude_depth4_" + subdet_;
             fill1D(strtmp, ampl4);
+	    */
         }
     } // End of CYCLE OVER CELLS =============================================
 
@@ -957,11 +1138,16 @@ template<class Digi> void HcalDigisValidation::reco(const edm::Event& iEvent, co
 
         // SimHits once again !!!
         double eps = 1.e-3;
+	/*
         double ehits = 0.;
         double ehits1 = 0.;
         double ehits2 = 0.;
         double ehits3 = 0.;
         double ehits4 = 0.;
+	*/
+	std::vector<double> v_ehits;
+	v_ehits.push_back(0.);
+	for (int depth = 1; depth <= maxDepth_[isubdet]; depth++) v_ehits.push_back(0.);
 
         if (mc_ == "yes") {
             edm::Handle<edm::PCaloHitContainer> hcalHits;
@@ -981,14 +1167,43 @@ template<class Digi> void HcalDigisValidation::reco(const edm::Event& iEvent, co
                     int depth = cell.depth();
                     double en = simhits->energy();
 
+                    v_ehits[0] += en;
+                    v_ehits[depth] += en;
+		    /* KH
                     ehits += en;
                     if (depth == 1) ehits1 += en;
                     if (depth == 2) ehits2 += en;
                     if (depth == 3) ehits3 += en;
                     if (depth == 4) ehits4 += en;
-                }
-            }
+		    */
 
+                }
+            } // simhit loop
+
+            strtmp = "HcalDigiTask_amplitude_vs_simhits_" + subdet_;
+            if (v_ehits[0] > eps) fill2D(strtmp, v_ehits[0], v_ampl_c[0]);
+	    for (int depth = 1; depth <= maxDepth_[isubdet]; depth++) {
+	      strtmp = "HcalDigiTask_amplitude_vs_simhits_depth" + str(depth) + "_" + subdet_;
+	      if (v_ehits[depth] > eps) fill2D(strtmp, v_ehits[depth], v_ampl_c[depth]);
+	    }
+	    
+            strtmp = "HcalDigiTask_amplitude_vs_simhits_profile_" + subdet_;
+            if (v_ehits[0] > eps) fillPf(strtmp, v_ehits[0], v_ampl_c[0]);
+	    for (int depth = 1; depth <= maxDepth_[isubdet]; depth++) {
+	      strtmp = "HcalDigiTask_amplitude_vs_simhits_profile_depth" + str(depth) + "_" + subdet_;
+	      if (v_ehits[depth] > eps) fillPf(strtmp, v_ehits[depth], v_ampl_c[depth]);
+	    }
+
+            strtmp = "HcalDigiTask_ratio_amplitude_vs_simhits_" + subdet_;
+            if (v_ehits[0] > eps) fill1D(strtmp, v_ampl_c[0] / v_ehits[0]);
+	    for (int depth = 1; depth <= maxDepth_[isubdet]; depth++) {
+	      strtmp = "HcalDigiTask_amplitude_vs_simhits_profile_depth" + str(depth) + "_" + subdet_;
+	      if (v_ehits[depth] > eps) fillPf(strtmp, v_ehits[depth], v_ampl_c[depth]);
+	      strtmp = "HcalDigiTask_ratio_amplitude_vs_simhits_depth" + str(depth) + "_" + subdet_;
+	      if (v_ehits[depth] > eps) fill1D(strtmp, v_ampl_c[depth] / v_ehits[depth]);
+	    }
+
+	    /* KH
             strtmp = "HcalDigiTask_amplitude_vs_simhits_" + subdet_;
             if (ehits > eps) fill2D(strtmp, ehits, ampl_c);
             strtmp = "HcalDigiTask_amplitude_vs_simhits_depth1_" + subdet_;
@@ -1021,6 +1236,7 @@ template<class Digi> void HcalDigisValidation::reco(const edm::Event& iEvent, co
             if (ehits3 > eps) fill1D(strtmp, ampl3_c / ehits3);
             strtmp = "HcalDigiTask_ratio_amplitude_vs_simhits_depth4_" + subdet_;
             if (ehits4 > eps) fill1D(strtmp, ampl4_c / ehits4);
+	    */
 
         } // end of if(mc_ == "yes")
 
@@ -1028,6 +1244,7 @@ template<class Digi> void HcalDigisValidation::reco(const edm::Event& iEvent, co
         fill1D(strtmp, double(Ndig));
 
     } //  end of if( subdet != 0 && noise_ == 0) { // signal only
+
 }
 
 void HcalDigisValidation::eval_occupancy() {

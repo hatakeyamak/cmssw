@@ -58,6 +58,7 @@ public:
     ~HcalDigisValidation(); 
 
     virtual void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &);
+    virtual void dqmBeginRun(const edm::Run& run, const edm::EventSetup& c);
 
 private:
 
@@ -128,6 +129,9 @@ private:
     int nevent3;
     int nevent4;
     int nevtot;
+
+    const HcalDDDRecConstants *hcons;
+    int maxDepth_[5]; // 0:any, 1:HB, 2:HE, 3:HF
 
 };
 
