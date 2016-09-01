@@ -669,12 +669,12 @@ void HcalDigisValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
        if (subdet_ == "HB") reco<HBHEDataFrame > (iEvent, iSetup, tok_hbhe_);
        if (subdet_ == "HE"){
 	 reco<HBHEDataFrame > (iEvent, iSetup, tok_hbhe_);
-         reco<QIE11DataFrame>(iEvent, iSetup, tok_qie11_hbhe_);
+         //KH reco<QIE11DataFrame>(iEvent, iSetup, tok_qie11_hbhe_);
        }
        if (subdet_ == "HO") reco<HODataFrame > (iEvent, iSetup, tok_ho_);
        if (subdet_ == "HF"){
 	 reco<HFDataFrame > (iEvent, iSetup, tok_hf_);
-         reco<QIE10DataFrame>(iEvent, iSetup, tok_qie10_hf_);
+         //KH reco<QIE10DataFrame>(iEvent, iSetup, tok_qie10_hf_);
        }
 
         if (subdet_ == "noise") {
@@ -685,12 +685,12 @@ void HcalDigisValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
             reco<HBHEDataFrame > (iEvent, iSetup, tok_hbhe_);
             subdet_ = "HE";
             reco<HBHEDataFrame > (iEvent, iSetup, tok_hbhe_);
-            reco<QIE11DataFrame>(iEvent, iSetup, tok_qie11_hbhe_);
+            //KH reco<QIE11DataFrame>(iEvent, iSetup, tok_qie11_hbhe_);
             subdet_ = "HO";
             reco<HODataFrame > (iEvent, iSetup, tok_ho_);
             subdet_ = "HF";
             reco<HFDataFrame > (iEvent, iSetup, tok_hf_);
-            reco<QIE10DataFrame>(iEvent, iSetup, tok_qie10_hf_);
+            //KH reco<QIE10DataFrame>(iEvent, iSetup, tok_qie10_hf_);
             subdet_ = "noise";
             }
         }// all subdetectors
@@ -701,12 +701,12 @@ void HcalDigisValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
         reco<HBHEDataFrame > (iEvent, iSetup, tok_hbhe_);
         subdet_ = "HE";
         reco<HBHEDataFrame > (iEvent, iSetup, tok_hbhe_);
-        reco<QIE11DataFrame>(iEvent, iSetup, tok_qie11_hbhe_);
+        //KH reco<QIE11DataFrame>(iEvent, iSetup, tok_qie11_hbhe_);
         subdet_ = "HO";
         reco<HODataFrame > (iEvent, iSetup, tok_ho_);
         subdet_ = "HF";
         reco<HFDataFrame > (iEvent, iSetup, tok_hf_);
-        reco<QIE10DataFrame>(iEvent, iSetup, tok_qie10_hf_);
+        //KH reco<QIE10DataFrame>(iEvent, iSetup, tok_qie10_hf_);
         subdet_ = "all";
     }
 
@@ -920,6 +920,10 @@ template<class Digi> void HcalDigisValidation::reco(const edm::Event& iEvent, co
               << nevent1 << " " << nevent2 << " " << nevent3 << " "
               << nevent4 << std::endl;
      */
+
+    //KH     
+    std::cout << "QIE8 (" << subdet_ << "," << inputLabel_  << "): " << digiCollection->size() << std::endl;
+    //KH
 
     for (digiItr = digiCollection->begin(); digiItr != digiCollection->end(); digiItr++) {
 
@@ -1363,6 +1367,10 @@ template<class dataFrameType> void HcalDigisValidation::reco(const edm::Event& i
               << nevent1 << " " << nevent2 << " " << nevent3 << " "
               << nevent4 << std::endl;
      */
+
+    //KH     
+    std::cout << "QIE10/11 (" << subdet_ << "," << inputLabel_  << "): " << digiCollection->size() << std::endl;
+    //KH
 
     for (typename HcalDataFrameContainer<dataFrameType>::const_iterator digiItr = digiCollection->begin(); digiItr != digiCollection->end(); digiItr++) {
 
