@@ -674,7 +674,7 @@ void HcalDigisValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
        if (subdet_ == "HO") reco<HODataFrame > (iEvent, iSetup, tok_ho_);
        if (subdet_ == "HF"){
 	 reco<HFDataFrame > (iEvent, iSetup, tok_hf_);
-         //KH reco<QIE10DataFrame>(iEvent, iSetup, tok_qie10_hf_);
+	 reco<QIE10DataFrame>(iEvent, iSetup, tok_qie10_hf_);
        }
 
         if (subdet_ == "noise") {
@@ -690,7 +690,7 @@ void HcalDigisValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
             reco<HODataFrame > (iEvent, iSetup, tok_ho_);
             subdet_ = "HF";
             reco<HFDataFrame > (iEvent, iSetup, tok_hf_);
-            //KH reco<QIE10DataFrame>(iEvent, iSetup, tok_qie10_hf_);
+            reco<QIE10DataFrame>(iEvent, iSetup, tok_qie10_hf_);
             subdet_ = "noise";
             }
         }// all subdetectors
@@ -706,7 +706,7 @@ void HcalDigisValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
         reco<HODataFrame > (iEvent, iSetup, tok_ho_);
         subdet_ = "HF";
         reco<HFDataFrame > (iEvent, iSetup, tok_hf_);
-        //KH reco<QIE10DataFrame>(iEvent, iSetup, tok_qie10_hf_);
+        reco<QIE10DataFrame>(iEvent, iSetup, tok_qie10_hf_);
         subdet_ = "all";
     }
 
@@ -837,6 +837,7 @@ template<class Digi> void HcalDigisValidation::reco(const edm::Event& iEvent, co
     HcalCalibrations calibrations;
     CaloSamples tool;
     iEvent.getByToken(tok, digiCollection);
+    if (!digiCollection.isValid()) return;
 //    std::cout << "***************RECO*****************" << std::endl;
     int isubdet = 0;
     if (subdet_ == "HB") isubdet = 1;
@@ -1282,9 +1283,12 @@ template<class dataFrameType> void HcalDigisValidation::reco(const edm::Event& i
     // ADC2fC
     HcalCalibrations calibrations;
     CaloSamples tool;
+    std::cout << "getByToken begin" << std::endl;
     iEvent.getByToken(tok, digiHandle);
+    std::cout << "getByToken end" << std::endl;
+    if ( !digiHandle.isValid() ) return;
     const HcalDataFrameContainer<dataFrameType> *digiCollection = digiHandle.product();
-//    std::cout << "***************RECO*****************" << std::endl;
+    // std::cout << "***************RECO*****************" << std::endl;
     int isubdet = 0;
     if (subdet_ == "HB") isubdet = 1;
     if (subdet_ == "HE") isubdet = 2;
