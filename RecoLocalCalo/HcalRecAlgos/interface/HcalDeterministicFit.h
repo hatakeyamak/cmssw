@@ -119,9 +119,14 @@ void HcalDeterministicFit::apply(const CaloSamples & cs, const std::vector<int> 
   else if (fTimeSlew==2)respCorr=rCorr[1];
   else if (fTimeSlew==3)respCorr=frespCorr;
 
-  float tsShift3=HcalTimeSlew::delay(inputCharge[3], fTimeSlew, fTimeSlewBias, fpar0, fpar1 ,fpar2);
-  float tsShift4=HcalTimeSlew::delay(inputCharge[4], fTimeSlew, fTimeSlewBias, fpar0, fpar1 ,fpar2);
-  float tsShift5=HcalTimeSlew::delay(inputCharge[5], fTimeSlew, fTimeSlewBias, fpar0, fpar1 ,fpar2);
+  //!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  //DEAR HLT EXPERTS FORGIVE US
+  //WE KNOW NOT WHAT WE DO
+  //--C.Madrid J.Pastika
+  //!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  float tsShift3=0;//HcalTimeSlew::delay(inputCharge[3], fTimeSlew, fTimeSlewBias, fpar0, fpar1 ,fpar2);
+  float tsShift4=0;//HcalTimeSlew::delay(inputCharge[4], fTimeSlew, fTimeSlewBias, fpar0, fpar1 ,fpar2);
+  float tsShift5=0;//HcalTimeSlew::delay(inputCharge[5], fTimeSlew, fTimeSlewBias, fpar0, fpar1 ,fpar2);
 
   float i3=0;
   getLandauFrac(-tsShift3,-tsShift3+tsWidth,i3);
