@@ -19,6 +19,8 @@
 
 #include "RecoLocalCalo/HcalRecAlgos/src/HybridMinimizer.h"
 
+class HcalTimeSlew;
+
 namespace HcalConst{
 
    constexpr int maxSamples = 10;
@@ -83,7 +85,6 @@ namespace FitterFuncs{
      double invertpedSig_, invertpedSig2_;
      std::array<double,HcalConst::maxSamples> pulse_shape_;
      std::array<double,HcalConst::maxSamples> pulse_shape_sum_;
-
    };
    
 }
@@ -91,7 +92,7 @@ namespace FitterFuncs{
 class PulseShapeFitOOTPileupCorrection
 {
 public:
-    PulseShapeFitOOTPileupCorrection();
+    PulseShapeFitOOTPileupCorrection(const HcalTimeSlew* hcalTimeSlew_delay);
     ~PulseShapeFitOOTPileupCorrection();
 
     void phase1Apply(const HBHEChannelInfo& channelData,
@@ -167,6 +168,7 @@ private:
     bool dcConstraint_;
 
     bool isCurrentChannelHPD_;
+    const HcalTimeSlew* hcalTimeSlew_delay_;
 };
 
 #endif // PulseShapeFitOOTPileupCorrection_h
