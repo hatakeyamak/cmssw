@@ -25,6 +25,8 @@
 
 #include "RecoLocalCalo/HcalRecAlgos/interface/PedestalSub.h"
 
+#include "CalibCalorimetry/HcalAlgos/interface/HcalTimeSlew.h"
+
 /** \class HcalSimpleRecAlgo
 
    This class reconstructs RecHits from Digis for HBHE, HF, and HO by addition
@@ -75,10 +77,16 @@ public:
   HORecHit reconstruct(const HODataFrame& digi,  int first, int toadd, const HcalCoder& coder, const HcalCalibrations& calibs) const;
   HcalCalibRecHit reconstruct(const HcalCalibDataFrame& digi,  int first, int toadd, const HcalCoder& coder, const HcalCalibrations& calibs) const;
 
+  ////////////////////
+  //Sorry for this
+  //C.Madrid
+  ///////////////////
+  const HcalTimeSlew* hcalTimeSlew_delay_ = new HcalTimeSlew();  
+
   void setpuCorrMethod(int method){ 
     puCorrMethod_ = method;
     if( puCorrMethod_ == 2 )
-        psFitOOTpuCorr_ = std::make_unique<PulseShapeFitOOTPileupCorrection>();
+        psFitOOTpuCorr_ = std::make_unique<PulseShapeFitOOTPileupCorrection>(hcalTimeSlew_delay_);
   }
 
   void setpuCorrParams(bool   iPedestalConstraint, bool iTimeConstraint,bool iAddPulseJitter,bool iApplyTimeSlew,
