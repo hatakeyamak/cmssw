@@ -106,19 +106,19 @@ void HcalDeterministicFit::apply(const CaloSamples & cs, const std::vector<int> 
   //--C.Madrid J.Pastika
   //!!!!!!!!!!!!!!!!!!!!!!!!!!!
   //double fpar0, fpar1, fpar2;
-  //if(std::abs(cell.ieta())<HcalRegion[0]){
+  if(std::abs(cell.ieta())<HcalRegion[0]){
   //  fpar0 = fpars[0];
   //  fpar1 = fpars[1];
   //  fpar2 = fpars[2];
-  //}else if(std::abs(cell.ieta())==HcalRegion[0]||std::abs(cell.ieta())==HcalRegion[1]){
+  }else if(std::abs(cell.ieta())==HcalRegion[0]||std::abs(cell.ieta())==HcalRegion[1]){
   //  fpar0 = fpars[3];
   //  fpar1 = fpars[4];
   //  fpar2 = fpars[5];
-  //}else{
+  }else{
   //  fpar0 = fpars[6];
   //  fpar1 = fpars[7];
   //  fpar2 = fpars[8];
-  //}
+  }
 
   if (fTimeSlew==0)respCorr=1.0;
   else if (fTimeSlew==1)respCorr=rCorr[0];
