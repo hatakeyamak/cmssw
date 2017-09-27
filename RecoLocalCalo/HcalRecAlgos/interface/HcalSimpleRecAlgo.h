@@ -81,12 +81,12 @@ public:
   //Sorry for this
   //C.Madrid
   ///////////////////
-  const HcalTimeSlew* hcalTimeSlew_delay_ = new HcalTimeSlew();  
+  const HcalTimeSlew* hcaltimeslew_delay_ = new HcalTimeSlew();  
 
   void setpuCorrMethod(int method){ 
     puCorrMethod_ = method;
     if( puCorrMethod_ == 2 )
-        psFitOOTpuCorr_ = std::make_unique<PulseShapeFitOOTPileupCorrection>(hcalTimeSlew_delay_);
+        psFitOOTpuCorr_ = std::make_unique<PulseShapeFitOOTPileupCorrection>(hcaltimeslew_delay_);
   }
 
   void setpuCorrParams(bool   iPedestalConstraint, bool iTimeConstraint,bool iAddPulseJitter,bool iApplyTimeSlew,
@@ -115,6 +115,8 @@ private:
   HcalPulseShapes theHcalPulseShapes_;
 
   int puCorrMethod_;
+
+  const HcalTimeSlew* hcalTimeSlew_delay_;
 
   std::unique_ptr<PulseShapeFitOOTPileupCorrection> psFitOOTpuCorr_;
   

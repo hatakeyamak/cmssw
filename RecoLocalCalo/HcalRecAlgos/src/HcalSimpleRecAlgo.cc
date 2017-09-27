@@ -5,6 +5,9 @@
 #include "RecoLocalCalo/HcalRecAlgos/interface/rawEnergy.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalCorrectionFunctions.h"
 #include "DataFormats/METReco/interface/HcalCaloFlagLabels.h"
+#include "CalibCalorimetry/HcalPlugins/src/HcalTimeSlewEP.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 
 #include <algorithm>
 #include <cmath>
@@ -24,11 +27,16 @@ HcalSimpleRecAlgo::HcalSimpleRecAlgo(bool correctForTimeslew, bool correctForPul
   pulseCorr_ = std::make_unique<HcalPulseContainmentManager>(MaximumFractionalError);
   pedSubFxn_ = std::make_unique<PedestalSub>();
   hltOOTpuCorr_ = std::make_unique<HcalDeterministicFit>();
+  hcalTimeSlew_delay_ = nullptr;
 }
 
 
 void HcalSimpleRecAlgo::beginRun(edm::EventSetup const & es)
 {
+  edm::ESHandle<HcalTimeSlew> delay;
+  es.get<HcalTimeSlewRecord>().get("", delay);
+  hcalTimeSlew_delay_ = &*delay;
+
   pulseCorr_->beginRun(es);
 }
 
@@ -347,11 +355,7 @@ namespace HcalSimpleRecAlgoImpl {
       if (wpksamp!=0) wpksamp=(maxA + 2.0*t2) / wpksamp; 
       time = (maxI - digi.presamples())*25.0 + timeshift_ns_hbheho(wpksamp);
 
-      //------------------------
-      //Sorry for this
-      //-C.Madrid
-      //------------------------
-      if (slewCorrect) time-=0; //HcalTimeSlew::delay(std::max(1.0,fc_ampl),slewFlavor);
+      if (slewCorrect) time-=hcalTimeSlew_delay_->delay(std::max(1.0,fc_ampl),slewFlavor);
 	  
       time=time-calibs.timecorr(); // time calibration
     }
@@ -451,11 +455,7 @@ namespace HcalSimpleRecAlgoImpl {
 	float wpksamp = (t0 + maxA + t2);
 	if (wpksamp!=0) wpksamp=(maxA + 2.0*t2) / wpksamp; 
 	time = (maxI - digi.presamples())*25.0 + timeshift_ns_hbheho(wpksamp);
-	//---------------------------
-	//Sorry for this
-	//C.Madrid
-	//---------------------------
-	if (slewCorrect) time-=0; //HcalTimeSlew::delay(std::max(1.0,fc_ampl),slewFlavor);
+	if (slewCorrect) time-=hcalTimeSlew_delay_->delay(std::max(1.0,fc_ampl),slewFlavor);
 	
 	time=time-calibs.timecorr(); // time calibration
       }
