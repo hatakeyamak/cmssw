@@ -81,7 +81,7 @@ public:
   //Sorry for this
   //C.Madrid
   ///////////////////
-  const HcalTimeSlew* hcaltimeslew_delay_ = new HcalTimeSlew();  
+  const HcalTimeSlew* hcaltimeslew_delay_ = nullptr;;  
 
   void setpuCorrMethod(int method){ 
     puCorrMethod_ = method;
