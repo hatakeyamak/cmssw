@@ -3,18 +3,31 @@
 #include <climits>
 #include "RecoLocalCalo/HcalRecAlgos/interface/PulseShapeFitOOTPileupCorrection.h"
 #include "FWCore/Utilities/interface/isFinite.h"
+#include "CalibCalorimetry/HcalAlgos/interface/HcalTimeSlew.h"
 
 namespace FitterFuncs{
 
   //Decalare the Pulse object take it in from Hcal and set some options
   PulseShapeFunctor::PulseShapeFunctor(const HcalPulseShapes::Shape& pulse,
-				       bool iPedestalConstraint, bool iTimeConstraint,bool iAddPulseJitter,bool iAddTimeSlew,
-				       double iPulseJitter,double iTimeMean,double iTimeSig,double iPedMean,double iPedSig,
-				       double iNoise,unsigned nSamplesToFit) :
-    cntNANinfit(0),
-    acc25nsVec(HcalConst::maxPSshapeBin), diff25nsItvlVec(HcalConst::maxPSshapeBin),
-    accVarLenIdxZEROVec(HcalConst::nsPerBX), diffVarItvlIdxZEROVec(HcalConst::nsPerBX), 
-    accVarLenIdxMinusOneVec(HcalConst::nsPerBX), diffVarItvlIdxMinusOneVec(HcalConst::nsPerBX) {
+				       bool iPedestalConstraint, 
+				       bool iTimeConstraint,
+				       bool iAddPulseJitter,
+				       bool iAddTimeSlew,
+				       double iPulseJitter,
+				       double iTimeMean,
+				       double iTimeSig,
+				       double iPedMean,
+				       double iPedSig,
+				       double iNoise 
+				       )
+    : cntNANinfit(0),
+    acc25nsVec(HcalConst::maxPSshapeBin), 
+    diff25nsItvlVec(HcalConst::maxPSshapeBin),
+    accVarLenIdxZEROVec(HcalConst::nsPerBX), 
+    diffVarItvlIdxZEROVec(HcalConst::nsPerBX), 
+    accVarLenIdxMinusOneVec(HcalConst::nsPerBX), 
+    diffVarItvlIdxMinusOneVec(HcalConst::nsPerBX)
+  {
     //The raw pulse
     for(int i=0;i<HcalConst::maxPSshapeBin;++i) pulse_hist[i] = pulse(i);
     // Accumulate 25ns for each starting point of 0, 1, 2, 3...
@@ -210,12 +223,30 @@ namespace FitterFuncs{
   }
 }
 
-PulseShapeFitOOTPileupCorrection::PulseShapeFitOOTPileupCorrection() : cntsetPulseShape(0),
-								       psfPtr_(nullptr), spfunctor_(nullptr), dpfunctor_(nullptr), tpfunctor_(nullptr),
-								       TSMin_(0), TSMax_(0), vts4Chi2_(0), pedestalConstraint_(false),
-								       timeConstraint_(false), addPulseJitter_(false), applyTimeSlew_(false),
-								       ts4Min_(0), vts4Max_(0), pulseJitter_(0), timeMean_(0), timeSig_(0), pedMean_(0), pedSig_(0),
-								       noise_(0), dcConstraint_(false) {
+PulseShapeFitOOTPileupCorrection::PulseShapeFitOOTPileupCorrection(const HcalTimeSlew* hcalTimeSlew_delay) 
+    : cntsetPulseShape(0),
+      psfPtr_(nullptr), 
+      spfunctor_(nullptr), 
+      dpfunctor_(nullptr), 
+      tpfunctor_(nullptr),
+      TSMin_(0), 
+      TSMax_(0), 
+      vts4Chi2_(0), 
+      pedestalConstraint_(0),
+      timeConstraint_(0), 
+      addPulseJitter_(0), 
+      applyTimeSlew_(0),
+      ts4Min_(0), 
+      vts4Max_(0), 
+      pulseJitter_(0), 
+      timeMean_(0), 
+      timeSig_(0), 
+      pedMean_(0), 
+      pedSig_(0),
+      noise_(0),
+      hcalTimeSlew_delay_(hcalTimeSlew_delay)
+{
+
    hybridfitter = new PSFitter::HybridMinimizer(PSFitter::HybridMinimizer::kMigrad);
    iniTimesArr = { {-100,-75,-50,-25,0,25,50,75,100,125} };
 }
@@ -384,12 +415,7 @@ int PulseShapeFitOOTPileupCorrection::pulseShapeFit(const double * energyArr, co
       tmpy[i]=energyArr[i]-pedenArr[i];
       //Add Time Slew !!! does this need to be pedestal subtracted
       tmpslew[i] = 0;
-      //!!!!!!!!!!!!!!!!!!!!!!!
-      //SORRY, RECO EXPERTS
-      //WE KNOW NOT WHAT WE DO
-      //--C.Madrid and J.Pastika
-      //!!!!!!!!!!!!!!!!!!!!!!!!
-      if(applyTimeSlew_) tmpslew[i] = 0;//HcalTimeSlew::delay(std::max(1.0,chargeArr[i]),slewFlavor_); 
+      if(applyTimeSlew_) tmpslew[i] = hcalTimeSlew_delay_->delay(std::max(1.0,chargeArr[i]),slewFlavor_); 
       // add the noise components
       tmperry2[i]=noiseArrSq[i];
 
