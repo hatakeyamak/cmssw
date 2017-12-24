@@ -7,7 +7,8 @@ CaloTowersValidation::CaloTowersValidation(edm::ParameterSet const& conf)
 {
 
   tok_calo_ = consumes<CaloTowerCollection>(conf.getUntrackedParameter<edm::InputTag>("CaloTowerCollectionLabel"));
-    tok_evt_ = consumes<edm::HepMCProduct>(edm::InputTag("generatorSmeared"));
+  tok_evt_  = consumes<edm::HepMCProduct>(edm::InputTag("generatorSmeared"));
+  tok_pflow_ = consumes<std::vector<reco::PFCandidate> >(conf.getUntrackedParameter<edm::InputTag>("PFCandidateCollectionLabel"));
 
   // DQM ROOT output
   outputFile_ = conf.getUntrackedParameter<std::string>("outputFile", "myfile.root");
@@ -443,6 +444,9 @@ void CaloTowersValidation::analyze(edm::Event const& event, edm::EventSetup cons
 	event.getByToken(tok_calo_,towers);
 	CaloTowerCollection::const_iterator cal;
 
+	edm::Handle<std::vector<reco::PFCandidate> > pFlow;
+	event.getByToken(tok_pflow_, pFlow);
+
 	double met;
 	double phimet;
 
@@ -803,6 +807,45 @@ void CaloTowersValidation::analyze(edm::Event const& event, edm::EventSetup cons
 			phiMET_HF -> Fill (phimet);
 		}
 	}
+
+	//
+	// Simple check of PF candidates
+	//
+	// (re)initialize before going into pflow loop
+	Rmin = 9999.;
+	double eta_PF =  100.;
+	double phi_PF =  100.;
+	double p_PF   = -100.;
+	//reco::PFCandidate::ParticleType p_type = NONE;
+	int32_t p_type = 0;
+	if (imc != 0){
+	  std::cout << pFlow->size() << std::endl;
+	  for (unsigned int i = 0; i < pFlow->size(); i++) {
+	    const reco::PFCandidate& c = pFlow->at(i);
+
+	    double r    = dR(eta_MC, phi_MC, c.eta(), c.phi());
+
+	    if( r < partR ){
+
+	      // closest to MC
+	      if(r < Rmin) { 
+		
+	    	Rmin = r;
+	    	eta_PF = c.eta();
+	    	phi_PF = c.phi();
+	    	p_PF = c.p();
+	    	p_type = c.pdgId();
+	      }
+	    }
+	  } // looping over pf candidates
+	} // MC
+	std::cout << Rmin << " "
+		  << eta_PF << " "
+		  << phi_PF << " "
+		  << p_PF << " "
+		  << p_type << std::endl;
+	std::cout << eta_MC << " "
+		  << phi_MC << std::endl;
 
 }
 

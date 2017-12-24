@@ -13,12 +13,14 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerDetId.h"
 #include "DataFormats/Math/interface/Vector3D.h"
 
 #include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
+
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
 #include <vector>
@@ -49,6 +51,7 @@ class CaloTowersValidation : public DQMEDAnalyzer {
 
   edm::EDGetTokenT<CaloTowerCollection> tok_calo_;
   edm::EDGetTokenT<edm::HepMCProduct> tok_evt_;
+  edm::EDGetTokenT<std::vector<reco::PFCandidate> > tok_pflow_;
 
   int isub;
   int nevent;
