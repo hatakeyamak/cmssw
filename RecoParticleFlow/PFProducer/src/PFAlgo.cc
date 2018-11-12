@@ -475,7 +475,13 @@ void PFAlgo::reconstructParticles( const reco::PFBlockCollection& blocks ) {
     cout<<"*****           Particle flow algorithm             *****"<<endl;
     cout<<"*********************************************************"<<endl;
   }
-
+  //KH
+  cout<<"*********************************************************"<<endl;
+  cout<<"*****           Particle flow algorithm             *****"<<endl;
+  cout<<"*********************************************************"<<endl;
+  cout<<"block size: " << blocks.size() << std::endl;
+  //KH
+  
   // sort elements in three lists:
   std::list< reco::PFBlockRef > hcalBlockRefs;
   std::list< reco::PFBlockRef > ecalBlockRefs;
@@ -518,31 +524,81 @@ void PFAlgo::reconstructParticles( const reco::PFBlockCollection& blocks ) {
         <<", # HO blocks: "<<hoBlockRefs.size()
         <<", # Other blocks: "<<otherBlockRefs.size()<<endl;
   }
-
+  //KH
+  cout<<"# Ecal blocks: "<<ecalBlockRefs.size()
+      <<", # Hcal blocks: "<<hcalBlockRefs.size()
+      <<", # HO blocks: "<<hoBlockRefs.size()
+      <<", # Other blocks: "<<otherBlockRefs.size()<<endl;
+  //KH						       
 
   // loop on blocks that are not single ecal, 
   // and not single hcal.
 
   unsigned nblcks = 0;
+  unsigned int size_prev=0;//KH
   for( IBR io = otherBlockRefs.begin(); io!=otherBlockRefs.end(); ++io) {
     if ( debug_ ) std::cout << "Block number " << nblcks++ << std::endl; 
+    //KH-starts
+    std::cout << "Block number: " << nblcks++ << std::endl; 
+    //KH-ends
     processBlock( *io, hcalBlockRefs, ecalBlockRefs );
+    //KH-starts
+    std::cout << "pfCandidates_.size(): " << (*pfCandidates_).size() << std::endl;
+    for (unsigned int i=size_prev; i<(*pfCandidates_).size(); i++){
+      std::cout << "  id,pt,eta,phi: "
+	<< (*pfCandidates_)[i].particleId() << " "
+	<< (*pfCandidates_)[i].pt() << " "
+	<< (*pfCandidates_)[i].eta() << " " 
+	<< (*pfCandidates_)[i].phi() << std::endl;
+    }
+    size_prev = (*pfCandidates_).size();
+    //KH-ends
   }
 
   std::list< reco::PFBlockRef > empty;
 
   unsigned hblcks = 0;
+  size_prev=0;//KH
   // process remaining single hcal blocks
   for( IBR ih = hcalBlockRefs.begin(); ih!=hcalBlockRefs.end(); ++ih) {
     if ( debug_ ) std::cout << "HCAL block number " << hblcks++ << std::endl;
+    //KH-starts
+    std::cout << "HCAL block number " << hblcks++ << std::endl;    
+    //KH-ends
     processBlock( *ih, empty, empty );
+    //KH-starts
+    std::cout << "pfCandidates_.size(): " << (*pfCandidates_).size() << std::endl;
+    for (unsigned int i=size_prev; i<(*pfCandidates_).size(); i++){
+      std::cout << "  id,pt,eta,phi: "
+	<< (*pfCandidates_)[i].particleId() << " "
+	<< (*pfCandidates_)[i].pt() << " "
+	<< (*pfCandidates_)[i].eta() << " " 
+	<< (*pfCandidates_)[i].phi() << std::endl;
+    }
+    size_prev = (*pfCandidates_).size();
+    //KH-ends
   }
 
   unsigned eblcks = 0;
+  size_prev=0;//KH
   // process remaining single ecal blocks
   for( IBR ie = ecalBlockRefs.begin(); ie!=ecalBlockRefs.end(); ++ie) {
     if ( debug_ ) std::cout << "ECAL block number " << eblcks++ << std::endl;
+    //KH-starts
+    std::cout << "ECAL block number " << hblcks++ << std::endl;    
+    //KH-ends
     processBlock( *ie, empty, empty );
+    //KH-starts
+    std::cout << "pfCandidates_.size(): " << (*pfCandidates_).size() << std::endl;
+    for (unsigned int i=size_prev; i<(*pfCandidates_).size(); i++){
+      std::cout << "  id,pt,eta,phi: "
+	<< (*pfCandidates_)[i].particleId() << " "
+	<< (*pfCandidates_)[i].pt() << " "
+	<< (*pfCandidates_)[i].eta() << " " 
+	<< (*pfCandidates_)[i].phi() << std::endl;
+    }
+    size_prev = (*pfCandidates_).size();
+    //KH-ends
   }
 
   // Post HF Cleaning
@@ -576,7 +632,11 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
     cout<<"#########################################################"<<endl;
     cout<<block<<endl;
   }
-
+  //KH
+  cout<<"#########################################################"<<endl;
+  cout<<"#####           Process Block:                      #####"<<endl;
+  cout<<"#########################################################"<<endl;
+  cout<<block<<endl;
 
   const edm::OwnVector< reco::PFBlockElement >& elements = block.elements();
   // make a copy of the link data, which will be edited.
