@@ -353,7 +353,6 @@ void
 PFAlgo::setMuonHandle(const edm::Handle<reco::MuonCollection>& muons) {
   muonHandle_ = muons;
 }
-
   
 void 
 PFAlgo::setPostHFCleaningParameters(bool postHFCleaning,
@@ -388,7 +387,6 @@ PFAlgo::setDisplacedVerticesParameters(bool rejectTracks_Bad,
   dptRel_DispVtx_ = dptRel_DispVtx;
 
 }
-
 
 void
 PFAlgo::setPFVertexParameters(bool useVertex,
@@ -433,14 +431,11 @@ PFAlgo::setPFVertexParameters(bool useVertex,
   }
 }
 
-
 void PFAlgo::reconstructParticles( const reco::PFBlockHandle& blockHandle ) {
 
   blockHandle_ = blockHandle;
   reconstructParticles( *blockHandle_ ); 
 }
-
-
 
 void PFAlgo::reconstructParticles( const reco::PFBlockCollection& blocks ) {
 
@@ -1505,8 +1500,10 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
         associatePSClusters(index, reco::PFBlockElement::PS1, block, elements, linkData, active, ps1Ene);
         vector<double> ps2Ene(1,static_cast<double>(0.));
         associatePSClusters(index, reco::PFBlockElement::PS2, block, elements, linkData, active, ps2Ene);        
-        
-	double ecalEnergy = clusterRef->correctedEnergy();
+
+	// KH: use raw ECAL energy for PF hadron calibration. use calibrated ECAL energy when adding PF photons
+	double ecalEnergy = clusterRef->energy();
+	double ecalEnergyCalibrated = clusterRef->correctedEnergy(); // calibrated based on the egamma hypothesis
 	if ( debug_ )
 	  std::cout << "Corrected ECAL(+PS) energy = " << ecalEnergy << std::endl;
 
@@ -1546,8 +1543,8 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 				    reco::PFBlock::LINKTEST_ALL );
 
 
-	  unsigned tmpe = reconstructCluster( *clusterRef, ecalEnergy ); 
-	  (*pfCandidates_)[tmpe].setEcalEnergy( clusterRef->energy(), ecalEnergy );
+	  unsigned tmpe = reconstructCluster( *clusterRef, ecalEnergyCalibrated ); 
+	  (*pfCandidates_)[tmpe].setEcalEnergy( clusterRef->energy(), ecalEnergyCalibrated );
 	  (*pfCandidates_)[tmpe].setHcalEnergy( 0., 0. );
 	  (*pfCandidates_)[tmpe].setHoEnergy( 0., 0. );
 	  (*pfCandidates_)[tmpe].setPs1Energy( ps1Ene[0] );
@@ -1850,9 +1847,11 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
     std::multimap<double, std::pair<unsigned,bool> > associatedTracks;
     
     // A temporary maps for ECAL satellite clusters
-    std::multimap<double,std::pair<unsigned,::math::XYZVector> > ecalSatellites;
+    std::multimap<double,std::pair<unsigned,::math::XYZVector> > ecalSatellites; 
+    std::multimap<double,std::pair<unsigned,::math::XYZVector> > ecalSatellitesCalibrated; // under the egamma hypothesis
     std::pair<unsigned,::math::XYZVector> fakeSatellite(iHcal,::math::XYZVector(0.,0.,0.));
     ecalSatellites.emplace(-1., fakeSatellite);
+    ecalSatellitesCalibrated.emplace(-1., fakeSatellite);
 
     std::multimap< unsigned, std::pair<double, unsigned> > associatedHOs;
     
@@ -2152,7 +2151,8 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	    // float ecalEnergyUnCalibrated = eclusterref->energy();
 	    //std::cout << "Ecal Uncalibrated " << ecalEnergyUnCalibrated << std::endl;
 
-	    float ecalEnergyCalibrated = eclusterref->correctedEnergy();
+	    float ecalEnergyCalibrated = eclusterref->correctedEnergy(); // calibrated based on the egamma hypothesis
+	    float ecalEnergy = eclusterref->energy();
 	    ::math::XYZVector photonDirection(eclusterref->position().X(),
 					    eclusterref->position().Y(),
 					    eclusterref->position().Z());
@@ -2167,13 +2167,19 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	      // PJ 1st-April-09 : To be done somewhere !!! (Had to comment it, but it is needed)
 	      // currentChargedHadron.addElementInBlock( blockref, iEcal );
        
-	      std::pair<unsigned,::math::XYZVector> satellite(iEcal,ecalEnergyCalibrated*photonDirection);
+	      // KH: we don't know if this satellite is due to egamma or hadron shower. use raw energy for PF hadron calibration. 
+	      std::pair<unsigned,::math::XYZVector> satellite(iEcal,ecalEnergy*photonDirection);
 	      ecalSatellites.emplace(-1., satellite);
+	      std::pair<unsigned,::math::XYZVector> satelliteCalib(iEcal,ecalEnergyCalibrated*photonDirection);
+	      ecalSatellitesCalibrated.emplace(-1., satelliteCalib);
 
 	    } else { // Keep satellite clusters for later
 	      
-	      std::pair<unsigned,::math::XYZVector> satellite(iEcal,ecalEnergyCalibrated*photonDirection);
+	      // KH: same as above.
+	      std::pair<unsigned,::math::XYZVector> satellite(iEcal,ecalEnergy*photonDirection);
 	      ecalSatellites.emplace(dist, satellite);
+	      std::pair<unsigned,::math::XYZVector> satelliteCalib(iEcal,ecalEnergyCalibrated*photonDirection);
+	      ecalSatellitesCalibrated.emplace(dist, satelliteCalib);
 	      
 	    }
 	    
@@ -2788,7 +2794,8 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
       if ( mergedPhotonEnergy > 0 ) {
           // Split merged photon into photons for each energetic ecal cluster (necessary for jet substructure reconstruction)
           // make only one merged photon if less than 2 ecal clusters
-          if ( ecalClusters.size()<=1 ) {
+	  // KH: this part still needs review, after using non-corrected ECAL energy for PF hadron calibrations
+	if ( ecalClusters.size()<=1 ) {
             ecalClusters.clear();
             ecalClusters.emplace_back(maxiEcal, photonAtECAL);
             sumEcalClusters=sqrt(photonAtECAL.Mag2());
@@ -3070,8 +3077,10 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
       reco::PFClusterRef eclusterRef = elements[iEcal].clusterRef();
       assert( !eclusterRef.isNull() );
 
-      double ecalEnergy = eclusterRef->correctedEnergy();
-      
+      // KH: use raw ECAL energy for PF hadron calibration. 
+      double ecalEnergy = eclusterRef->energy();
+      // KH: ecalEnergy = eclusterRef->correctedEnergy();
+
       //std::cout << "EcalEnergy, ps1, ps2 = " << ecalEnergy 
       //          << ", " << ps1Ene[0] << ", " << ps2Ene[0] << std::endl;
       totalEcal += ecalEnergy;
