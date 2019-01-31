@@ -627,3 +627,7 @@ workflows[280]= ['',['AMPT_PPb_5020GeV_MinimumBias','DIGI','RECO','HARVEST']]
 
 ### pPb Run2 ###
 workflows[281]= ['',['EPOS_PPb_8160GeV_MinimumBias','DIGIUP15_PPb','RECOUP15_PPb','HARVESTUP15_PPb']]
+
+#doesn't actually work, since the dataset is not located at CERN and xrootd fails
+workflows[1370] = ['', ['QCD_FlatPt_15_3000HS_13INPUT_DIGIRAW','RECOUP17','HARVESTUP17']]
+
