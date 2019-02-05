@@ -56,10 +56,10 @@ def pf_resolution(sforig, treepath):
    for etaidx in range(len(etabins)):
       
       apdx = etadict[etabins[etaidx][1]]
-      preso = r.TProfile("preso_%s" % apdx,
+      preso = r.TH1D("preso_%s" % apdx,
           "Jet pT resolution, eta=[{0}, {1}]".format(etabins[etaidx][0], etabins[etaidx][1]),nptbins,ptbins
       )
-      response_pt = r.TProfile("presponse_%s" % apdx,
+      response_pt = r.TH1D("presponse_%s" % apdx,
           "Jet pT response, eta=[{0}, {1}]".format(etabins[etaidx][0], etabins[etaidx][1]),nptbins,ptbins
       )
       
@@ -70,24 +70,28 @@ def pf_resolution(sforig, treepath):
          h = forig.Get("%sreso_dist_%i_%i_%s" % (treepath,elow,ehigh,apdx))
          
          std = h.GetStdDev()
-         err = h.GetStdDevError()
-
-
+         std_error = h.GetStdDevError()
+          
          # Scale each bin with mean response
-         mean = 1;
+         mean = 1.0
+         mean_error = 0.0
          if (h.GetMean()>0):
             mean = h.GetMean()
+            mean_error = h.GetMeanError()
+         err = 0.0
+         if std > 0.0 and mean > 0.0: 
+             err = std/mean * math.sqrt(std_error**2 / std**2 + mean_error**2 / mean**2)
 
          #fill the pt-dependent resolution plot
-         preso.Fill(elow,std/mean)
-         preso.SetBinError(idx,err)
+         preso.SetBinContent(idx, std/mean)
+         preso.SetBinError(idx, err)
         
          #fill the pt-dependent response plot with the mean of the response.
-         #We quote the standard error of the mean (stddev / sqrt(n))
-         response_pt.Fill(elow, mean)
-         #if h.GetEntries() > 0:
-         #    #currently override errors, as we will be comparing the same events, so MC stats will be fully correlated
-         #    response_pt.SetBinError(idx, 0.0 * std/math.sqrt(h.GetEntries()))
+         response_pt.SetBinContent(idx, mean)
+         err2 = 0.0
+         if std > 0.0 and mean > 0.0: 
+             err2 = mean * math.sqrt(std_error**2 / std**2 + mean_error**2 / mean**2)
+         response_pt.SetBinError(idx, err2)
          
       fout.Write()
    fout.Close()   

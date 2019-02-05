@@ -108,8 +108,9 @@ def main():
     plot_opts = {
         "reso_pt": {"xlog": True},
         "response_pt": {"xlog": True},
-        "response_10_24": {"stat": True}
     }
+    for iptbin in range(len(ptbins)-1):
+        plot_opts["response_{0:.0f}_{1:.0f}".format(ptbins[iptbin], ptbins[iptbin+1])] = {"stat": True}
 
     samples, plots = parse_args()
 

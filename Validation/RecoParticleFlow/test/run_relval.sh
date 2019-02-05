@@ -4,7 +4,8 @@
 #https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideCmsDriver
 #https://twiki.cern.ch/twiki/bin/view/CMSPublic/WorkBookDataFormats
 
-#env
+hostname
+env
 
 #abort on error
 set +e
@@ -103,8 +104,8 @@ elif [ $STEP == "DQM" ]; then
     
     #get all the filenames and make them into a python-compatible list of strings
     #STEP3FNS=`ls -1 step3*MINIAODSIM*.root | sed 's/^/"file:/;s/$/",/' | tr '\n' ' '`
-    ls -1 step3*MINIAODSIM*.root | sed 's/^/file:/' > step3_filelist.txt
-    echo "step3 filenames for DQM: "$STEP3FNS
+    du step3*MINIAODSIM*.root | grep -v "^0" | awk '{print $2}' | sed 's/^/file:/' > step3_filelist.txt
+    cat step3_filelist.txt 
 
     #Run the DQM sequences (PF DQM only)
     #override the filenames here as cmsDriver does not allow multiple input files and there is no easy way to merge EDM files
