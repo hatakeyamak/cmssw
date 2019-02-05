@@ -122,12 +122,14 @@ class Dataset:
 
 if __name__ == "__main__":
 
-    #xrootd = "root://cmsxrootd.fnal.gov//"
-    xrootd = "root://xrootd-cms.infn.it//"
+    prefix = "root://cmsxrootd.fnal.gov//"
+    #prefix = "root://xrootd-cms.infn.it//"
     tmpdir = "tmp"
     datasets = [
-        Dataset("/RelValQCD_FlatPt_15_3000HS_13/CMSSW_10_4_0_pre4-103X_mc2017_realistic_v2-v1/GEN-SIM-DIGI-RAW", "QCD_FlatPt_noPU", xrootd, None, False, tmpdir),
-        Dataset("/RelValQCD_FlatPt_15_3000HS_13/CMSSW_10_4_0_pre4-PU25ns_103X_mc2017_realistic_v2-v1/GEN-SIM-DIGI-RAW", "QCD_FlatPt_PU25ns", xrootd, None, False, tmpdir)
+        Dataset("/RelValQCD_FlatPt_15_3000HS_13/CMSSW_10_4_0_pre4-103X_mc2017_realistic_v2-v1/GEN-SIM-DIGI-RAW", "QCD_FlatPt_noPU", prefix, None, False, tmpdir),
+        Dataset("/RelValQCD_FlatPt_15_3000HS_13/CMSSW_10_4_0_pre4-PU25ns_103X_mc2017_realistic_v2-v1/GEN-SIM-DIGI-RAW", "QCD_FlatPt_PU25ns", prefix, None, False, tmpdir),
+        Dataset("/RelValZMM_13/CMSSW_10_4_0_pre4-103X_mc2017_realistic_v2-v1/GEN-SIM-DIGI-RAW", "ZMM", prefix, None, False, tmpdir),
+        Dataset("/RelValMinBias_13/CMSSW_10_4_0_pre4-103X_mc2017_realistic_v2-v1/GEN-SIM-DIGI-RAW", "MinBias", prefix, None, False, tmpdir)
     ]
     
     for ds in datasets:

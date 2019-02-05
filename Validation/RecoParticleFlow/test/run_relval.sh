@@ -6,6 +6,7 @@
 
 hostname
 env
+voms-proxy-info
 
 #abort on error
 set +e
@@ -53,8 +54,14 @@ if [ "$1" == "QCD" ]; then
 elif [ "$1" == "QCDPU" ]; then
     INPUT_FILELIST=${CMSSW_BASE}/src/Validation/RecoParticleFlow/tmp/das_cache/QCD_FlatPt_PU25ns/RelValQCD_FlatPt_15_3000HS_13__CMSSW_10_4_0_pre4-PU25ns_103X_mc2017_realistic_v2-v1__GEN-SIM-DIGI-RAW.txt
     NAME=QCDPU
+elif [ "$1" == "ZMM" ]; then
+    INPUT_FILELIST=${CMSSW_BASE}/src/Validation/RecoParticleFlow/tmp/das_cache/ZMM/RelValZMM_13__CMSSW_10_4_0_pre4-103X_mc2017_realistic_v2-v1__GEN-SIM-DIGI-RAW.txt
+    NAME=ZMM
+elif [ "$1" == "MinBias" ]; then
+    INPUT_FILELIST=${CMSSW_BASE}/src/Validation/RecoParticleFlow/tmp/das_cache/MinBias/RelValMinBias_13__CMSSW_10_4_0_pre4-103X_mc2017_realistic_v2-v1__GEN-SIM-DIGI-RAW.txt
+    NAME=MinBias
 else
-    echo "Argument 1 must be [QCD|QCDPU] but was $1"
+    echo "Argument 1 must be [QCD|QCDPU|ZMM|MinBias] but was $1"
     exit 1
 fi
 

@@ -31,6 +31,7 @@ plots:
 	python test/compare.py --sample FlatQCD_noPU:${TMPDIR}/QCD/DQMTotal.root:${TMPDIR}/QCD/DQMTotal.root \
                 --sample FlatQCD_PU25ns:${TMPDIR}/QCDPU/DQMTotal.root:${TMPDIR}/QCDPU/DQMTotal.root \
                 --sample FlatQCD:${TMPDIR}/QCD/DQMTotal.root:${TMPDIR}/QCDPU/DQMTotal.root \
+                --sample MinBias:${TMPDIR}/MinBias/DQMTotal.root:${TMPDIR}/MinBias/DQMTotal.root \
 		--doResponsePlots
 
 .PHONY: QCD_reco QCD_dqm QCD_post plots
