@@ -25,16 +25,13 @@ KDTreeLinkerTrackHF::~KDTreeLinkerTrackHF()
 void
 KDTreeLinkerTrackHF::insertTargetElt(reco::PFBlockElement	*track)
 {
-  //KH
-  std::cout << "KDTreeLinkerTrackHF::insertTargetElt " << track->trackRef()->pt() << " " << track->trackRef()->eta() << std::endl;
+
+  //KH - need to think if this is a good cut. At least, it should be less hardcoded ideally.
   if (fabs(track->trackRef()->eta())<3.0) return;
   
   if( track->trackRefPF()->extrapolatedPoint( reco::PFTrajectoryPoint::VFcalEntrance ).isValid() ) {
-    std::cout << "KDTreeLinkerTrackHF::insertTargetElt - isValid" << std::endl;
     targetSet_.insert(track);
   }
-
-  std::cout << "KDTreeLinkerTrackHF::insertTargetElt ends" << std::endl;
 
 }
 
@@ -44,11 +41,6 @@ KDTreeLinkerTrackHF::insertFieldClusterElt(reco::PFBlockElement	*hfCluster)
 {
   const reco::PFClusterRef& clusterref = hfCluster->clusterRef();
 
-  //KH
-  std::cout << "KDTreeLinkerTrackHF::insertFieldClusterElt "
-	    << clusterref->layer() << " "
-	    << std::endl;
-  
   // This test is more or less done in PFBlockAlgo.h. In others cases, it should be switch on.
   // KH: Keeping it on to be sure
   if (!((clusterref->layer() == PFLayer::HF_HAD) ||
@@ -57,8 +49,6 @@ KDTreeLinkerTrackHF::insertFieldClusterElt(reco::PFBlockElement	*hfCluster)
 
   const std::vector<reco::PFRecHitFraction> &fraction = clusterref->recHitFractions();
 
-  std::cout << "fraction.size(): " << fraction.size() << std::endl;
-  
   // We create a list of hfCluster
   fieldClusterSet_.insert(hfCluster);
   for(size_t rhit = 0; rhit < fraction.size(); ++rhit) {
@@ -124,9 +114,6 @@ KDTreeLinkerTrackHF::searchLinks()
 {
   // Must of the code has been taken from LinkByRecHit.cc
 
-  //KH
-  std::cout << "KDTreeLinkerTrackHF::searchLinks" << std::endl;
-  
   // We iterate over the tracks.
   for(BlockEltSet::iterator it = targetSet_.begin(); 
       it != targetSet_.end(); it++) {
@@ -195,9 +182,9 @@ KDTreeLinkerTrackHF::searchLinks()
 	
 	// Check if the track and the cluster are linked
 	if(deta < (_rhsizeeta / 2.) && dphi < (_rhsizephi / 2.)){
-	  std::cout << "KDTreeLinkerTrackHF::searchLinks" << " linked! "
-		    << tracketa << " " << trackphi << " " << aaa << " "
-		    << rhrep.eta() << " " << rhrep.phi() << std::endl;
+	  //std::cout << "KDTreeLinkerTrackHF::searchLinks" << " linked! "
+	  //	    << tracketa << " " << trackphi << " " << aaa << " "
+	  //	    << rhrep.eta() << " " << rhrep.phi() << std::endl;
 	  cluster2TargetLinks_[*clusterIt].insert(*it);
 	}
       }
@@ -210,9 +197,6 @@ KDTreeLinkerTrackHF::updatePFBlockEltWithLinks()
 {
   //TODO YG : Check if cluster positionREP() is valid ?
 
-  //KH
-  std::cout << "KDTreeLinkerTrackHF::updatePFBlockEltWithLinks" << std::endl;
-  
   // Here we save in each HF cluster the list of phi/eta values of linked clusters.
   for (BlockElt2BlockEltMap::iterator it = cluster2TargetLinks_.begin();
        it != cluster2TargetLinks_.end(); ++it) {
