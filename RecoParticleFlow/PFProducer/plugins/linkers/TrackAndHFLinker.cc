@@ -29,13 +29,9 @@ double TrackAndHFLinker::testLink
   ( const reco::PFBlockElement* elem1,
     const reco::PFBlockElement* elem2) const {  
 
-  std::cout << "TrackAndHFLinker::testLink" << std::endl;
-
-  //KH: should consider extrapolating to the face of HF short fibers???
-  std::cout << "Defining HFcalEntrance" << std::endl;
+  //KH: should consider extrapolating to the face of HF short fibers for HF HAD???
   constexpr reco::PFTrajectoryPoint::LayerType VFcalEntrance =
     reco::PFTrajectoryPoint::VFcalEntrance;
-  std::cout << "Defining HFcalEntrance - ends" << std::endl;
   const reco::PFBlockElementCluster *hfelem(nullptr);
   const reco::PFBlockElementTrack   *tkelem(nullptr);
   double dist(-1.0);
@@ -50,10 +46,8 @@ double TrackAndHFLinker::testLink
   const reco::PFClusterRef& clusterref = hfelem->clusterRef();
   const reco::PFCluster::REPPoint& hfreppos = clusterref->positionREP(); 
 
-  std::cout << "Defining tkAtHF - starts" << std::endl;
   const reco::PFTrajectoryPoint& tkAtHF =
     trackref->extrapolatedPoint( VFcalEntrance );
-  std::cout << "Defining tkAtHF - ends" << std::endl;
   if ( _useKDTree && hfelem->isMultilinksValide() ) { //KDTree Algo
     const reco::PFMultilinksType& multilinks = hfelem->getMultilinks();
     const double tracketa = tkAtHF.positionREP().Eta();
@@ -70,8 +64,8 @@ double TrackAndHFLinker::testLink
     if (mlit != multilinks.end()){     
 
       edm::LogWarning("TrackHFLinker ") <<"Special case of linking with track and HF clusters and found multiple links ";
-      std::cout << tracketa << " " << trackphi << std::endl;
-      std::cout << clusterref->eta() << " " << clusterref->phi() << std::endl;
+      //std::cout << tracketa << " " << trackphi << std::endl;
+      //std::cout << clusterref->eta() << " " << clusterref->phi() << std::endl;
 
       dist = LinkByRecHit::computeDist(hfreppos.Eta(), 
 				       hfreppos.Phi(), 
