@@ -1599,13 +1599,15 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
     } //loop hcal elements
   } // end of loop 1 on elements iEle of any type
 
-
+  //KH
 
   // deal with HF.
   if( !(hfEmIs.empty() &&  hfHadIs.empty() ) ) {
     // there is at least one HF element in this block.
     // so all elements must be HF.
-    assert( hfEmIs.size() + hfHadIs.size() == elements.size() );
+
+    //KH hack
+    //assert( hfEmIs.size() + hfHadIs.size() == elements.size() );
 
     if( elements.size() == 1 ) {
       //Auguste: HAD-only calibration here

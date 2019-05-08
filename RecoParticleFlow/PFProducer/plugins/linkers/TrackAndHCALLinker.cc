@@ -79,7 +79,9 @@ double TrackAndHCALLinker::testLink
 					 hcalreppos.Phi(), 
 					 tracketa, 
 					 trackphi);
-	
+
+	//KH
+	//KH std::cout << "tracketa/phi: " << tracketa << " " << trackphi << std::endl;
 	edm::LogWarning("TrackHCALLinker ") <<"Special case of linking with track hitting HCAL and looping back in the tracker ";
       }
       else {
