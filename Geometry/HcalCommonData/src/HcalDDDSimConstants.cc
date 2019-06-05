@@ -371,11 +371,18 @@ int HcalDDDSimConstants::getLayerFront(
   if (layer < 0) {
     if (det == 1 || det == 2) {
       layer = 1;
+<<<<<<< HEAD
       for (int l = 0; l < getLayerMax(eta, depth); ++l) {
         if ((int)(layerGroup(eta - 1, l)) == depth) {
           layer = l + 1;
           break;
         }
+=======
+      for (int l=0; l<getLayerMax(eta,depth); ++l) {
+	if ((int)(layerGroup(eta-1,l)) == depth) {
+	  layer = l+1; break;
+	}
+>>>>>>> my-cmssw/Phase2PFTracksHF_extrapolation
       }
     } else {
       layer = (eta > hpar->noff[2]) ? maxLayerHB_ + 1 : maxLayer_;
@@ -412,6 +419,7 @@ int HcalDDDSimConstants::getMaxDepth(
   } else if (det == 1 || det == 2) {
     if (ldmap_.isValid(det, phi, zside))
       dmax = ldmap_.getDepths(eta).second;
+<<<<<<< HEAD
     else if (det == 2)
       dmax = (maxDepth[1] > 0) ? layerGroup(eta - 1, maxLayer_) : 0;
     else if (eta == hpar->etaMax[0])
@@ -421,6 +429,17 @@ int HcalDDDSimConstants::getMaxDepth(
   } else if (det == 3) {  // HF
     dmax = maxHFDepth(zside * eta, phi);
   } else if (det == 4) {  // HO
+=======
+    else if (det == 2)               
+      dmax = (maxDepth[1] > 0) ? layerGroup(eta-1,maxLayer_) : 0;
+    else if (eta == hpar->etaMax[0]) 
+      dmax = getDepthEta16(det,phi,zside);
+    else                             
+      dmax = layerGroup(eta-1,maxLayerHB_);
+  } else if (det == 3) { // HF
+    dmax = maxHFDepth(zside*eta,phi);
+  } else if (det == 4) { // HO
+>>>>>>> my-cmssw/Phase2PFTracksHF_extrapolation
     dmax = maxDepth[3];
   } else {
     dmax = -1;
@@ -484,20 +503,35 @@ std::pair<double, double> HcalDDDSimConstants::getPhiCons(const int& det, const 
 std::vector<std::pair<int, double> > HcalDDDSimConstants::getPhis(const int& subdet, const int& ieta) const {
   std::vector<std::pair<int, double> > phis;
   int ietaAbs = (ieta > 0) ? ieta : -ieta;
+<<<<<<< HEAD
   std::pair<double, double> ficons = getPhiCons(subdet, ietaAbs);
   int nphi = int((2._pi + 0.1 * ficons.second) / ficons.second);
   int units = unitPhi(subdet, ietaAbs);
+=======
+  std::pair<double,double> ficons = getPhiCons(subdet, ietaAbs);
+  int nphi    = int((2._pi+0.1*ficons.second)/ficons.second);
+  int units   = unitPhi(subdet, ietaAbs);
+>>>>>>> my-cmssw/Phase2PFTracksHF_extrapolation
   for (int ifi = 0; ifi < nphi; ++ifi) {
     double phi = -ficons.first + (ifi + 0.5) * ficons.second;
     int iphi = phiNumber(ifi + 1, units);
     phis.emplace_back(std::pair<int, double>(iphi, phi));
   }
 #ifdef EDM_ML_DEBUG
+<<<<<<< HEAD
   edm::LogVerbatim("HcalGeom") << "getPhis: subdet|ieta|iphi " << subdet << "|" << ieta << " with " << phis.size()
                                << " phi bins";
   for (unsigned int k = 0; k < phis.size(); ++k)
     edm::LogVerbatim("HcalGeom") << "[" << k << "] iphi " << phis[k].first << " phi "
                                  << convertRadToDeg(phis[k].second);
+=======
+  edm::LogVerbatim("HcalGeom") << "getPhis: subdet|ieta|iphi " << subdet << "|"
+			       << ieta << " with " << phis.size() 
+			       << " phi bins";
+  for (unsigned int k=0; k<phis.size(); ++k)
+    edm::LogVerbatim("HcalGeom") << "[" << k << "] iphi " << phis[k].first 
+				 << " phi " << convertRadToDeg(phis[k].second);
+>>>>>>> my-cmssw/Phase2PFTracksHF_extrapolation
 #endif
   return phis;
 }
@@ -548,6 +582,7 @@ std::vector<HcalCellType> HcalDDDSimConstants::HcalCellTypes(const HcalSubdetect
 
   int dmin, dmax, indx, nz;
   double hsize = 0;
+<<<<<<< HEAD
   switch (subdet) {
     case HcalEndcap:
       dmin = 1;
@@ -573,6 +608,21 @@ std::vector<HcalCellType> HcalDDDSimConstants::HcalCellTypes(const HcalSubdetect
       indx = 0;
       nz = nzHB;
       break;
+=======
+  switch(subdet) {
+  case HcalEndcap:
+    dmin = 1; dmax = (maxDepth[1] > 0) ? maxLayer_+1 : 0; indx = 1; nz = nzHE;
+    break;
+  case HcalForward:
+    dmin = 1; dmax = (!idHF2QIE.empty()) ? 2 : maxDepth[2]; indx = 2; nz = 2;
+    break;
+  case HcalOuter:
+    dmin = 4; dmax = 4; indx = 0; nz = nzHB;
+    break;
+  default:
+    dmin = 1; dmax = maxLayerHB_+1; indx = 0; nz = nzHB;
+    break;
+>>>>>>> my-cmssw/Phase2PFTracksHF_extrapolation
   }
   if (depthl > 0)
     dmin = dmax = depthl;
@@ -802,8 +852,14 @@ void HcalDDDSimConstants::initialize(void) {
     }
 
 #ifdef EDM_ML_DEBUG
+<<<<<<< HEAD
     edm::LogVerbatim("HcalGeom") << "Depth " << i + 1 << " with " << depths[i].size() << " etas:";
     for (int k = 0; k < nEta - 1; ++k)
+=======
+    edm::LogVerbatim("HcalGeom") << "Depth " << i+1 << " with " 
+				 << depths[i].size() << " etas:";
+    for (int k=0; k<nEta-1; ++k) 
+>>>>>>> my-cmssw/Phase2PFTracksHF_extrapolation
       edm::LogVerbatim("HcalGeom") << " [" << k << "] " << depths[i][k];
 #endif
   }
@@ -877,15 +933,21 @@ void HcalDDDSimConstants::initialize(void) {
     edm::LogVerbatim("HcalGeom") << " [" << k << "] " << idHF2QIE[k];
 #endif
 
+<<<<<<< HEAD
   layFHB[0] = 0;
   layFHB[1] = 1;
   layBHB[0] = 16;
   layBHB[1] = 15;
   layBHB[2] = 8;
+=======
+  layFHB[0] = 0;  layFHB[1] = 1;
+  layBHB[0] = 16; layBHB[1] = 15; layBHB[2] = 8;
+>>>>>>> my-cmssw/Phase2PFTracksHF_extrapolation
   if (maxDepth[1] == 0) {
     layFHE[0] = layFHE[1] = layFHE[2] = 0;
     layBHE[0] = layBHE[1] = layBHE[2] = layBHE[3] = 0;
   } else {
+<<<<<<< HEAD
     layFHE[0] = 1;
     layFHE[1] = 4;
     layFHE[2] = 0;
@@ -915,6 +977,31 @@ void HcalDDDSimConstants::initialize(void) {
             ily.emplace_back(hpar->noff[noffk + 7 + nphi + 3 * i + 1]);
             idp.emplace_back(hpar->noff[noffk + 7 + nphi + 3 * i + 2]);
           }
+=======
+    layFHE[0] = 1;  layFHE[1] = 4;  layFHE[2] = 0;
+    layBHE[0] = 18; layBHE[1] = 9;  layBHE[2] = 14; layBHE[3] = 16;
+  }
+  depthMaxSp_ = std::pair<int,int>(0,0);
+  int noffk(noffsize+5);
+  if ((int)(hpar->noff.size()) > (noffsize+5)) {
+    noffk += (2*hpar->noff[noffsize+4]);
+    if ((int)(hpar->noff.size()) >= noffk+7) {
+      int dtype = hpar->noff[noffk+1];
+      int nphi  = hpar->noff[noffk+2];
+      int ndeps = hpar->noff[noffk+3];
+      int ndp16 = hpar->noff[noffk+4];
+      int ndp29 = hpar->noff[noffk+5];
+      double wt = 0.1*(hpar->noff[noffk+6]);
+      if ((int)(hpar->noff.size()) >= (noffk+7+nphi+3*ndeps)) {
+	if (dtype == 1 || dtype == 2) {
+	  std::vector<int> ifi, iet, ily, idp;
+	  for (int i=0; i<nphi; ++i) ifi.emplace_back(hpar->noff[noffk+7+i]);
+	  for (int i=0; i<ndeps;++i) {
+	    iet.emplace_back(hpar->noff[noffk+7+nphi+3*i]);
+	    ily.emplace_back(hpar->noff[noffk+7+nphi+3*i+1]);
+	    idp.emplace_back(hpar->noff[noffk+7+nphi+3*i+2]);
+	  }
+>>>>>>> my-cmssw/Phase2PFTracksHF_extrapolation
 #ifdef EDM_ML_DEBUG
           edm::LogVerbatim("HcalGeom") << "Initialize HcalLayerDepthMap for "
                                        << "Detector " << dtype << " etaMax " << hpar->etaMax[dtype] << " with " << nphi
@@ -1101,6 +1188,7 @@ double HcalDDDSimConstants::getGain(const HcalSubdetector& subdet, const int& de
   return gain;
 }
 
+<<<<<<< HEAD
 void HcalDDDSimConstants::printTileHB(const int& eta, const int& phi, const int& zside, const int& depth) const {
   edm::LogVerbatim("HcalGeom") << "HcalDDDSimConstants::printTileHB for eta " << eta << " and depth " << depth;
 
@@ -1116,6 +1204,26 @@ void HcalDDDSimConstants::printTileHB(const int& eta, const int& phi, const int&
   for (int lay = layL - 1; lay < layH; ++lay) {
     std::vector<double> area(2, 0);
     int kk(0);
+=======
+void HcalDDDSimConstants::printTileHB(const int& eta,   const int& phi,
+				      const int& zside, const int& depth) const {
+  edm::LogVerbatim("HcalGeom") << "HcalDDDSimConstants::printTileHB for eta " 
+			       << eta << " and depth " << depth;
+  
+  double etaL   = hpar->etaTable.at(eta-1);
+  double thetaL = 2.*atan(exp(-etaL));
+  double etaH   = hpar->etaTable.at(eta);
+  double thetaH = 2.*atan(exp(-etaH));
+  int    layL   = getLayerFront(1,eta,phi,zside,depth);
+  int    layH   = getLayerBack(1,eta,phi,zside,depth);
+  edm::LogVerbatim("HcalGeom") << "\ntileHB:: eta|depth " << zside*eta << "|" 
+			       << depth << " theta " << convertRadToDeg(thetaH)
+			       << ":" << convertRadToDeg(thetaL) << " Layer " 
+			       << layL-1 << ":" << layH-1;
+  for (int lay=layL-1; lay<layH; ++lay) {
+    std::vector<double> area(2,0);
+    int    kk(0);
+>>>>>>> my-cmssw/Phase2PFTracksHF_extrapolation
     double mean(0);
     for (unsigned int k = 0; k < hpar->layHB.size(); ++k) {
       if (lay == hpar->layHB[k]) {
@@ -1146,6 +1254,7 @@ void HcalDDDSimConstants::printTileHE(const int& eta, const int& phi, const int&
   int layH = getLayerBack(2, eta, phi, zside, depth);
   double phib = hpar->phibin[eta - 1];
   int nphi = 2;
+<<<<<<< HEAD
   if (phib > 6._deg)
     nphi = 1;
   edm::LogVerbatim("HcalGeom") << "\ntileHE:: Eta/depth " << zside * eta << "|" << depth << " theta "
@@ -1154,9 +1263,20 @@ void HcalDDDSimConstants::printTileHE(const int& eta, const int& phi, const int&
   for (int lay = layL - 1; lay < layH; ++lay) {
     std::vector<double> area(4, 0);
     int kk(0);
+=======
+  if (phib > 6._deg) nphi = 1;
+  edm::LogVerbatim("HcalGeom") << "\ntileHE:: Eta/depth " << zside*eta << "|" 
+			       << depth << " theta " << convertRadToDeg(thetaH)
+			       << ":" << convertRadToDeg(thetaL) << " Layer " 
+			       << layL-1 << ":" << layH-1 << " phi " << nphi;
+  for (int lay=layL-1; lay<layH; ++lay) {
+    std::vector<double> area(4,0);
+    int    kk(0);
+>>>>>>> my-cmssw/Phase2PFTracksHF_extrapolation
     double mean(0);
     for (unsigned int k = 0; k < hpar->layHE.size(); ++k) {
       if (lay == hpar->layHE[k]) {
+<<<<<<< HEAD
         double rmin = hpar->zxHE[k] * std::tan(thetaH);
         double rmax = hpar->zxHE[k] * std::tan(thetaL);
         if ((lay != 0 || eta == 18) &&
@@ -1180,6 +1300,32 @@ void HcalDDDSimConstants::printTileHE(const int& eta, const int& phi, const int&
           area[kk + 2] = ar2;
           kk++;
         }
+=======
+	double rmin = hpar->zxHE[k]*std::tan(thetaH);
+	double rmax = hpar->zxHE[k]*std::tan(thetaL);
+	if ((lay != 0 || eta == 18) && 
+	    (lay != 1 || (eta == 18 && hpar->rhoxHE[k]-hpar->dyHE[k] > 1000) ||
+	     (eta != 18 && hpar->rhoxHE[k]-hpar->dyHE[k] < 1000)) &&
+	    rmin+30 < hpar->rhoxHE[k]+hpar->dyHE[k] && 
+	    rmax > hpar->rhoxHE[k]-hpar->dyHE[k]) {
+	  rmin = std::max(rmin,hpar->rhoxHE[k]-hpar->dyHE[k]);
+	  rmax = std::min(rmax,hpar->rhoxHE[k]+hpar->dyHE[k]);
+	  double dx1 = rmin*std::tan(phib);
+	  double dx2 = rmax*std::tan(phib);
+	  double ar1=0, ar2=0;
+	  if (nphi == 1) {
+	    ar1 = 0.5*(rmax-rmin)*(dx1+dx2-4.*hpar->dx1HE[k]);
+	    mean += ar1;
+	  } else {
+	    ar1 = 0.5*(rmax-rmin)*(dx1+dx2-2.*hpar->dx1HE[k]);
+	    ar2 = 0.5*(rmax-rmin)*((rmax+rmin)*tan(10._deg)-4*hpar->dx1HE[k])-ar1;
+	    mean += (ar1+ar2);
+	  }
+	  area[kk]   = ar1;
+	  area[kk+2] = ar2;
+	  kk++;
+	}
+>>>>>>> my-cmssw/Phase2PFTracksHF_extrapolation
       }
     }
     if (area[0] > 0 && area[1] > 0) {
