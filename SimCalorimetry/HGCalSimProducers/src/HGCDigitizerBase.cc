@@ -52,7 +52,7 @@ void HGCDigitizerBase<DFr>::run( std::unique_ptr<HGCDigitizerBase::DColl> &digiC
 				 uint32_t digitizationType,
 				 CLHEP::HepRandomEngine* engine) {
   if(digitizationType==0) {
-    runSimple(digiColl,simData,theGeom,validIds,engine);
+    //runSimple(digiColl,simData,theGeom,validIds,engine);
     runSimpleOnGPU(digiColl,simData,theGeom,validIds);
   }
   else {
@@ -120,8 +120,9 @@ void HGCDigitizerBase<DFr>::runSimpleOnGPU(std::unique_ptr<HGCDigitizerBase::DCo
 				      const CaloSubdetectorGeometry* theGeom,
 				      const std::unordered_set<DetId>& validIds) {
 
-  const size_t Nbx(5); //this is hardcoded
+  const size_t Nbx(15); //this is hardcoded
   const uint32_t N(Nbx*validIds.size());
+  //KH HGCCellInfo zeroData;
 
   //host arrays
   float *toa     = (float*)malloc(N*sizeof(float));
@@ -129,12 +130,17 @@ void HGCDigitizerBase<DFr>::runSimpleOnGPU(std::unique_ptr<HGCDigitizerBase::DCo
   uint8_t *type  = (uint8_t*)malloc(N*sizeof(uint8_t));
   uint32_t *rawData = (uint32_t*)malloc(N*sizeof(uint32_t));
   uint32_t idIdx(0);
+
+  //KH
+  //std::cout << "KH: runSimpleOnGPU - 1" << std::endl;
+
   for( const auto& id : validIds ) {
 
     HGCSimHitDataAccumulator::iterator it = simData.find(id);
     const HGCCellInfo *cell( simData.end() == it ? NULL : &(it->second) );
 
     for(size_t i=0; i<Nbx; i++) {
+
       uint32_t arrIdx(idIdx*Nbx+i);
       if(cell!=NULL){
         charge[arrIdx] = cell->hit_info[0][i];
@@ -145,8 +151,8 @@ void HGCDigitizerBase<DFr>::runSimpleOnGPU(std::unique_ptr<HGCDigitizerBase::DCo
         charge[arrIdx]=0.f;
         toa[arrIdx]=0.f;
       }
-      idIdx++;
     }
+    idIdx++;
   }
 
   //device arrays
@@ -163,11 +169,13 @@ void HGCDigitizerBase<DFr>::runSimpleOnGPU(std::unique_ptr<HGCDigitizerBase::DCo
 
   //allocate N rand floats on the GPU
   float *devRand;
-  cudaMalloc((void **)&devRand, N * sizeof(float));
-
+  //KH cudaMalloc((void **)&devRand, N * sizeof(float));
+  cudaMalloc(&devRand, N*sizeof(float));
 
   //call function on the GPU
+  std::cout << "KH calling addNoiseWrapper" << std::endl;
   addNoiseWrapper(N, d_charge, d_toa, toaModeByEnergy(), devRand, d_type, d_rawData);
+  std::cout << "KH returning from addNoiseWrapper" << std::endl;
 
 
   //copy back result and add to the event
