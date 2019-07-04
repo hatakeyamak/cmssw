@@ -1197,8 +1197,9 @@ void PFAlgo::createCandidateHF(const reco::PFBlock& block,
   // there is at least one HF element in this block.
   // so all elements must be HF.
   LogTrace("PFAlgo|createCandidateHF") << "starting function";
-  assert(inds.hfEmIs.size() + inds.hfHadIs.size() == elements.size());
-
+  //KH hack to deal with forward PF blocks with both tracks and HF clusters 
+  //assert(inds.hfEmIs.size() + inds.hfHadIs.size() == elements.size());
+  
   if (elements.size() == 1) {
     //Auguste: HAD-only calibration here
     reco::PFClusterRef clusterRef = elements[0].clusterRef();
