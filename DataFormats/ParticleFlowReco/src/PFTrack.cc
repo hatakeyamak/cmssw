@@ -57,7 +57,7 @@ void PFTrack::calculatePositionREP() {
 
 const reco::PFTrajectoryPoint& PFTrack::extrapolatedPoint(unsigned layerid) const {
   const unsigned offset_layerid = nTrajectoryMeasurements() + layerid;
-  if (layerid >= reco::PFTrajectoryPoint::NLayers || offset_layerid >= trajectoryPoints_.size()) {
+  if (layerid >= reco::PFTrajectoryPoint::NLayers) {
     // cout<<(*this)<<endl;
     // cout<<"lid "<<layerid<<" "<<nTrajectoryMeasurements()<<" "<<trajectoryPoints_.size()<<endl;
 

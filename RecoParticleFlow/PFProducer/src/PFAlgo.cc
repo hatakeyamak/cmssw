@@ -1272,7 +1272,9 @@ int PFAlgo::decideType(const edm::OwnVector<reco::PFBlockElement> &elements,
 void PFAlgo::createCandidateHF(const reco::PFBlock &block, const reco::PFBlockRef &blockref, const edm::OwnVector<reco::PFBlockElement> &elements, ElementIndices& inds) {
     // there is at least one HF element in this block.
     // so all elements must be HF.
-    assert( inds.hfEmIs.size() + inds.hfHadIs.size() == elements.size() );
+
+    //KH hack to deal with forward PF blocks with both tracks and HF clusters 
+    //assert( inds.hfEmIs.size() + inds.hfHadIs.size() == elements.size() );
 
     if( elements.size() == 1 ) {
       //Auguste: HAD-only calibration here
