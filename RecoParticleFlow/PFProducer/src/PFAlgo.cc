@@ -1330,7 +1330,7 @@ void PFAlgo::createCandidatesHCAL(const reco::PFBlock& block,
                                   ElementIndices& inds,
                                   std::vector<bool>& deadArea) {
   if (debug_) {
-    cout << endl;
+    cout << endl;れcおんstる
     cout << endl << "--------------- loop hcal ---------------------" << endl;
   }
 
@@ -2311,8 +2311,8 @@ void PFAlgo::createCandidatesHCAL(const reco::PFBlock& block,
           particleDirection.push_back(std::get<1>(pae));
           ecalEnergy.push_back(mergedPhotonEnergy * clusterEnergyCalibrated / sumEcalClusters);
           hcalEnergy.push_back(0.);
-          rawecalEnergy.push_back(totalEcal);
-          rawhcalEnergy.push_back(totalHcal);
+          rawecalEnergy.push_back(0.);
+          rawhcalEnergy.push_back(0.);
           pivotalClusterRef.push_back(elements[std::get<0>(pae)].clusterRef());
           iPivotal.push_back(std::get<0>(pae));
         }
@@ -2338,8 +2338,8 @@ void PFAlgo::createCandidatesHCAL(const reco::PFBlock& block,
           particleDirection.push_back(std::get<1>(pae));
           ecalEnergy.push_back(0.);
           hcalEnergy.push_back(mergedNeutralHadronEnergy * clusterEnergyCalibrated / sumEcalClusters);
-          rawecalEnergy.push_back(totalEcal);
-          rawhcalEnergy.push_back(totalHcal);
+          rawecalEnergy.push_back(0.);
+          rawhcalEnergy.push_back(0.);
           pivotalClusterRef.push_back(hclusterref);
           iPivotal.push_back(iHcal);
         }
