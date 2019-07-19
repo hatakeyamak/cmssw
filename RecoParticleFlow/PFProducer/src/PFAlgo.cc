@@ -850,7 +850,17 @@ void PFAlgo::elementLoop(const reco::PFBlock& block,
                          const reco::PFBlockRef& blockref,
                          ElementIndices& inds,
                          std::vector<bool>& deadArea) {
+
   LogTrace("PFAlgo|elementLoop") << "start of function PFAlgo::elementLoop, elements.size()" << elements.size();
+
+  // If this PFBlock is for the HF region, skip it.
+  for (unsigned iEle = 0; iEle < elements.size(); iEle++) {
+    PFBlockElement::Type type = elements[iEle].type();
+    if (type == PFBlockElement::HFEM || type == PFBlockElement::HFEM){
+      return;
+    }
+  }
+
   for (unsigned iEle = 0; iEle < elements.size(); iEle++) {
     PFBlockElement::Type type = elements[iEle].type();
 
@@ -1282,8 +1292,27 @@ void PFAlgo::createCandidateHF(const reco::PFBlock& block,
   } else {
     // 1 HF element in the block,
     // but number of elements not equal to 1 or 2
+<<<<<<< HEAD
     edm::LogWarning("PFAlgo::createCandidateHF") << "Warning: HF, but n elem different from 1 or 2";
     edm::LogWarning("PFAlgo::createCandidateHF") << block;
+=======
+    edm::LogWarning("PFAlgo::createCandidateHF")
+      << "Warning: HF, but n elem different from 1 or 2\n"
+      << block;
+    //
+    //KH: perform most primitive thing. use pftrack, and discard associated pf clusters.
+    //
+    for (unsigned iEle = 0; iEle < elements.size(); iEle++) {
+      PFBlockElement::Type type = elements[iEle].type();
+      if (type==PFBlockElement::TRACK){
+	unsigned tmpi = reconstructTrack(elements[iEle]);
+	(*pfCandidates_)[tmpi].addElementInBlock(blockref, iEle);
+      }
+    }
+    //
+    //       assert(0);
+    //       cerr<<"not ready for navigation in the HF!"<<endl;
+>>>>>>> Improve handling of PFBlocks for HF
   }
   LogTrace("PFAlgo|createCandidateHF") << "end of function";
 }
