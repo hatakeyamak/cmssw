@@ -870,10 +870,11 @@ void PFAlgo::elementLoop(const reco::PFBlock& block,
                          std::vector<bool>& deadArea) {
 
   // If this PFBlock is for the HF region, skip it.
+  bool PFBlockForHF=false;
   for (unsigned iEle = 0; iEle < elements.size(); iEle++) {
     PFBlockElement::Type type = elements[iEle].type();
-    if (type == PFBlockElement::HFEM || type == PFBlockElement::HFEM){
-      return;
+    if (type == PFBlockElement::HFEM || type == PFBlockElement::HFHAD){
+      PFBlockForHF=true;
     }
   }
 
@@ -883,7 +884,7 @@ void PFAlgo::elementLoop(const reco::PFBlock& block,
     if (debug_ && type != PFBlockElement::BREM)
       cout << endl << elements[iEle];
     auto ret_decideType = decideType(elements, type, active, inds, deadArea, iEle);
-    if (ret_decideType == 1) {
+    if (ret_decideType == 1 || PFBlockForHF) {
       continue;
     }
 
@@ -1237,10 +1238,11 @@ int PFAlgo::decideType(const edm::OwnVector<reco::PFBlockElement>& elements,
 void PFAlgo::createCandidateHF(const reco::PFBlock& block,
                                const reco::PFBlockRef& blockref,
                                const edm::OwnVector<reco::PFBlockElement>& elements,
+			       std::vector<bool>& active,
                                ElementIndices& inds) {
   // there is at least one HF element in this block.
   // so all elements must be HF.
-  
+
   //KH hack to deal with forward PF blocks with both tracks and HF clusters 
   //assert(inds.hfEmIs.size() + inds.hfHadIs.size() == elements.size());
 
@@ -1334,7 +1336,7 @@ void PFAlgo::createCandidateHF(const reco::PFBlock& block,
     //
     for (unsigned iEle = 0; iEle < elements.size(); iEle++) {
       PFBlockElement::Type type = elements[iEle].type();
-      if (type==PFBlockElement::TRACK){
+      if (type==PFBlockElement::TRACK && active[iEle] ){
 	unsigned tmpi = reconstructTrack(elements[iEle]);
 	(*pfCandidates_)[tmpi].addElementInBlock(blockref, iEle);
       }
@@ -2847,7 +2849,8 @@ void PFAlgo::processBlock(const reco::PFBlockRef& blockref,
 
   // deal with HF.
   if (!(inds.hfEmIs.empty() && inds.hfHadIs.empty())) {
-    createCandidateHF(block, blockref, elements, inds);
+    createCandidateHF(block, blockref, elements, active, inds);
+    return;
   }
 
   createCandidatesHCAL(block, linkData, elements, active, blockref, inds, deadArea);
