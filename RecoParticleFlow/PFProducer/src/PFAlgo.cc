@@ -850,7 +850,6 @@ void PFAlgo::elementLoop(const reco::PFBlock& block,
                          const reco::PFBlockRef& blockref,
                          ElementIndices& inds,
                          std::vector<bool>& deadArea) {
-
   LogTrace("PFAlgo|elementLoop") << "start of function PFAlgo::elementLoop, elements.size()" << elements.size();
 
   // If this PFBlock is for the HF region, skip it.
@@ -867,7 +866,6 @@ void PFAlgo::elementLoop(const reco::PFBlock& block,
 
     LogTrace("PFAlgo|elementLoop") << "elements[iEle=" << iEle << "]=" << elements[iEle];
     auto ret_decideType = decideType(elements, type, active, inds, deadArea, iEle);
-
     if (ret_decideType == 1 || PFBlockForHF) {
       LogTrace("PFAlgo|elementLoop") << "ret_decideType==1, continuing";
       continue;
@@ -1213,7 +1211,27 @@ void PFAlgo::createCandidateHF(const reco::PFBlock& block,
   //KH hack to deal with forward PF blocks with both tracks and HF clusters 
   //assert(inds.hfEmIs.size() + inds.hfHadIs.size() == elements.size());
   
-  if (elements.size() == 1) {
+  bool HFtrack=false;
+  for (unsigned iEle = 0; iEle < elements.size(); iEle++) {
+    PFBlockElement::Type type = elements[iEle].type();
+    if (type==PFBlockElement::TRACK && active[iEle] ){
+      HFtrack=true;
+    } //
+  }
+
+  if (HFtrack){
+    //
+    //KH: perform most primitive thing. use pftrack, and discard associated pf clusters.
+    //
+    for (unsigned iEle = 0; iEle < elements.size(); iEle++) {
+      PFBlockElement::Type type = elements[iEle].type();
+      if (type==PFBlockElement::TRACK && active[iEle] ){
+	unsigned tmpi = reconstructTrack(elements[iEle]);
+	(*pfCandidates_)[tmpi].addElementInBlock(blockref, iEle);
+      }
+    }
+  }
+  else if (elements.size() == 1) {
     //Auguste: HAD-only calibration here
     reco::PFClusterRef clusterRef = elements[0].clusterRef();
     double energyHF = 0.;
@@ -1297,19 +1315,6 @@ void PFAlgo::createCandidateHF(const reco::PFBlock& block,
     // but number of elements not equal to 1 or 2
     edm::LogWarning("PFAlgo::createCandidateHF") << "Warning: HF, but n elem different from 1 or 2";
     edm::LogWarning("PFAlgo::createCandidateHF") << block;
-    //
-    //KH: perform most primitive thing. use pftrack, and discard associated pf clusters.
-    //
-    for (unsigned iEle = 0; iEle < elements.size(); iEle++) {
-      PFBlockElement::Type type = elements[iEle].type();
-      if (type==PFBlockElement::TRACK && active[iEle] ){
-	unsigned tmpi = reconstructTrack(elements[iEle]);
-	(*pfCandidates_)[tmpi].addElementInBlock(blockref, iEle);
-      }
-    }
-    //
-    //       assert(0);
-    //       cerr<<"not ready for navigation in the HF!"<<endl;
   }
   LogTrace("PFAlgo|createCandidateHF") << "end of function";
 }
