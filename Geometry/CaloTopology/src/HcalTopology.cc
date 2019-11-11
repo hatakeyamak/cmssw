@@ -151,8 +151,7 @@ HcalTopology::HcalTopology(const HcalDDDRecConstants* hcons, const bool mergePos
   maxDepthHBieta.clear();
   minDepthHBieta.clear();
   maxDepthHEieta.clear();
-  minDepthHEieta.clear();
-
+  minDepthHEieta.clear();  
   //
   // method 1
   // itype = 0(HB),1(HE)
@@ -186,6 +185,10 @@ HcalTopology::HcalTopology(const HcalDDDRecConstants* hcons, const bool mergePos
   } // loop over ieta
 
   // Casche valid HcalDetIds
+  vHcalDetIdHB.clear();
+  vHcalDetIdHE.clear();
+  vHcalDetIdHO.clear();
+  vHcalDetIdHF.clear();
   // HB/HE/HO
   for (unsigned int ieta = (uint)firstHBRing(); ieta <= (uint)lastHBHERing(); ++ieta) {
     if (ieta<=(uint)lastHBRing()){
@@ -232,7 +235,11 @@ HcalTopology::HcalTopology(const HcalDDDRecConstants* hcons, const bool mergePos
       }
     }
   }
-    
+  std::sort(vHcalDetIdHB.begin(), vHcalDetIdHB.end());
+  std::sort(vHcalDetIdHE.begin(), vHcalDetIdHE.end());
+  std::sort(vHcalDetIdHO.begin(), vHcalDetIdHO.end());
+  std::sort(vHcalDetIdHF.begin(), vHcalDetIdHF.end());
+
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HCalGeom") << "Constants in HcalTopology " << firstHBRing_ << ":" << lastHBRing_ << " "
                                << firstHERing_ << ":" << lastHERing_ << ":" << firstHEDoublePhiRing_ << ":"
@@ -643,16 +650,20 @@ bool HcalTopology::validHcalDetId(const HcalDetId& id) const {
   HcalSubdetector subdet = id.subdet();
   bool ok=true;
   if (subdet == HcalBarrel) {
-    if (std::find(vHcalDetIdHB.begin(), vHcalDetIdHB.end(), id)==vHcalDetIdHB.end()) ok=false;
+    std::vector<HcalDetId>::const_iterator i = std::lower_bound(vHcalDetIdHB.begin(), vHcalDetIdHB.end(), id);
+    if (i == vHcalDetIdHB.end() || *i != id) ok=false;
   }
   if (subdet == HcalEndcap) {
-    if (std::find(vHcalDetIdHE.begin(), vHcalDetIdHE.end(), id)==vHcalDetIdHE.end()) ok=false;
+    std::vector<HcalDetId>::const_iterator i = std::lower_bound(vHcalDetIdHE.begin(), vHcalDetIdHE.end(), id);
+    if (i == vHcalDetIdHE.end() || *i != id) ok=false;
   }
   if (subdet == HcalOuter) {
-    if (std::find(vHcalDetIdHO.begin(), vHcalDetIdHO.end(), id)==vHcalDetIdHO.end()) ok=false;
+    std::vector<HcalDetId>::const_iterator i = std::lower_bound(vHcalDetIdHO.begin(), vHcalDetIdHO.end(), id);
+    if (i == vHcalDetIdHO.end() || *i != id) ok=false;
   }
   if (subdet == HcalForward) {
-    if (std::find(vHcalDetIdHF.begin(), vHcalDetIdHF.end(), id)==vHcalDetIdHF.end()) ok=false;
+    std::vector<HcalDetId>::const_iterator i = std::lower_bound(vHcalDetIdHF.begin(), vHcalDetIdHF.end(), id);
+    if (i == vHcalDetIdHF.end() || *i != id) ok=false;
   }
   return ok;
 }
