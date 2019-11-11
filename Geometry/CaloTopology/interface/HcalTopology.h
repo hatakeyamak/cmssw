@@ -306,6 +306,13 @@ private:
   static constexpr unsigned int kPhiCalibHEX_ = maxPhi_ / mPhiCalibHEX_;
   static constexpr unsigned int nCalibHEX_ = 2 * kPhiCalibHEX_ * nEtaCalibHEX_;
   static constexpr unsigned int kOffCalibHFX_ = kOffCalibHEX_ + nCalibHEX_;
+
+  std::vector<int> maxDepthHBieta, minDepthHBieta, maxDepthHEieta, minDepthHEieta;
+  std::vector<HcalDetId> vHcalDetIdHB, vHcalDetIdHE, vHcalDetIdHF, vHcalDetIdHO;
+  bool validHcalDetId(const HcalDetId& id) const;
+  static constexpr bool validCheck_=false;
+  static constexpr int checkMethod_=1; // 1: manual check so that we can avoid invoking general validity check, 2: check using valid HcalDetId vectors
+
 };
 
 #endif
