@@ -56,6 +56,7 @@ public:
   /** Is this a valid cell id? */
   bool validHcal(const HcalDetId& id) const;
   bool validDetId(HcalSubdetector subdet, int ieta, int iphi, int depth) const;
+  bool validHcalDenseId(const unsigned int id) const; // based on hcal denseid
   bool validHT(const HcalTrigTowerDetId& id) const;
   bool validCalib(const HcalCalibDetId& id) const;
   /** Is this a valid cell in context of Plan1 */
@@ -63,17 +64,25 @@ public:
   /** Flag=0 for unmerged Id's; =1 for for merged Id's; =2 for either */
 
   /** Get the neighbors of the given cell in east direction*/
+  /** "Basic" version uses the detid checks without using the cached list of denseid **/
+  /** which is used to make a cached list of neighbors **/
   std::vector<DetId> east(const DetId& id) const override;
+  std::vector<DetId> eastBasic(const DetId& id) const;
   /** Get the neighbors of the given cell in west direction*/
   std::vector<DetId> west(const DetId& id) const override;
+  std::vector<DetId> westBasic(const DetId& id) const;
   /** Get the neighbors of the given cell in north direction*/
   std::vector<DetId> north(const DetId& id) const override;
+  std::vector<DetId> northBasic(const DetId& id) const;
   /** Get the neighbors of the given cell in south direction*/
   std::vector<DetId> south(const DetId& id) const override;
+  std::vector<DetId> southBasic(const DetId& id) const;
   /** Get the neighbors of the given cell in up direction (outward)*/
   std::vector<DetId> up(const DetId& id) const override;
+  std::vector<DetId> upBasic(const DetId& id) const;
   /** Get the neighbors of the given cell in down direction (inward)*/
   std::vector<DetId> down(const DetId& id) const override;
+  std::vector<DetId> downBasic(const DetId& id) const;
 
   /** Get the neighbors of the given cell with higher (signed) ieta */
   int incIEta(const HcalDetId& id, HcalDetId neighbors[2]) const;
@@ -306,6 +315,19 @@ private:
   static constexpr unsigned int kPhiCalibHEX_ = maxPhi_ / mPhiCalibHEX_;
   static constexpr unsigned int nCalibHEX_ = 2 * kPhiCalibHEX_ * nEtaCalibHEX_;
   static constexpr unsigned int kOffCalibHFX_ = kOffCalibHEX_ + nCalibHEX_;
+
+  std::vector<unsigned int> vDenseIdHcal_;
+  struct neighbours {
+    DetId center;
+    std::vector<DetId> vnorth; // north
+    std::vector<DetId> veast;  // east
+    std::vector<DetId> vsouth; // south
+    std::vector<DetId> vwest;  // west
+    std::vector<DetId> vup;    // up
+    std::vector<DetId> vdown;  // down
+  };
+  std::vector<neighbours> neighboursHcal_;
+  
 };
 
 #endif

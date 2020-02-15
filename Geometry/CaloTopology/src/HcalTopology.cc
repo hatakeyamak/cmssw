@@ -147,6 +147,53 @@ HcalTopology::HcalTopology(const HcalDDDRecConstants* hcons, const bool mergePos
 #endif
   }
 
+  // Fill a vector of valid denseid
+  for (int eta = -HcalDetId::kHcalEtaMask2; eta <= (int)(HcalDetId::kHcalEtaMask2); eta++) {
+    for (unsigned int phi = 0; phi <= HcalDetId::kHcalPhiMask2; phi++) {
+      for (int depth = 1; depth <= maxDepth(); depth++) {
+        for (int det = 1; det <= HcalForward; det++) {
+          HcalDetId cell((HcalSubdetector)det, eta, phi, depth);
+          if (validHcal(cell)) {
+            vDenseIdHcal_.push_back(detId2denseId(cell));
+#ifdef DebugLog
+            std::cout << " HcalHardcodedCalibrations: det|eta|phi|depth = " << det << "|" << eta << "|" << phi << "|"
+                      << depth << std::endl;
+#endif
+          }
+        }
+      }
+    }
+  }
+  std::sort(vDenseIdHcal_.begin(), vDenseIdHcal_.end());
+  
+  // Fill a vector of cell neighbours (vDenseIdHcal_ should be defined before neighbour searches)
+  std::vector<neighbours> neighboursHcal_;
+  unsigned int nDenseIdHcalMax = *max_element(vDenseIdHcal_.begin(), vDenseIdHcal_.end());
+  neighboursHcal_.resize(nDenseIdHcalMax + 1);  // denseid starts from 0
+
+  for (unsigned ic = 0; ic < vDenseIdHcal_.size(); ++ic) {
+    // the centre
+    unsigned denseid_c = vDenseIdHcal_[ic];
+    if (denseid_c > nDenseIdHcalMax) {
+      LogDebug("HcalTopology") << " DenseId for HCAL overflow " << std::endl;
+    }
+    DetId detid_c = denseId2detId(denseid_c);
+    HcalDetId hid_c(detid_c);
+    if (detId2denseId(hid_c) != detId2denseId(detid_c))
+      std::cout << detId2denseId(hid_c) << " " << detId2denseId(detid_c) << " " << hid_c << std::endl;
+    
+    // Center,North,East,Sough,West,Up,Down
+    std::vector<DetId> N = northBasic(detid_c);
+    std::vector<DetId> E = eastBasic(detid_c);
+    std::vector<DetId> S = southBasic(detid_c);
+    std::vector<DetId> W = westBasic(detid_c);
+    std::vector<DetId> U = upBasic(detid_c);
+    std::vector<DetId> D = downBasic(detid_c);
+
+    // Order: Center,North,East,South,West,Up,Down
+    neighboursHcal_[denseid_c] = {detid_c, N, E, S, W, U, D};
+  }
+
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HCalGeom") << "Constants in HcalTopology " << firstHBRing_ << ":" << lastHBRing_ << " "
                                << firstHERing_ << ":" << lastHERing_ << ":" << firstHEDoublePhiRing_ << ":"
@@ -401,6 +448,13 @@ void HcalTopology::excludeSubdetector(HcalSubdetector subdet) {
 
 std::vector<DetId> HcalTopology::east(const DetId& id) const {
   std::vector<DetId> vNeighborsDetId;
+  unsigned int denseid = detId2denseId(id);
+  if (denseid < neighboursHcal_.size())
+    vNeighborsDetId = neighboursHcal_[denseid].veast;
+  return vNeighborsDetId;
+}
+std::vector<DetId> HcalTopology::eastBasic(const DetId& id) const {
+  std::vector<DetId> vNeighborsDetId;
   HcalDetId neighbors[2];
   for (int i = 0; i < decIEta(HcalDetId(id), neighbors); i++) {
     if (neighbors[i].oldFormat())
@@ -411,6 +465,13 @@ std::vector<DetId> HcalTopology::east(const DetId& id) const {
 }
 
 std::vector<DetId> HcalTopology::west(const DetId& id) const {
+  std::vector<DetId> vNeighborsDetId;
+  unsigned int denseid = detId2denseId(id);
+  if (denseid < neighboursHcal_.size())
+    vNeighborsDetId = neighboursHcal_[denseid].vwest;
+  return vNeighborsDetId;
+}
+std::vector<DetId> HcalTopology::westBasic(const DetId& id) const {
   std::vector<DetId> vNeighborsDetId;
   HcalDetId neighbors[2];
   for (int i = 0; i < incIEta(HcalDetId(id), neighbors); i++) {
@@ -423,6 +484,13 @@ std::vector<DetId> HcalTopology::west(const DetId& id) const {
 
 std::vector<DetId> HcalTopology::north(const DetId& id) const {
   std::vector<DetId> vNeighborsDetId;
+  unsigned int denseid = detId2denseId(id);
+  if (denseid < neighboursHcal_.size())
+    vNeighborsDetId = neighboursHcal_[denseid].vnorth;
+  return vNeighborsDetId;
+}
+std::vector<DetId> HcalTopology::northBasic(const DetId& id) const {
+  std::vector<DetId> vNeighborsDetId;
   HcalDetId neighbor;
   if (incIPhi(HcalDetId(id), neighbor)) {
     if (neighbor.oldFormat())
@@ -434,6 +502,13 @@ std::vector<DetId> HcalTopology::north(const DetId& id) const {
 
 std::vector<DetId> HcalTopology::south(const DetId& id) const {
   std::vector<DetId> vNeighborsDetId;
+  unsigned int denseid = detId2denseId(id);
+  if (denseid < neighboursHcal_.size())
+    vNeighborsDetId = neighboursHcal_[denseid].vsouth;
+  return vNeighborsDetId;
+}
+std::vector<DetId> HcalTopology::southBasic(const DetId& id) const {
+  std::vector<DetId> vNeighborsDetId;
   HcalDetId neighbor;
   if (decIPhi(HcalDetId(id), neighbor)) {
     if (neighbor.oldFormat())
@@ -444,8 +519,15 @@ std::vector<DetId> HcalTopology::south(const DetId& id) const {
 }
 
 std::vector<DetId> HcalTopology::up(const DetId& id) const {
-  HcalDetId neighbor = id;
   std::vector<DetId> vNeighborsDetId;
+  unsigned int denseid = detId2denseId(id);
+  if (denseid < neighboursHcal_.size())
+    vNeighborsDetId = neighboursHcal_[denseid].vup;
+  return vNeighborsDetId;
+}
+std::vector<DetId> HcalTopology::upBasic(const DetId& id) const {
+  std::vector<DetId> vNeighborsDetId;
+  HcalDetId neighbor = id;
   if (incrementDepth(neighbor)) {
     if (neighbor.oldFormat())
       neighbor.changeForm();
@@ -455,8 +537,15 @@ std::vector<DetId> HcalTopology::up(const DetId& id) const {
 }
 
 std::vector<DetId> HcalTopology::down(const DetId& id) const {
-  HcalDetId neighbor = id;
   std::vector<DetId> vNeighborsDetId;
+  unsigned int denseid = detId2denseId(id);
+  if (denseid < neighboursHcal_.size())
+    vNeighborsDetId = neighboursHcal_[denseid].vdown;
+  return vNeighborsDetId;
+}
+std::vector<DetId> HcalTopology::downBasic(const DetId& id) const {
+  std::vector<DetId> vNeighborsDetId;
+  HcalDetId neighbor = id;
   if (decrementDepth(neighbor)) {
     if (neighbor.oldFormat())
       neighbor.changeForm();
@@ -551,6 +640,15 @@ bool HcalTopology::validDetIdPreLS1(const HcalDetId& id) const {
              ((ie >= firstHFQuadPhiRing()) && (ie <= lastHFRing()) && (ip % 4 == 3))))));
 }
 
+/** Is this a valid dense id? (use vector of DenseId's) */
+bool HcalTopology::validHcalDenseId(const unsigned int denseid) const {
+  bool ok = true;
+  std::vector<unsigned int>::const_iterator i = std::lower_bound(vDenseIdHcal_.begin(), vDenseIdHcal_.end(), denseid);
+  if (i == vDenseIdHcal_.end() || *i != denseid)
+    ok = false;
+  return ok;
+}
+
 /** Is this a valid cell id? */
 bool HcalTopology::validRaw(const HcalDetId& id) const {
   bool ok = true;
@@ -624,7 +722,7 @@ bool HcalTopology::validRaw(const HcalDetId& id) const {
 }
 
 bool HcalTopology::incIPhi(const HcalDetId& id, HcalDetId& neighbor) const {
-  bool ok = valid(id);
+  bool ok = validHcalDenseId(detId2denseId(id));
   if (ok) {
     switch (id.subdet()) {
       case (HcalBarrel):
@@ -664,8 +762,7 @@ bool HcalTopology::incIPhi(const HcalDetId& id, HcalDetId& neighbor) const {
           else
             neighbor = HcalDetId(id.subdet(), id.ieta(), id.iphi() + 2, id.depth());
         }
-        if (!validRaw(neighbor))
-          ok = false;
+	ok = validHcalDenseId(detId2denseId(neighbor));
         break;
       default:
         ok = false;
@@ -676,7 +773,7 @@ bool HcalTopology::incIPhi(const HcalDetId& id, HcalDetId& neighbor) const {
 
 /** Get the neighbor (if present) of the given cell with lower iphi */
 bool HcalTopology::decIPhi(const HcalDetId& id, HcalDetId& neighbor) const {
-  bool ok = valid(id);
+  bool ok = validHcalDenseId(detId2denseId(id));
   if (ok) {
     switch (id.subdet()) {
       case (HcalBarrel):
@@ -716,8 +813,7 @@ bool HcalTopology::decIPhi(const HcalDetId& id, HcalDetId& neighbor) const {
           else
             neighbor = HcalDetId(id.subdet(), id.ieta(), id.iphi() - 2, id.depth());
         }
-        if (!validRaw(neighbor))
-          ok = false;
+	ok = validHcalDenseId(detId2denseId(validRaw(neighbor)));
         break;
       default:
         ok = false;
@@ -760,8 +856,9 @@ int HcalTopology::incAIEta(const HcalDetId& id, HcalDetId neighbors[2]) const {
   else
     neighbors[0] = HcalDetId(id.subdet(), (aieta + 1) * id.zside(), id.iphi(), id.depth());
 
-  if (!valid(neighbors[0]))
+  if (!validHcalDenseId(detId2denseId(neighbors[0]))) {
     n = 0;
+  }
   return n;
 }
 
@@ -797,19 +894,18 @@ int HcalTopology::decAIEta(const HcalDetId& id, HcalDetId neighbors[2]) const {
   } else
     neighbors[0] = HcalDetId(id.subdet(), (aieta - 1) * id.zside(), id.iphi(), id.depth());
 
-  if (!valid(neighbors[0]) && n == 2) {
-    if (!valid(neighbors[1]))
+  if (!validHcalDenseId(detId2denseId(neighbors[0])) && n == 2) {
+    if (!validHcalDenseId(detId2denseId(neighbors[1])))
       n = 0;
     else {
       n = 1;
       neighbors[0] = neighbors[1];
     }
   }
-  if (n == 2 && !valid(neighbors[1]))
+  if (n == 2 && !validHcalDenseId(detId2denseId(neighbors[1]))) 
     n = 1;
-  if (n == 1 && !valid(neighbors[0]))
+  if (n == 1 && !validHcalDenseId(detId2denseId(neighbors[0])))
     n = 0;
-
   return n;
 }
 
@@ -904,7 +1000,7 @@ bool HcalTopology::incrementDepth(HcalDetId& detId) const {
     }
   }
   detId = HcalDetId(subdet, ieta, iphi, depth);
-  return validRaw(detId);
+  return validHcalDenseId(detId2denseId(detId));
 }
 
 bool HcalTopology::decrementDepth(HcalDetId& detId) const {
@@ -949,7 +1045,7 @@ bool HcalTopology::decrementDepth(HcalDetId& detId) const {
     }
   }
   detId = HcalDetId(subdet, ieta, detId.iphi(), depth);
-  return validRaw(detId);
+  return validHcalDenseId(detId2denseId(detId));
 }
 
 int HcalTopology::nPhiBins(int etaRing) const {
