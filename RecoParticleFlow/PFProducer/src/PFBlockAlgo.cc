@@ -147,12 +147,44 @@ reco::PFBlockCollection PFBlockAlgo::findBlocks() {
   reco::PFBlockCollection blocks;
   // the blocks have not been passed to the event, and need to be cleared
   blocks.reserve(elements_.size());
+  const auto elem_size = elements_.size();
 
   QuickUnion qu(elements_.size());
-  const auto elem_size = elements_.size();
+  //KH std::vector<std::vector<double>> vDist(elem_size, std::vector<double>(elem_size, -1.));
+  //
+  // track-hcal special linking
+  if ((ranges_[PFBlockElement::TRACK].second>ranges_[PFBlockElement::TRACK].first) &&
+      (ranges_[PFBlockElement::HCAL].second>ranges_[PFBlockElement::HCAL].first)) {
+    for (unsigned i = ranges_[PFBlockElement::TRACK].first; i <= ranges_[PFBlockElement::TRACK].second; ++i) {
+      auto p1(elements_[i].get());
+      std::vector<double> vDistTmp;
+      multimap<double, unsigned> m; // mapping from value to its index
+      for (unsigned j = ranges_[PFBlockElement::HCAL].first; j <= ranges_[PFBlockElement::HCAL].second; ++j) {
+	const unsigned index = linkTestSquare_[PFBlockElement::TRACK][PFBlockElement::HCAL];
+	auto p1(elements_[i].get()), p2(elements_[j].get());
+	if (linkTests_[index]->linkPrefilter(p1, p2)) {
+	  const double dist = linkTests_[index]->testLink(p1, p2);
+	  if (dist > -0.5){
+	    vDistTmp.push_back(dist);
+	    m.insert(make_pair(dist,j));
+	    //KH vDist.at(i).at(j) = dist;
+	  }
+	}
+      } // loop pver hcal clusters
+      sort(vDistTmp.begin(), vDistTmp.end());
+      //for (unsigned k = 0; k<vDistTmp.size(); ++k){
+      for (unsigned k = 0; k<std::min((uint)vDistTmp.size(),(uint)1); ++k){
+	unsigned j = m.find(vDistTmp.at(k))->second; // index of close hcal clusters
+	qu.unite(i, j);
+      } // loop over linked hcal clusters
+    } // loop over tracks
+  } // there are tracks and hcal clusters
+
+  //KH QuickUnion qu(elements_.size());
+  //const auto elem_size = elements_.size();
   for (unsigned i = 0; i < elem_size; ++i) {
-    for (unsigned j = 0; j < elem_size; ++j) {
-      if (qu.connected(i, j) || j == i)
+    for (unsigned j = i + 1; j < elem_size; ++j) {
+      if (qu.connected(i, j))
         continue;
       if (!linkTests_[linkTestSquare_[elements_[i]->type()][elements_[j]->type()]]) {
         j = ranges_[elements_[j]->type()].second;
@@ -162,11 +194,17 @@ reco::PFBlockCollection PFBlockAlgo::findBlocks() {
       const PFBlockElement::Type type1 = p1->type();
       const PFBlockElement::Type type2 = p2->type();
       const unsigned index = linkTestSquare_[type1][type2];
+      if ((type1==PFBlockElement::TRACK && type2==PFBlockElement::HCAL) ||
+      	  (type1==PFBlockElement::HCAL && type2==PFBlockElement::TRACK)) {
+        j = ranges_[elements_[j]->type()].second;
+        continue;
+      }
       if (linkTests_[index]->linkPrefilter(p1, p2)) {
         const double dist = linkTests_[index]->testLink(p1, p2);
         // compute linking info if it is possible
         if (dist > -0.5) {
-          qu.unite(i, j);
+	  qu.unite(i, j);
+	  //KH vDist.at(i).at(j) = dist;
         }
       }
     }
@@ -205,6 +243,7 @@ reco::PFBlockCollection PFBlockAlgo::findBlocks() {
       const unsigned index = linkTestSquare_[type1][type2];
       if (nullptr != linkTests_[index]) {
         const double dist = linkTests_[index]->testLink(p1, p2);
+	//const double dist = vDist.at(range.first->second).at(itr->second);
         links.emplace(std::make_pair(p1->index(), p2->index()), dist);
       }
     }
