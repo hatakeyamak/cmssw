@@ -164,6 +164,7 @@ def customiseFor2017DtUnpacking(process):
 
     return process
 
+<<<<<<< HEAD
 def customiseFor29049(process) :
 
    listHltPFRecHitHBHE=['hltParticleFlowRecHitHBHE',
@@ -193,11 +194,31 @@ def customiseFor29049(process) :
 
    return process
 
+def customiseForPFBlockAlgoPSDrop(process):
+
+    listHltPFBlock=['hltParticleFlowBlock',
+                    'hltParticleFlowBlockForTaus',
+                    'hltParticleFlowBlockReg']
+    for att in listHltPFBlock:
+        if hasattr(process,att):
+            prod = getattr(process, att)
+            vpset_linkdef = prod.linkDefinitions
+            for pset in reversed(vpset_linkdef):
+                if pset.linkType == 'PS1:ECAL' or pset.linkType == 'PS2:ECAL':
+                    vpset_linkdef.remove(pset)
+            vpset_elemimport = prod.elementImporters
+            for pset in reversed(vpset_elemimport):
+                if pset.source == cms.InputTag( "hltParticleFlowClusterPSUnseeded" ):
+                    vpset_elemimport.remove(pset)
+
+    return process
+
 # CMSSW version specific customizations
 def customizeHLTforCMSSW(process, menuType="GRun"):
 
     # add call to action function in proper order: newest last!
     # process = customiseFor12718(process)
+    process = customiseForPFBlockAlgoPSDrop(process)
 
     process = customiseFor29049(process)
 
