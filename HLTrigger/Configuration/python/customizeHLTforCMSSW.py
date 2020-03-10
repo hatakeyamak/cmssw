@@ -164,7 +164,6 @@ def customiseFor2017DtUnpacking(process):
 
     return process
 
-<<<<<<< HEAD
 def customiseFor29049(process) :
 
    listHltPFRecHitHBHE=['hltParticleFlowRecHitHBHE',
@@ -218,8 +217,9 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
 
     # add call to action function in proper order: newest last!
     # process = customiseFor12718(process)
-    process = customiseForPFBlockAlgoPSDrop(process)
 
     process = customiseFor29049(process)
+
+    process = customiseForPFBlockAlgoPSDrop(process)
 
     return process
