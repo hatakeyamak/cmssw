@@ -203,7 +203,6 @@ private:
   /// particle is created only if the cluster energy is significantly
   /// larger than the chargedEnergy. In this case, the energy of the
   /// neutral particle is cluster energy - chargedEnergy
-
   unsigned reconstructCluster(const reco::PFCluster& cluster,
                               double particleEnergy,
                               bool useDirection = false,
@@ -296,6 +295,10 @@ private:
   double nSigmaTRACK_;
   double ptError_;
   std::vector<double> factors45_;
+
+  /// E and P weighting
+  double maxDPovP_forWeightedAve_;
+  bool weightedAve_highPovE_;
 
   /// Variables for track cleaning in bad HCal areas
   float goodTrackDeadHcal_ptErrRel_;

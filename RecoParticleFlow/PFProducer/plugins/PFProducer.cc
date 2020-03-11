@@ -385,6 +385,11 @@ void PFProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) 
   desc.add<std::vector<double>>("factors_45", {10.0, 100.0})
       ->setComment("Factors to be applied in the four and fifth steps to the pt error");
 
+  // Treatment of tracker higher than hcal cases
+  desc.add<double>("maxDPovP_forWeightedAve", 0.1)
+      ->setComment("if max dP/P of associated track is higher than this value, take weighted average");
+  desc.add<bool>("weightedAve_highPovE", false);
+
   // Treatment of tracks in region of bad HCal
   desc.add<double>("goodTrackDeadHcal_ptErrRel", 0.2)->setComment("trackRef->ptError()/trackRef->pt() < X");
   desc.add<double>("goodTrackDeadHcal_chi2n", 5)->setComment("trackRef->normalizedChi2() < X");

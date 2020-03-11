@@ -45,6 +45,8 @@ PFAlgo::PFAlgo(double nSigmaECAL,
   ptError_ = pset.getParameter<double>("pt_Error");
   factors45_ = pset.getParameter<std::vector<double>>("factors_45");
   assert(factors45_.size() == 2);
+  maxDPovP_forWeightedAve_ = pset.getParameter<double>("maxDPovP_forWeightedAve");
+  weightedAve_highPovE_ = pset.getParameter<bool>("weightedAve_highPovE");
 
   // Bad Hcal Track Parameters
   goodTrackDeadHcal_ptErrRel_ = pset.getParameter<double>("goodTrackDeadHcal_ptErrRel");
@@ -2468,7 +2470,7 @@ void PFAlgo::createCandidatesHCAL(const reco::PFBlock& block,
 #endif
 
       // if max DP/P < 10%  do nothing
-      if (maxDPovP > 0.1) {
+      if (maxDPovP > maxDPovP_forWeightedAve_) {
         // for each track associated to hcal
         //      int nrows = tkIs.size();
         int nrows = chargedHadronsIndices.size();
@@ -2718,6 +2720,57 @@ void PFAlgo::createCandidatesHCAL(const reco::PFBlock& block,
       }
 
     }  // excess of energy
+    ////////////////////// STILL TRACKER LARGER THAN CALO /////////////////////////
+    else if (weightedAve_highPovE_) {
+      std::cout << "PFAlgo: still track too high: " << std::endl;
+
+      // if max DP/P < 10%  do nothing
+      if (maxDPovP > maxDPovP_forWeightedAve_) {
+        // for each track associated to hcal
+        //      int nrows = tkIs.size();
+        int nrows = chargedHadronsIndices.size();
+        TMatrixTSym<double> a(nrows);
+        TVectorD b(nrows);
+        TVectorD check(nrows);
+        double sigma2E = caloResolution * caloResolution;
+        for (int i = 0; i < nrows; i++) {
+          double sigma2i = hcalDP[i] * hcalDP[i];
+          LogTrace("PFAlgo|createCandidatesHCAL")
+              << "\t\t\ttrack associated to hcal " << i << " P = " << hcalP[i] << " +- " << hcalDP[i];
+          a(i, i) = 1. / sigma2i + 1. / sigma2E;
+          b(i) = hcalP[i] / sigma2i + caloEnergy / sigma2E;
+          for (int j = 0; j < nrows; j++) {
+            if (i == j)
+              continue;
+            a(i, j) = 1. / sigma2E;
+          }  // end loop on j
+        }    // end loop on i
+
+        // solve ax = b
+        TDecompChol decomp(a);
+        bool ok = false;
+        TVectorD x = decomp.Solve(b, ok);
+        // for each track create a PFCandidate track
+        // with a momentum rescaled to weighted average
+        if (ok) {
+          for (int i = 0; i < nrows; i++) {
+            //      unsigned iTrack = trackInfos[i].index;
+            unsigned ich = chargedHadronsIndices[i];
+            double rescaleFactor = x(i) / hcalP[i];
+            if (rescaleFactor < 0.)
+              rescaleFactor = 0.;  // protect against negative scaling
+            (*pfCandidates_)[ich].rescaleMomentum(rescaleFactor);
+
+            LogTrace("PFAlgo|createCandidatesHCAL")
+                << "\t\t\told p " << hcalP[i] << " new p " << x(i) << " rescale " << rescaleFactor;
+          }
+        } else {
+          edm::LogError("PFAlgo::createCandidatesHCAL") << "TDecompChol.Solve returned ok=false";
+          assert(0);
+        }
+      }  // maxDPovP
+
+    }  // track
 
     // will now share the hcal energy between the various charged hadron
     // candidates, taking into account the potential neutral hadrons
