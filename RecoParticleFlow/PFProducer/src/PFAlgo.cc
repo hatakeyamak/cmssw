@@ -2462,14 +2462,15 @@ void PFAlgo::createCandidatesHCAL(const reco::PFBlock& block,
           << "\t\tcase 1: COMPATIBLE "
           << "|Calo Energy- total charged momentum| = " << abs(caloEnergy - totalChargedMomentum) << " < " << nsigma
           << " x " << totalError;
-      if (maxDPovP < 0.1)
-        LogTrace("PFAlgo|createCandidatesHCAL") << "\t\t\tmax DP/P = " << maxDPovP << " less than 0.1: do nothing ";
-      else
+      if (maxDPovP < maxDPovP_forWeightedAve_)
         LogTrace("PFAlgo|createCandidatesHCAL")
-            << "\t\t\tmax DP/P = " << maxDPovP << " >  0.1: take weighted averages ";
+            << "\t\t\tmax DP/P = " << maxDPovP << " less than cutoff: " << maxDPovP_forWeightedAve_ << " do nothing ";
+      else
+        LogTrace("PFAlgo|createCandidatesHCAL") << "\t\t\tmax DP/P = " << maxDPovP << " >  cutoff "
+                                                << maxDPovP_forWeightedAve_ << " : take weighted averages ";
 #endif
 
-      // if max DP/P < 10%  do nothing
+      // if max DP/P < cutoff (default: 10%) do nothing
       if (maxDPovP > maxDPovP_forWeightedAve_) {
         // for each track associated to hcal
         //      int nrows = tkIs.size();
@@ -2722,9 +2723,7 @@ void PFAlgo::createCandidatesHCAL(const reco::PFBlock& block,
     }  // excess of energy
     ////////////////////// STILL TRACKER LARGER THAN CALO /////////////////////////
     else if (weightedAve_highPovE_) {
-      std::cout << "PFAlgo: still track too high: " << std::endl;
-
-      // if max DP/P < 10%  do nothing
+      // if max DP/P < cutoff (default: 10%) do nothing
       if (maxDPovP > maxDPovP_forWeightedAve_) {
         // for each track associated to hcal
         //      int nrows = tkIs.size();
