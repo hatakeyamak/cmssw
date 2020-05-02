@@ -115,7 +115,7 @@ void FBaseSimEvent::fill(const std::vector<SimTrack>& simTracks, const std::vect
   // Create also a map associating a SimTrack with its endVertex
   /*
   std::map<unsigned, unsigned> endVertex;
-  for ( unsigned iv=0; iv<simVertices.size(); ++iv ) { 
+  for ( unsigned iv=0; iv<simVertices.size(); ++iv ) {
     endVertex[ simVertices[iv].parentIndex() ] = iv;
   }
   */
@@ -160,7 +160,7 @@ void FBaseSimEvent::fill(const std::vector<SimTrack>& simTracks, const std::vect
     //std::cout << "Origin id " << originId << std::endl;
 
     /*
-    if ( endVertex.find(trackId) != endVertex.end() ) 
+    if ( endVertex.find(trackId) != endVertex.end() )
       std::cout << "End vertex id = " << endVertex[trackId] << std::endl;
     else
       std::cout << "No endVertex !!! " << std::endl;
@@ -260,6 +260,16 @@ void FBaseSimEvent::fill(const std::vector<SimTrack>& simTracks, const std::vect
                             myTrack.trackerSurfaceMomentum().y(),
                             myTrack.trackerSurfaceMomentum().z(),
                             myTrack.trackerSurfaceMomentum().t());
+    if (mom.T()==0. && pos.R()>0.) {// protect against the case of trackerSurfaceMomentum is not defined
+      pos = XYZTLorentzVector(myTrack.vertex().position().x(),
+			      myTrack.vertex().position().y(),
+			      myTrack.vertex().position().z(),
+			      myTrack.vertex().position().t());
+      mom = XYZTLorentzVector(myTrack.momentum().px(),
+			      myTrack.momentum().py(),
+			      myTrack.momentum().pz(),
+			      myTrack.momentum().e());
+    }
 
     if (mom.T() > 0.) {
       // The particle to be propagated
