@@ -214,6 +214,35 @@ def customiseFor30280(process):
 
     return process
 
+def customiseFor30936(process):
+    """PFProducer fix for PFMuonAlgo's fillPSetDescription"""
+
+    for producer in producers_by_type(process, "PFProducer"):
+        producer.PFMuonAlgoParameters = cms.PSet(
+            maxDPtOPt = cms.double( 1.0 ),
+            trackQuality = cms.string( "highPurity" ),
+            ptErrorScale = cms.double( 8.0 ),
+
+            eventFractionForCleaning = cms.double( 0.5 ),
+            minPtForPostCleaning = cms.double( 20.0 ),
+            eventFactorForCosmics = cms.double( 10.0 ),
+            metSignificanceForCleaning = cms.double( 3.0 ),
+            metSignificanceForRejection = cms.double( 4.0 ),
+            metFactorForCleaning = cms.double( 4.0 ),
+            eventFractionForRejection = cms.double( 0.8 ),
+            metFactorForRejection = cms.double( 4.0 ),
+            metFactorForHighEta = cms.double( 25.0 ),
+            ptFactorForHighEta = cms.double( 2.0 ),
+            metFactorForFakes = cms.double( 4.0 ),
+            minMomentumForPunchThrough = cms.double( 100.0 ),
+            minEnergyForPunchThrough = cms.double( 100.0 ),
+            punchThroughFactor = cms.double( 3.0 ),
+            punchThroughMETFactor = cms.double( 4.0 ),
+            cosmicRejectionDistance = cms.double( 1.0 )
+        )
+        
+    return process
+            
 # CMSSW version specific customizations
 def customizeHLTforCMSSW(process, menuType="GRun"):
 
@@ -222,5 +251,6 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
     process = customiseFor30060(process, menuType)
     process = customiseFor30046(process, menuType=menuType)
     process = customiseFor30280(process)
+    process = customiseFor30936(process)
 
     return process
