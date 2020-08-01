@@ -33,7 +33,6 @@ private:
   const std::vector<unsigned> NHitCut_;
   const bool useIterTracking_, cleanBadConvBrems_;
   const double muonMaxDPtOPt_;
-  //std::unique_ptr<PFMuonAlgo> pfmu_;
 };
 
 DEFINE_EDM_PLUGIN(BlockElementImporterFactory, GeneralTracksImporter, "GeneralTracksImporter");
