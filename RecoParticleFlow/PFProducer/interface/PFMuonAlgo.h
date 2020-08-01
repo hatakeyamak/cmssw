@@ -80,11 +80,6 @@ public:
                                                                double maxDPtOPt = 1e+9,
                                                                bool includeSA = false);
 
-  //Get good muon tracks
-  static std::vector<reco::Muon::MuonTrackTypePair> goodMuonTracks(const reco::MuonRef& muon,
-                                                                   double maxDPtOPt,
-                                                                   bool includeSA = false);
-
 private:
   //Give the track with the smallest Dpt/Pt
   MuonTrackTypePair getTrackWithSmallestError(const std::vector<MuonTrackTypePair>&);

@@ -348,7 +348,7 @@ bool PFMuonAlgo::hasValidTrack(const reco::MuonRef& muonRef, bool loose, double 
   if (loose)
     return !muonTracks(muonRef).empty();
   else
-    return !goodMuonTracks(muonRef, maxDPtOPt).empty();
+    return !muonTracks(muonRef, maxDPtOPt).empty();
 }
 
 void PFMuonAlgo::printMuonProperties(const reco::MuonRef& muonRef) {
@@ -475,12 +475,6 @@ void PFMuonAlgo::printMuonProperties(const reco::MuonRef& muonRef) {
   return;
 }
 
-std::vector<reco::Muon::MuonTrackTypePair> PFMuonAlgo::goodMuonTracks(const reco::MuonRef& muon,
-                                                                      double maxDPtOPt,
-                                                                      bool includeSA) {
-  return muonTracks(muon, maxDPtOPt, includeSA);
-}
-
 std::vector<reco::Muon::MuonTrackTypePair> PFMuonAlgo::muonTracks(const reco::MuonRef& muon,
                                                                   double maxDPtOPt,
                                                                   bool includeSA) {
@@ -554,9 +548,9 @@ bool PFMuonAlgo::reconstructMuon(reco::PFCandidate& candidate, const reco::MuonR
   //jet environment often the track is badly measured. In this case
   //we should not apply Dpt/Pt<1
 
-  std::vector<reco::Muon::MuonTrackTypePair> validTracks = goodMuonTracks(muon, maxDPtOPt_);
+  std::vector<reco::Muon::MuonTrackTypePair> validTracks = muonTracks(muon, maxDPtOPt_);
   if (!allowLoose)
-    validTracks = goodMuonTracks(muon, maxDPtOPt_);
+    validTracks = muonTracks(muon, maxDPtOPt_);
   else
     validTracks = muonTracks(muon);
 
@@ -775,7 +769,7 @@ void PFMuonAlgo::addMissingMuons(edm::Handle<reco::MuonCollection> muons, reco::
     TrackMETComparator comparator(METX_, METY_);
     //Low pt dont need to be cleaned
 
-    std::vector<reco::Muon::MuonTrackTypePair> tracks = goodMuonTracks(muonRef, maxDPtOPt_, true);
+    std::vector<reco::Muon::MuonTrackTypePair> tracks = muonTracks(muonRef, maxDPtOPt_, true);
     //If there is at least 1 track choice  try to change the track
     if (!tracks.empty()) {
       //Find tracks that change dramatically MET or Pt
@@ -811,7 +805,7 @@ void PFMuonAlgo::addMissingMuons(edm::Handle<reco::MuonCollection> muons, reco::
 }
 
 std::pair<double, double> PFMuonAlgo::getMinMaxMET2(const reco::PFCandidate& pfc) {
-  std::vector<reco::Muon::MuonTrackTypePair> tracks = goodMuonTracks((pfc.muonRef()), maxDPtOPt_, true);
+  std::vector<reco::Muon::MuonTrackTypePair> tracks = muonTracks((pfc.muonRef()), maxDPtOPt_, true);
 
   double METXNO = METX_ - pfc.px();
   double METYNO = METY_ - pfc.py();
@@ -843,7 +837,7 @@ bool PFMuonAlgo::cleanMismeasured(reco::PFCandidate& pfc, unsigned int i) {
   //Low pt dont need to be cleaned
   if (pfc.pt() < minPostCleaningPt_)
     return false;
-  std::vector<reco::Muon::MuonTrackTypePair> tracks = goodMuonTracks(pfc.muonRef(), maxDPtOPt_, false);
+  std::vector<reco::Muon::MuonTrackTypePair> tracks = muonTracks(pfc.muonRef(), maxDPtOPt_, false);
 
   //If there is more than 1 track choice  try to change the track
   if (tracks.size() > 1) {
