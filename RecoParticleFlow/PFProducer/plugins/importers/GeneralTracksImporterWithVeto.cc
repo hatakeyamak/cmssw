@@ -118,8 +118,8 @@ void GeneralTracksImporterWithVeto::importToBlock(const edm::Event& e,
     if (muId != -1) {
       muonref = reco::MuonRef(muons, muId);
       thisIsAPotentialMuon =
-          ((PFMuonAlgo::hasValidTrack(muonref, muonMaxDPtOPt_, true) && PFMuonAlgo::isLooseMuon(muonref)) ||
-           (PFMuonAlgo::hasValidTrack(muonref, muonMaxDPtOPt_, false) && PFMuonAlgo::isMuon(muonref)));
+          ((PFMuonAlgo::hasValidTrack(muonref, true, muonMaxDPtOPt_) && PFMuonAlgo::isLooseMuon(muonref)) ||
+           (PFMuonAlgo::hasValidTrack(muonref, false, muonMaxDPtOPt_) && PFMuonAlgo::isMuon(muonref)));
     }
     if (thisIsAPotentialMuon || PFTrackAlgoTools::goodPtResolution(
                                     pftrackref->trackRef(), DPtovPtCut_, NHitCut_, useIterTracking_, trackQuality_)) {
