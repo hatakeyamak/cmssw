@@ -217,32 +217,25 @@ def customiseFor30280(process):
 def customiseFor30936(process):
     """PFProducer fix for PFMuonAlgo's fillPSetDescription"""
 
+    # for PFProducer
     for producer in producers_by_type(process, "PFProducer"):
-        producer.PFMuonAlgoParameters = cms.PSet(
-            maxDPtOPt = cms.double( 1.0 ),
-            trackQuality = cms.string( "highPurity" ),
-            ptErrorScale = cms.double( 8.0 ),
-
-            eventFractionForCleaning = cms.double( 0.5 ),
-            minPtForPostCleaning = cms.double( 20.0 ),
-            eventFactorForCosmics = cms.double( 10.0 ),
-            metSignificanceForCleaning = cms.double( 3.0 ),
-            metSignificanceForRejection = cms.double( 4.0 ),
-            metFactorForCleaning = cms.double( 4.0 ),
-            eventFractionForRejection = cms.double( 0.8 ),
-            metFactorForRejection = cms.double( 4.0 ),
-            metFactorForHighEta = cms.double( 25.0 ),
-            ptFactorForHighEta = cms.double( 2.0 ),
-            metFactorForFakes = cms.double( 4.0 ),
-            minMomentumForPunchThrough = cms.double( 100.0 ),
-            minEnergyForPunchThrough = cms.double( 100.0 ),
-            punchThroughFactor = cms.double( 3.0 ),
-            punchThroughMETFactor = cms.double( 4.0 ),
-            cosmicRejectionDistance = cms.double( 1.0 )
-        )
+        del producer.PFMuonAlgoParameters
+        # Values should be populated from PFMuonAlgo's fillPSetDescription
         
+    # for PFBlockProducer
+    for producer in producers_by_type(process, "PFBlockProducer"):
+        if hasattr(producer,'elementImporters'):
+            for ps in producer.elementImporters.value():
+                if hasattr(ps,'importerName') and (ps.importerName == 'GeneralTracksImporter'):
+                    if not hasattr(ps,'muonMaxDPtOPt'):
+                        ps.muonMaxDPtOPt = cms.double(1)            # <== to be added
+                    if not hasattr(ps,'trackQuality'):
+                        ps.trackQuality = cms.string("highPurity")  # <== to be added
+                    if not hasattr(ps,'cleanBadConvertedBrems'):
+                        ps.cleanBadConvertedBrems = cms.bool(False) # <== to be added
+                        
     return process
-            
+
 # CMSSW version specific customizations
 def customizeHLTforCMSSW(process, menuType="GRun"):
 
