@@ -191,6 +191,26 @@ def customiseFor30936(process):
 
     return process
 
+def customiseForHLTCleanupForPFHcalRegional(process):
+
+    # Clean up hltRegionalTower modules
+    if hasattr(process,'hltRegionalTowerForEgamma'):
+        del process.hltRegionalTowerForEgamma
+    if hasattr(process,'hltRegionalTowerForMuonsNoVtx'):
+        del process.hltRegionalTowerForMuonsNoVtx
+    if hasattr(process,'hltRegionalTowerForMuonsReg'):
+        del process.hltRegionalTowerForMuonsReg
+
+    # Clean up HLTPFHcalClustering sequences
+    if hasattr(process,'HLTPFHcalClusteringForEgamma'):
+        del process.HLTPFHcalClusteringForEgamma
+    if hasattr(process,'HLTPFHcalClusteringForMuonsNoVtx'):
+        del process.HLTPFHcalClusteringForMuonsNoVtx
+    if hasattr(process,'HLTPFHcalRegClusteringForMuons'):
+        del process.HLTPFHcalRegClusteringForMuons
+        
+    return process
+
 def customiseFor31115(process):
     """Make PFCluster from each seed"""
 
@@ -246,5 +266,6 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
     process = customiseFor30936(process)
     process = customiseFor31070(process)
     process = customiseFor31115(process)
+    process = customiseForHLTCleanupForPFHcalRegional(process)
 
     return process
