@@ -159,7 +159,7 @@ namespace reco {
 
     // Glowinski & Gouzevitch
     // PFMultiLinks for each different link target type
-    std::map<reco::PFBlockElement::Type, PFMultiLinksTC> multilinks_;
+    std::unordered_map<reco::PFBlockElement::Type, PFMultiLinksTC> multilinks_;
     // ! Glowinski & Gouzevitch
 
     /// timing information (valid if timeError_ >= 0)
