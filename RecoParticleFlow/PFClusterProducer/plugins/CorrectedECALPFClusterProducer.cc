@@ -66,6 +66,7 @@ private:
   std::unique_ptr<PFClusterEMEnergyCorrector> _corrector;
   edm::EDGetTokenT<reco::PFClusterCollection> _inputECAL;
   edm::EDGetTokenT<reco::PFClusterCollection> _inputPS;
+  bool _usePS;
 };
 
 DEFINE_FWK_MODULE(CorrectedECALPFClusterProducer);
@@ -78,42 +79,44 @@ void CorrectedECALPFClusterProducer::produce(edm::Event& e, const edm::EventSetu
   e.getByToken(_inputECAL, handleECAL);
   edm::Handle<reco::PFClusterCollection> handlePS;
   e.getByToken(_inputPS, handlePS);
-
+  
   auto const& ecals = *handleECAL;
-  auto const& pss = *handlePS;
-
+  
   clusters_out->reserve(ecals.size());
   association_out->reserve(ecals.size());
   clusters_out->insert(clusters_out->end(), ecals.begin(), ecals.end());
   //build the EE->PS association
-  for (unsigned i = 0; i < pss.size(); ++i) {
-    switch (pss[i].layer()) {  // just in case this isn't the ES...
+  if (handlePS.isValid()) {
+    auto const& pss = *handlePS;
+    for (unsigned i = 0; i < pss.size(); ++i) {
+      switch (pss[i].layer()) {  // just in case this isn't the ES...
       case PFLayer::PS1:
       case PFLayer::PS2:
         break;
       default:
         continue;
-    }
-    if (pss[i].energy() < _minimumPSEnergy)
-      continue;
-    int eematch = -1;
-    auto min_dist = std::numeric_limits<double>::max();
-    for (size_t ic = 0; ic < ecals.size(); ++ic) {
-      if (ecals[ic].layer() != PFLayer::ECAL_ENDCAP)
-        continue;
-      auto dist = testPreshowerDistance(ecals[ic], pss[i]);
-      if (dist == -1.0)
-        dist = std::numeric_limits<double>::max();
-      if (dist < min_dist) {
-        eematch = ic;
-        min_dist = dist;
       }
-    }  // loop on EE clusters
-    if (eematch >= 0) {
-      edm::Ptr<reco::PFCluster> psclus(handlePS, i);
-      association_out->push_back(std::make_pair(eematch, psclus));
-    }
-  }
+      if (pss[i].energy() < _minimumPSEnergy)
+	continue;
+      int eematch = -1;
+      auto min_dist = std::numeric_limits<double>::max();
+      for (size_t ic = 0; ic < ecals.size(); ++ic) {
+	if (ecals[ic].layer() != PFLayer::ECAL_ENDCAP)
+	  continue;
+	auto dist = testPreshowerDistance(ecals[ic], pss[i]);
+	if (dist == -1.0)
+	  dist = std::numeric_limits<double>::max();
+	if (dist < min_dist) {
+	  eematch = ic;
+	  min_dist = dist;
+	}
+      }  // loop on EE clusters
+      if (eematch >= 0) {
+	edm::Ptr<reco::PFCluster> psclus(handlePS, i);
+	association_out->push_back(std::make_pair(eematch, psclus));
+      }
+    } // loop over pss
+  } // handlePS isValid
   std::sort(association_out->begin(), association_out->end(), sortByKey);
 
   _corrector->correctEnergies(e, es, *association_out, *clusters_out);
