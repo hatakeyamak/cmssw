@@ -29,7 +29,7 @@ fi
 CONDITIONS=auto:phase2_realistic_T15 ERA=Phase2C9 GEOM=Extended2026D49 CUSTOM="--customise SLHCUpgradeSimulations/Configuration/aging.customise_aging_1000"
 
 #Running with 2 threads allows to use more memory on grid
-NTHREADS=2
+NTHREADS=8
 
 #Argument parsing
 if [ "$#" -ne 3 ]; then

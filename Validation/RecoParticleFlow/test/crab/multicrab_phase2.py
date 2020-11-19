@@ -34,12 +34,12 @@ if __name__ == "__main__":
         conf.JobType.maxJobRuntimeMin = 8*60
         conf.JobType.allowUndistributedCMSSW = True
         conf.JobType.outputFiles = ["step3_inMINIAODSIM.root"]
-        conf.JobType.maxMemoryMB = 5000
-        conf.JobType.numCores = 2
+        conf.JobType.maxMemoryMB = 20000
+        conf.JobType.numCores = 8
         
         conf.Data.inputDataset = dataset
         conf.Data.splitting = 'LumiBased'
-        conf.Data.unitsPerJob = 1
+        conf.Data.unitsPerJob = 5
         #conf.Data.totalUnits = 50
         conf.Data.publication = False
         conf.Data.outputDatasetTag = 'pfvalidation'
