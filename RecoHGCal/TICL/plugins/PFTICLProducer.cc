@@ -40,7 +40,7 @@ PFTICLProducer::PFTICLProducer(const edm::ParameterSet& conf)
   produces<reco::PFCandidateCollection>();
   // For PFMuonAlgo
   const edm::ParameterSet pfMuonAlgoParams = conf.getParameter<edm::ParameterSet>("PFMuonAlgoParameters");
-  bool postMuonCleaning = conf.getParameter<bool>("postMuonCleaning");
+  const bool postMuonCleaning = false;
   pfmu_ = std::make_unique<PFMuonAlgo>(pfMuonAlgoParams, postMuonCleaning);
 }
 
@@ -49,7 +49,6 @@ void PFTICLProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptio
   desc.add<edm::InputTag>("ticlCandidateSrc", edm::InputTag("ticlTrackstersMerge"));
   // For PFMuonAlgo
   desc.add<edm::InputTag>("muonSrc", edm::InputTag("muons1stStep"));
-  desc.add<bool>("postMuonCleaning", false);
   edm::ParameterSetDescription psd_PFMuonAlgo;
   PFMuonAlgo::fillPSetDescription(psd_PFMuonAlgo);
   desc.add<edm::ParameterSetDescription>("PFMuonAlgoParameters", psd_PFMuonAlgo);
@@ -112,17 +111,16 @@ void PFTICLProducer::produce(edm::StreamID, edm::Event& evt, const edm::EventSet
       // dynamic type checking or configuration) if additional track types are needed.
       reco::TrackRef trackref(ticl_cand.trackPtr().id(), int(ticl_cand.trackPtr().key()), &evt.productGetter());
       candidate.setTrackRef(trackref);
+      std::cout << "PFTICL trackkey " << ticl_cand.trackPtr().key() << std::endl;
       //
       // Utilize PFMuonAlgo
       const int muId = PFMuonAlgo::muAssocToTrack(trackref, muons);
       if (muId != -1) {
-        // assign muonref to TICL PF candidates
         const reco::MuonRef muonref = reco::MuonRef(muons, muId);
         const bool allowLoose = part_type == reco::PFCandidate::mu ? true : false;
         // Redefine pfmuon candidate kinematics and add muonref
         pfmu_->reconstructMuon(candidate, muonref, allowLoose);
       }
-      // PFMuonAlgo ends
     }
 
     candidate.setTime(ticl_cand.time(), ticl_cand.timeError());
