@@ -10,12 +10,12 @@ def submit(config):
         fi.write(config.pythonise_())
 
 samples = [
-    ("/RelValQCD_Pt15To7000_Flat_14/CMSSW_11_2_0_pre6-112X_mcRun4_realistic_v2_2026D49noPU-v1/GEN-SIM-DIGI-RAW", "QCD_noPU_phase2"),
-    ("/RelValQCD_Pt15To7000_Flat_14/CMSSW_11_2_0_pre6-PU25ns_112X_mcRun4_realistic_v2_2026D49PU200-v1/GEN-SIM-DIGI-RAW", "QCD_PU_phase2"),
-    ("/RelValZEE_14/CMSSW_11_2_0_pre6-PU25ns_112X_mcRun4_realistic_v2_2026D49PU200-v1/GEN-SIM-DIGI-RAW", "ZEE_PU_phase2"),
-    ("/RelValZMM_14/CMSSW_11_2_0_pre6-PU25ns_112X_mcRun4_realistic_v2_2026D49PU200-v1/GEN-SIM-DIGI-RAW", "ZMM_PU_phase2"),
-    ("/RelValTenTau_15_500_Eta3p1/CMSSW_11_2_0_pre6-PU25ns_112X_mcRun4_realistic_v2_2026D49PU200-v1/GEN-SIM-DIGI-RAW", "TenTau_PU_phase2"),
-    ("/RelValNuGun/CMSSW_11_0_0-PU25ns_110X_mcRun4_realistic_v3_2026D49PU200-v1/GEN-SIM-DIGI-RAW", "NuGun_PU_phase2"),
+    ("/RelValQCD_Pt15To7000_Flat_14/CMSSW_11_2_0_pre9-112X_mcRun4_realistic_v4_2026D49noPU-v1/GEN-SIM-DIGI-RAW", "QCD_noPU_phase2"),
+    ("/RelValQCD_Pt15To7000_Flat_14/CMSSW_11_2_0_pre9-PU_112X_mcRun4_realistic_v4_2026D49PU200-v1/GEN-SIM-DIGI-RAW", "QCD_PU_phase2"),
+    ("/RelValZEE_14/CMSSW_11_2_0_pre9-PU_112X_mcRun4_realistic_v4_2026D49PU200-v1/GEN-SIM-DIGI-RAW", "ZEE_PU_phase2"),
+    ("/RelValZMM_14/CMSSW_11_2_0_pre9-PU_112X_mcRun4_realistic_v4_2026D49PU200-v1/GEN-SIM-DIGI-RAW", "ZMM_PU_phase2"),
+    ("/RelValTenTau_15_500_Eta3p1/CMSSW_11_2_0_pre9-PU_112X_mcRun4_realistic_v4_2026D49PU200-v1/GEN-SIM-DIGI-RAW", "TenTau_PU_phase2"),
+    ("/RelValNuGun/CMSSW_11_2_0_pre9-PU_112X_mcRun4_realistic_v4_2026D49PU200-v1/GEN-SIM-DIGI-RAW", "NuGun_PU_phase2"),
 ]
 
 if __name__ == "__main__":
