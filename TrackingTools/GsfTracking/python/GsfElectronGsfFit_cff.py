@@ -18,6 +18,3 @@ fastSim.toModify(electronGsfTracks,
                  src = "fastElectronCkfTrackCandidates",
                  TTRHBuilder = "WithoutRefit")
 
-electronGsfTracksFromMultiCl = electronGsfTracks.clone(
-  src = 'electronCkfTrackCandidatesFromMultiCl'
-)

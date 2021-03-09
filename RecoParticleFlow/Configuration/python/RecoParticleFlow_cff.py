@@ -63,12 +63,16 @@ phase2_hgcal.toModify(
 
 #
 # for simPF
+from RecoParticleFlow.PFClusterProducer.particleFlowClusterHGC_cfi import *
 from RecoParticleFlow.PFTracking.hgcalTrackCollection_cfi import *
 from RecoParticleFlow.PFProducer.simPFProducer_cff import *
 from SimTracker.TrackerHitAssociation.tpClusterProducer_cfi import *
 from SimTracker.TrackAssociatorProducers.quickTrackAssociatorByHits_cfi import *
 
-_phase2_hgcal_simPFTask = cms.Task( pfTrack ,
+# particleFlowClusterHGCal is in RecoLocalCalo.Configuration.hgcalLocalReco_cff
+# but particleFlowClusterHGCalFromSimCl is here, as it is necessary only for simPF
+_phase2_hgcal_simPFTask = cms.Task( particleFlowClusterHGCalFromSimCl,
+                                    pfTrack ,
                                     hgcalTrackCollection ,
                                     tpClusterProducer ,
                                     quickTrackAssociatorByHits ,

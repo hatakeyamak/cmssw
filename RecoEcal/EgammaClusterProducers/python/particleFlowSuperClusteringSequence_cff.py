@@ -25,14 +25,7 @@ phase2_hgcal.toModify(
     dropUnseedable                 = True,
 )
 
-particleFlowSuperClusterHGCalFromMultiCl = particleFlowSuperClusterHGCal.clone()
-phase2_hgcal.toModify(
-    particleFlowSuperClusterHGCalFromMultiCl,
-    PFClusters = 'particleFlowClusterHGCalFromMultiCl'
-)
 _phase2_hgcal_particleFlowSuperClusteringTask = particleFlowSuperClusteringTask.copy()
 _phase2_hgcal_particleFlowSuperClusteringTask.add(particleFlowSuperClusterHGCal)
-_phase2_hgcal_particleFlowSuperClusteringTask.add(particleFlowSuperClusterHGCalFromMultiCl)
 
 phase2_hgcal.toReplaceWith( particleFlowSuperClusteringTask, _phase2_hgcal_particleFlowSuperClusteringTask )
-

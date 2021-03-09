@@ -81,10 +81,6 @@ photons = cms.EDProducer("GEDPhotonProducer",
     checkHcalStatus = cms.bool(True),
 )
 
-photonsFromMultiCl = photons.clone(
-  photonProducer = 'photonCoreFromMultiCl'
-)
-
 islandPhotons = cms.EDProducer("PhotonProducer",
     photonCoreProducer = cms.InputTag("islandPhotonCore"),
     regressionWeightsFromDB =   cms.bool(True),

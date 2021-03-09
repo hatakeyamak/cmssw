@@ -10,16 +10,8 @@ from RecoEgamma.EgammaPhotonProducers.photons_cfi import *
 photonTask = cms.Task(photonCore,photons)
 photonSequence = cms.Sequence(photonTask)
 
-_photonTaskFromMultiCl = photonTask.copy()
-_photonTaskFromMultiCl.add(photonCoreFromMultiCl,photonsFromMultiCl)
 _photonTaskWithIsland = photonTask.copy()
 _photonTaskWithIsland.add(islandPhotonCore,islandPhotons)
-
-
-from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
-phase2_hgcal.toReplaceWith(
- photonTask, _photonTaskFromMultiCl
-)
 
 from Configuration.Eras.Modifier_pA_2016_cff import pA_2016
 from Configuration.Eras.Modifier_peripheralPbPb_cff import peripheralPbPb

@@ -68,7 +68,7 @@ from PhysicsTools.PatAlgos.slimming.slimmedPhotons_cfi import slimmedPhotons
 hgcPhotonID = hgcalPhotonIDValueMap.clone()
 
 patPhotonsFromMultiCl = PATPhotonProducer.clone(
-    photonSource           = "photonsFromMultiCl",
+    photonSource           = "photons", # was photonsFromMultiCl
     electronSource         = "ecalDrivenGsfElectronsFromMultiCl",
     beamLineSrc            = "offlineBeamSpot",
     addPhotonID            = False,

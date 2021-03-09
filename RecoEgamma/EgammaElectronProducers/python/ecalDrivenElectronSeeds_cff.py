@@ -24,7 +24,3 @@ from Configuration.ProcessModifiers.egamma_lowPt_exclusive_cff import egamma_low
 egamma_lowPt_exclusive.toModify(ecalDrivenElectronSeeds,
                            LowPtThreshold =1.0,
                            applyHOverECut = False) 
-
-# create ecal driven seeds for electron using HGCal Multiclusters
-ecalDrivenElectronSeedsFromMultiCl = ecalDrivenElectronSeeds.clone(
-  endcapSuperClusters = 'particleFlowSuperClusterHGCalFromMultiCl')
