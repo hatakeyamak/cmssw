@@ -194,6 +194,7 @@ void PFClusterProducerCudaHCAL::produce(edm::Event& e, const edm::EventSetup& es
 
   _initialClustering->updateEvent(e);
 
+  std::cout << "Input rechit size: " << rechits->size() << std::endl;
   std::vector<bool> mask(rechits->size(), true);
   for (const auto& cleaner : _cleaners) {
     cleaner->clean(rechits, mask);
@@ -315,8 +316,7 @@ void PFClusterProducerCudaHCAL::produce(edm::Event& e, const edm::EventSetup& es
   cudaCheck(cudaMemcpy(d_cuda_pfrh_layer, h_cuda_pfrh_layer.data(), numbytes_int, cudaMemcpyHostToDevice));
   cudaCheck(cudaMemcpy(d_cuda_pfrh_depth, h_cuda_pfrh_depth.data(), numbytes_int, cudaMemcpyHostToDevice));
   cudaCheck(cudaMemcpy(d_cuda_pfNeighEightInd, h_cuda_pfNeighEightInd.data(), numbytes_int*8, cudaMemcpyHostToDevice));
-   cudaCheck(cudaMemcpy(d_cuda_pfNeighFourInd, h_cuda_pfNeighFourInd.data(), numbytes_int*4, cudaMemcpyHostToDevice));
-
+  cudaCheck(cudaMemcpy(d_cuda_pfNeighFourInd, h_cuda_pfNeighFourInd.data(), numbytes_int*4, cudaMemcpyHostToDevice));
 
   cudaCheck(cudaMemcpy(d_cuda_pfRhFrac, h_cuda_pfRhFrac.data(), numbytes_float*100, cudaMemcpyHostToDevice));
   cudaCheck(cudaMemcpy(d_cuda_pcRhFrac, h_cuda_pcRhFrac.data(), numbytes_float*100, cudaMemcpyHostToDevice));
@@ -453,11 +453,12 @@ void PFClusterProducerCudaHCAL::produce(edm::Event& e, const edm::EventSetup& es
 		    << std::endl; 
 	} else {
 	  topoMap_GPU[h_cuda_pfrh_depth[l]-1][ievt]->SetBinContent(ieta,iphi,h_cuda_pfrh_topoId[l]);
-	  std::cout << "KHFill: " << " "
-	  	    << l << " " << ieta << " " << iphi << " " 
-	  	    << gp.eta() << " " << gp.phi() << " "
-	  	    << h_cuda_pfrh_depth[l] << " " << h_cuda_pfrh_topoId[l]
-	  	    << std::endl; 
+	  rhMap_GPU[h_cuda_pfrh_depth[l]-1][ievt]->SetBinContent(ieta,iphi,1.);
+	  // std::cout << "KHFill: " << " "
+	  // 	    << l << " " << ieta << " " << iphi << " " 
+	  // 	    << gp.eta() << " " << gp.phi() << " "
+	  // 	    << h_cuda_pfrh_depth[l] << " " << h_cuda_pfrh_topoId[l]
+	  // 	    << std::endl; 
 	}
       }
     } // if
@@ -523,7 +524,6 @@ void PFClusterProducerCudaHCAL::produce(edm::Event& e, const edm::EventSetup& es
   //  _energyCorrector->correctEnergies(*pfClustersFromCuda);
   //}
 
-
   float sumEn_CPU = 0.f;
   if(doComparison)
   {
@@ -546,6 +546,7 @@ void PFClusterProducerCudaHCAL::produce(edm::Event& e, const edm::EventSetup& es
     std::vector< std::pair<int, std::pair<double, double> > > myvec; // store list of pf rechits
     std::vector<int> topoidd[7];
     std::vector<int> rhidd[7];
+
     for(auto pfc : *initialClusters)
       {
   	nTopo_CPU->Fill(pfc.recHitFractions().size());
@@ -564,11 +565,16 @@ void PFClusterProducerCudaHCAL::produce(edm::Event& e, const edm::EventSetup& es
 	  }
 	  myvec.push_back(std::make_pair(refhit->depth(),
 					 std::make_pair(refhit->position().eta(),refhit->position().phi())));
-	  topoMap_CPU[refhit->depth()-1][ievt]->Fill(refhit->position().eta(),refhit->position().phi(),topoIndex);
-	  if (depth>0) rhidd[depth-1].push_back(rhIndex);
+	  if (depth>0 && depth<=7) {
+	    if (ievt<100){ // check only first 100 events
+	      topoMap_CPU[depth-1][ievt]->Fill(refhit->position().eta(),refhit->position().phi(),topoIndex);
+	      rhMap_CPU[depth-1][ievt]->Fill(refhit->position().eta(),refhit->position().phi(),1.);
+	    }
+	    rhidd[depth-1].push_back(rhIndex);
+	  }
 	  rhIndex++;
 	}
-	if (depth>0) topoidd[depth-1].push_back(topoIndex);
+	if (depth>0 && depth<=7) topoidd[depth-1].push_back(topoIndex);
 	/*
 	  std::sort(myvec.begin(), myvec.end());
 	  for (unsigned int i=0; i<myvec.size(); i++)
@@ -601,7 +607,7 @@ void PFClusterProducerCudaHCAL::produce(edm::Event& e, const edm::EventSetup& es
     int intTopoCount=0;
     std::vector<int> topoSizeGPU; // size of each topo cluster
     std::vector<int> topoIDGPU; // ID of each topo cluster
-    for(int l=1; l<(int)h_cuda_pfrh_topoId.size();l++){
+    for(int l=0; l<(int)h_cuda_pfrh_topoId.size();l++){
       if((h_cuda_pfrh_topoId[l]==h_cuda_pfrh_topoId[l+1]) && h_cuda_pfrh_topoId[l]>-1.) topoCount++;
       else if(h_cuda_pfrh_topoId[l]>-1.){
 	topoSizeGPU.push_back(topoCount);
