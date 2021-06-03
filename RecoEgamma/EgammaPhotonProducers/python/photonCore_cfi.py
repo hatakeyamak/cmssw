@@ -17,8 +17,10 @@ photonCore = cms.EDProducer("PhotonCoreProducer",
 )
 
 photonCoreFromMultiCl = photonCore.clone(
-    scIslandEndcapProducer = 'particleFlowSuperClusterHGCalFromMultiCl',
-    pixelSeedProducer = 'electronMergedSeedsFromMultiCl'
+    #scIslandEndcapProducer = 'particleFlowSuperClusterHGCalFromMultiCl',
+    scIslandEndcapProducer = 'particleFlowSuperClusterHGCal',
+    #pixelSeedProducer = 'electronMergedSeedsFromMultiCl'
+    pixelSeedProducer = 'electronMergedSeeds'
 )
 
 islandPhotonCore = photonCore.clone(

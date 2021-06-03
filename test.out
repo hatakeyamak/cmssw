@@ -1,0 +1,140 @@
+Deleting existing output file.
+
+
+**************************************************
+process.schedule: cms.Schedule(*[ process.p ])
+
+**************************************************
+
+
+03-Jun-2021 20:16:31 CEST  Initiating request to open file root://cms-xrd-global.cern.ch//store/mc/Phase2HLTTDRSummer20ReRECOMiniAOD/SingleElectron_PT2to200/FEVT/PU200_111X_mcRun4_realistic_T15_v1_ext2-v1/270000/66E79861-5C66-7340-ADD0-C5E82DCD2D98.root
+03-Jun-2021 20:16:41 CEST  Successfully opened file root://cms-xrd-global.cern.ch//store/mc/Phase2HLTTDRSummer20ReRECOMiniAOD/SingleElectron_PT2to200/FEVT/PU200_111X_mcRun4_realistic_T15_v1_ext2-v1/270000/66E79861-5C66-7340-ADD0-C5E82DCD2D98.root
+2021-06-03 20:17:21.713364: I tensorflow/core/platform/cpu_feature_guard.cc:142] This TensorFlow binary is optimized with oneAPI Deep Neural Network Library (oneDNN) to use the following CPU instructions in performance-critical operations:  SSE4.1 SSE4.2 AVX AVX2 AVX512F FMA
+To enable them in other operations, rebuild TensorFlow with the appropriate compiler flags.
+Begin processing the 1st record. Run 1, Event 296585, LumiSection 881 on stream 0 at 03-Jun-2021 20:18:16.860 CEST
+#--------------------------------------------------------------------------
+#                         FastJet release 3.4.0-beta.1
+#                 M. Cacciari, G.P. Salam and G. Soyez                  
+#     A software package for jet finding and analysis at colliders      
+#                           http://fastjet.fr                           
+#	                                                                      
+# Please cite EPJC72(2012)1896 [arXiv:1111.6097] if you use this package
+# for scientific work and optionally PLB641(2006)57 [hep-ph/0512210].   
+#                                                                       
+# FastJet is provided without warranty under the GNU GPL v2 or higher.  
+# It uses T. Chan's closest pair algorithm, S. Fortune's Voronoi code
+# and 3rd party plugin jet algorithms. See COPYING file for details.
+#--------------------------------------------------------------------------
+2021-06-03 20:18:54.851756: I tensorflow/core/platform/profile_utils/cpu_utils.cc:112] CPU Frequency: 2100000000 Hz
+
+
+A fatal system signal has occurred: segmentation violation
+The following is the call stack containing the origin of the signal.
+
+Thu Jun  3 20:19:14 CEST 2021
+Thread 10 (Thread 0x7f888f1ff700 (LWP 31382)):
+#0  0x00007f89a8ccaa35 in pthread_cond_wait@@GLIBC_2.3.2 () from /lib64/libpthread.so.0
+#1  0x00007f89a92c185c in __gthread_cond_wait (__mutex=<optimized out>, __cond=<optimized out>) at /data/cmsbld/jenkins/workspace/auto-builds/CMSSW_11_1_0_pre6-slc7_amd64_gcc900/build/CMSSW_11_1_0_pre6-build/BUILD/slc7_amd64_gcc900/external/gcc/9.3.0/gcc-9.3.0/obj/x86_64-unknown-linux-gnu/libstdc++-v3/include/x86_64-unknown-linux-gnu/bits/gthr-default.h:865
+#2  std::condition_variable::wait (this=<optimized out>, __lock=...) at ../../../../../libstdc++-v3/src/c++11/condition_variable.cc:53
+#3  0x00007f896f5a7443 in Eigen::ThreadPoolTempl<tensorflow::thread::EigenEnvironment>::WaitForWork(Eigen::EventCount::Waiter*, tensorflow::thread::EigenEnvironment::Task*) () from /cvmfs/cms.cern.ch/slc7_amd64_gcc900/cms/cmssw-patch/CMSSW_11_3_1_patch1/external/slc7_amd64_gcc900/lib/libtensorflow_cc.so.2
+#4  0x00007f896f5a7eb3 in Eigen::ThreadPoolTempl<tensorflow::thread::EigenEnvironment>::WorkerLoop(int) () from /cvmfs/cms.cern.ch/slc7_amd64_gcc900/cms/cmssw-patch/CMSSW_11_3_1_patch1/external/slc7_amd64_gcc900/lib/libtensorflow_cc.so.2
+#5  0x00007f896f5a4933 in std::_Function_handler<void (), tensorflow::thread::EigenEnvironment::CreateThread(std::function<void ()>)::{lambda()#1}>::_M_invoke(std::_Any_data const&) () from /cvmfs/cms.cern.ch/slc7_amd64_gcc900/cms/cmssw-patch/CMSSW_11_3_1_patch1/external/slc7_amd64_gcc900/lib/libtensorflow_cc.so.2
+#6  0x00007f896cdeb5bb in tensorflow::(anonymous namespace)::PThread::ThreadFn(void*) () from /cvmfs/cms.cern.ch/slc7_amd64_gcc900/cms/cmssw-patch/CMSSW_11_3_1_patch1/external/slc7_amd64_gcc900/lib/libtensorflow_framework.so.2
+#7  0x00007f89a8cc6ea5 in start_thread () from /lib64/libpthread.so.0
+#8  0x00007f89a89ef9fd in clone () from /lib64/libc.so.6
+Thread 9 (Thread 0x7f888ffff700 (LWP 31381)):
+#0  0x00007f89a8ccaa35 in pthread_cond_wait@@GLIBC_2.3.2 () from /lib64/libpthread.so.0
+#1  0x00007f89a92c185c in __gthread_cond_wait (__mutex=<optimized out>, __cond=<optimized out>) at /data/cmsbld/jenkins/workspace/auto-builds/CMSSW_11_1_0_pre6-slc7_amd64_gcc900/build/CMSSW_11_1_0_pre6-build/BUILD/slc7_amd64_gcc900/external/gcc/9.3.0/gcc-9.3.0/obj/x86_64-unknown-linux-gnu/libstdc++-v3/include/x86_64-unknown-linux-gnu/bits/gthr-default.h:865
+#2  std::condition_variable::wait (this=<optimized out>, __lock=...) at ../../../../../libstdc++-v3/src/c++11/condition_variable.cc:53
+#3  0x00007f896f5a7443 in Eigen::ThreadPoolTempl<tensorflow::thread::EigenEnvironment>::WaitForWork(Eigen::EventCount::Waiter*, tensorflow::thread::EigenEnvironment::Task*) () from /cvmfs/cms.cern.ch/slc7_amd64_gcc900/cms/cmssw-patch/CMSSW_11_3_1_patch1/external/slc7_amd64_gcc900/lib/libtensorflow_cc.so.2
+#4  0x00007f896f5a7eb3 in Eigen::ThreadPoolTempl<tensorflow::thread::EigenEnvironment>::WorkerLoop(int) () from /cvmfs/cms.cern.ch/slc7_amd64_gcc900/cms/cmssw-patch/CMSSW_11_3_1_patch1/external/slc7_amd64_gcc900/lib/libtensorflow_cc.so.2
+#5  0x00007f896f5a4933 in std::_Function_handler<void (), tensorflow::thread::EigenEnvironment::CreateThread(std::function<void ()>)::{lambda()#1}>::_M_invoke(std::_Any_data const&) () from /cvmfs/cms.cern.ch/slc7_amd64_gcc900/cms/cmssw-patch/CMSSW_11_3_1_patch1/external/slc7_amd64_gcc900/lib/libtensorflow_cc.so.2
+#6  0x00007f896cdeb5bb in tensorflow::(anonymous namespace)::PThread::ThreadFn(void*) () from /cvmfs/cms.cern.ch/slc7_amd64_gcc900/cms/cmssw-patch/CMSSW_11_3_1_patch1/external/slc7_amd64_gcc900/lib/libtensorflow_framework.so.2
+#7  0x00007f89a8cc6ea5 in start_thread () from /lib64/libpthread.so.0
+#8  0x00007f89a89ef9fd in clone () from /lib64/libc.so.6
+Thread 8 (Thread 0x7f8890d9d700 (LWP 31380)):
+#0  0x00007f89a8ccaa35 in pthread_cond_wait@@GLIBC_2.3.2 () from /lib64/libpthread.so.0
+#1  0x00007f89a92c185c in __gthread_cond_wait (__mutex=<optimized out>, __cond=<optimized out>) at /data/cmsbld/jenkins/workspace/auto-builds/CMSSW_11_1_0_pre6-slc7_amd64_gcc900/build/CMSSW_11_1_0_pre6-build/BUILD/slc7_amd64_gcc900/external/gcc/9.3.0/gcc-9.3.0/obj/x86_64-unknown-linux-gnu/libstdc++-v3/include/x86_64-unknown-linux-gnu/bits/gthr-default.h:865
+#2  std::condition_variable::wait (this=<optimized out>, __lock=...) at ../../../../../libstdc++-v3/src/c++11/condition_variable.cc:53
+#3  0x00007f896f5a7443 in Eigen::ThreadPoolTempl<tensorflow::thread::EigenEnvironment>::WaitForWork(Eigen::EventCount::Waiter*, tensorflow::thread::EigenEnvironment::Task*) () from /cvmfs/cms.cern.ch/slc7_amd64_gcc900/cms/cmssw-patch/CMSSW_11_3_1_patch1/external/slc7_amd64_gcc900/lib/libtensorflow_cc.so.2
+#4  0x00007f896f5a7eb3 in Eigen::ThreadPoolTempl<tensorflow::thread::EigenEnvironment>::WorkerLoop(int) () from /cvmfs/cms.cern.ch/slc7_amd64_gcc900/cms/cmssw-patch/CMSSW_11_3_1_patch1/external/slc7_amd64_gcc900/lib/libtensorflow_cc.so.2
+#5  0x00007f896f5a4933 in std::_Function_handler<void (), tensorflow::thread::EigenEnvironment::CreateThread(std::function<void ()>)::{lambda()#1}>::_M_invoke(std::_Any_data const&) () from /cvmfs/cms.cern.ch/slc7_amd64_gcc900/cms/cmssw-patch/CMSSW_11_3_1_patch1/external/slc7_amd64_gcc900/lib/libtensorflow_cc.so.2
+#6  0x00007f896cdeb5bb in tensorflow::(anonymous namespace)::PThread::ThreadFn(void*) () from /cvmfs/cms.cern.ch/slc7_amd64_gcc900/cms/cmssw-patch/CMSSW_11_3_1_patch1/external/slc7_amd64_gcc900/lib/libtensorflow_framework.so.2
+#7  0x00007f89a8cc6ea5 in start_thread () from /lib64/libpthread.so.0
+#8  0x00007f89a89ef9fd in clone () from /lib64/libc.so.6
+Thread 7 (Thread 0x7f89656a1700 (LWP 30513)):
+#0  0x00007f89a8cccb3b in do_futex_wait.constprop () from /lib64/libpthread.so.0
+#1  0x00007f89a8cccbcf in __new_sem_wait_slow.constprop.0 () from /lib64/libpthread.so.0
+#2  0x00007f89a8cccc6b in sem_wait@@GLIBC_2.2.5 () from /lib64/libpthread.so.0
+#3  0x00007f899f64e816 in XrdCl::JobManager::RunJobs() () from /cvmfs/cms.cern.ch/slc7_amd64_gcc900/cms/cmssw-patch/CMSSW_11_3_1_patch1/external/slc7_amd64_gcc900/lib/libXrdCl.so.2
+#4  0x00007f899f64e8c9 in RunRunnerThread () from /cvmfs/cms.cern.ch/slc7_amd64_gcc900/cms/cmssw-patch/CMSSW_11_3_1_patch1/external/slc7_amd64_gcc900/lib/libXrdCl.so.2
+#5  0x00007f89a8cc6ea5 in start_thread () from /lib64/libpthread.so.0
+#6  0x00007f89a89ef9fd in clone () from /lib64/libc.so.6
+Thread 6 (Thread 0x7f8965ea2700 (LWP 30512)):
+#0  0x00007f89a8cccb3b in do_futex_wait.constprop () from /lib64/libpthread.so.0
+#1  0x00007f89a8cccbcf in __new_sem_wait_slow.constprop.0 () from /lib64/libpthread.so.0
+#2  0x00007f89a8cccc6b in sem_wait@@GLIBC_2.2.5 () from /lib64/libpthread.so.0
+#3  0x00007f899f64e816 in XrdCl::JobManager::RunJobs() () from /cvmfs/cms.cern.ch/slc7_amd64_gcc900/cms/cmssw-patch/CMSSW_11_3_1_patch1/external/slc7_amd64_gcc900/lib/libXrdCl.so.2
+#4  0x00007f899f64e8c9 in RunRunnerThread () from /cvmfs/cms.cern.ch/slc7_amd64_gcc900/cms/cmssw-patch/CMSSW_11_3_1_patch1/external/slc7_amd64_gcc900/lib/libXrdCl.so.2
+#5  0x00007f89a8cc6ea5 in start_thread () from /lib64/libpthread.so.0
+#6  0x00007f89a89ef9fd in clone () from /lib64/libc.so.6
+Thread 5 (Thread 0x7f89666a3700 (LWP 30511)):
+#0  0x00007f89a8cccb3b in do_futex_wait.constprop () from /lib64/libpthread.so.0
+#1  0x00007f89a8cccbcf in __new_sem_wait_slow.constprop.0 () from /lib64/libpthread.so.0
+#2  0x00007f89a8cccc6b in sem_wait@@GLIBC_2.2.5 () from /lib64/libpthread.so.0
+#3  0x00007f899f64e816 in XrdCl::JobManager::RunJobs() () from /cvmfs/cms.cern.ch/slc7_amd64_gcc900/cms/cmssw-patch/CMSSW_11_3_1_patch1/external/slc7_amd64_gcc900/lib/libXrdCl.so.2
+#4  0x00007f899f64e8c9 in RunRunnerThread () from /cvmfs/cms.cern.ch/slc7_amd64_gcc900/cms/cmssw-patch/CMSSW_11_3_1_patch1/external/slc7_amd64_gcc900/lib/libXrdCl.so.2
+#5  0x00007f89a8cc6ea5 in start_thread () from /lib64/libpthread.so.0
+#6  0x00007f89a89ef9fd in clone () from /lib64/libc.so.6
+Thread 4 (Thread 0x7f8966ea4700 (LWP 30510)):
+#0  0x00007f89a8ccde9d in nanosleep () from /lib64/libpthread.so.0
+#1  0x00007f899f4846ff in XrdSysTimer::Wait(int) () from /cvmfs/cms.cern.ch/slc7_amd64_gcc900/cms/cmssw-patch/CMSSW_11_3_1_patch1/external/slc7_amd64_gcc900/lib/libXrdUtils.so.2
+#2  0x00007f899f5f0b0a in XrdCl::TaskManager::RunTasks() () from /cvmfs/cms.cern.ch/slc7_amd64_gcc900/cms/cmssw-patch/CMSSW_11_3_1_patch1/external/slc7_amd64_gcc900/lib/libXrdCl.so.2
+#3  0x00007f899f5f0c69 in RunRunnerThread () from /cvmfs/cms.cern.ch/slc7_amd64_gcc900/cms/cmssw-patch/CMSSW_11_3_1_patch1/external/slc7_amd64_gcc900/lib/libXrdCl.so.2
+#4  0x00007f89a8cc6ea5 in start_thread () from /lib64/libpthread.so.0
+#5  0x00007f89a89ef9fd in clone () from /lib64/libc.so.6
+Thread 3 (Thread 0x7f89676a5700 (LWP 30509)):
+#0  0x00007f89a89effd3 in epoll_wait () from /lib64/libc.so.6
+#1  0x00007f899f47eed2 in XrdSys::IOEvents::PollE::Begin(XrdSysSemaphore*, int&, char const**) () from /cvmfs/cms.cern.ch/slc7_amd64_gcc900/cms/cmssw-patch/CMSSW_11_3_1_patch1/external/slc7_amd64_gcc900/lib/libXrdUtils.so.2
+#2  0x00007f899f47b78d in XrdSys::IOEvents::BootStrap::Start(void*) () from /cvmfs/cms.cern.ch/slc7_amd64_gcc900/cms/cmssw-patch/CMSSW_11_3_1_patch1/external/slc7_amd64_gcc900/lib/libXrdUtils.so.2
+#3  0x00007f899f483f68 in XrdSysThread_Xeq () from /cvmfs/cms.cern.ch/slc7_amd64_gcc900/cms/cmssw-patch/CMSSW_11_3_1_patch1/external/slc7_amd64_gcc900/lib/libXrdUtils.so.2
+#4  0x00007f89a8cc6ea5 in start_thread () from /lib64/libpthread.so.0
+#5  0x00007f89a89ef9fd in clone () from /lib64/libc.so.6
+Thread 2 (Thread 0x7f8987f33700 (LWP 30486)):
+#0  0x00007f89a8cce1d9 in waitpid () from /lib64/libpthread.so.0
+#1  0x00007f899f1608d7 in edm::service::cmssw_stacktrace_fork() () from /cvmfs/cms.cern.ch/slc7_amd64_gcc900/cms/cmssw/CMSSW_11_3_1/lib/slc7_amd64_gcc900/pluginFWCoreServicesPlugins.so
+#2  0x00007f899f16149a in edm::service::InitRootHandlers::stacktraceHelperThread() () from /cvmfs/cms.cern.ch/slc7_amd64_gcc900/cms/cmssw/CMSSW_11_3_1/lib/slc7_amd64_gcc900/pluginFWCoreServicesPlugins.so
+#3  0x00007f89a92c6af0 in std::execute_native_thread_routine (__p=0x7f8988a1dc10) at ../../../../../libstdc++-v3/src/c++11/thread.cc:80
+#4  0x00007f89a8cc6ea5 in start_thread () from /lib64/libpthread.so.0
+#5  0x00007f89a89ef9fd in clone () from /lib64/libc.so.6
+Thread 1 (Thread 0x7f89a6fc8540 (LWP 30399)):
+#0  0x00007f89a89e4ccd in poll () from /lib64/libc.so.6
+#1  0x00007f899f160cd7 in full_read.constprop () from /cvmfs/cms.cern.ch/slc7_amd64_gcc900/cms/cmssw/CMSSW_11_3_1/lib/slc7_amd64_gcc900/pluginFWCoreServicesPlugins.so
+#2  0x00007f899f16156c in edm::service::InitRootHandlers::stacktraceFromThread() () from /cvmfs/cms.cern.ch/slc7_amd64_gcc900/cms/cmssw/CMSSW_11_3_1/lib/slc7_amd64_gcc900/pluginFWCoreServicesPlugins.so
+#3  0x00007f899f162922 in sig_dostack_then_abort () from /cvmfs/cms.cern.ch/slc7_amd64_gcc900/cms/cmssw/CMSSW_11_3_1/lib/slc7_amd64_gcc900/pluginFWCoreServicesPlugins.so
+#4  <signal handler called>
+#5  0x00007f8981b31c71 in void std::vector<std::pair<DetId, float>, std::allocator<std::pair<DetId, float> > >::_M_realloc_insert<std::pair<DetId, float> const&>(__gnu_cxx::__normal_iterator<std::pair<DetId, float>*, std::vector<std::pair<DetId, float>, std::allocator<std::pair<DetId, float> > > >, std::pair<DetId, float> const&) () from /cvmfs/cms.cern.ch/slc7_amd64_gcc900/cms/cmssw/CMSSW_11_3_1/lib/slc7_amd64_gcc900/libDataFormatsEgammaReco.so
+#6  0x00007f8981b317b1 in reco::SuperCluster::SuperCluster(double, ROOT::Math::PositionVector3D<ROOT::Math::Cartesian3D<double>, ROOT::Math::DefaultCoordinateSystemTag> const&, edm::Ptr<reco::CaloCluster> const&, edm::PtrVector<reco::CaloCluster> const&, double, double, double, double, double) () from /cvmfs/cms.cern.ch/slc7_amd64_gcc900/cms/cmssw/CMSSW_11_3_1/lib/slc7_amd64_gcc900/libDataFormatsEgammaReco.so
+#7  0x00007f893a55d2c0 in SimPFProducer::produce(edm::StreamID, edm::Event&, edm::EventSetup const&) const () from /cvmfs/cms.cern.ch/slc7_amd64_gcc900/cms/cmssw/CMSSW_11_3_1/lib/slc7_amd64_gcc900/pluginRecoParticleFlowPFProducerSimPlugins.so
+#8  0x00007f89ab5b8e57 in edm::global::EDProducerBase::doEvent(edm::EventTransitionInfo const&, edm::ActivityRegistry*, edm::ModuleCallingContext const*) () from /cvmfs/cms.cern.ch/slc7_amd64_gcc900/cms/cmssw/CMSSW_11_3_1/lib/slc7_amd64_gcc900/libFWCoreFramework.so
+#9  0x00007f89ab5adfbd in edm::WorkerT<edm::global::EDProducerBase>::implDo(edm::EventTransitionInfo const&, edm::ModuleCallingContext const*) () from /cvmfs/cms.cern.ch/slc7_amd64_gcc900/cms/cmssw/CMSSW_11_3_1/lib/slc7_amd64_gcc900/libFWCoreFramework.so
+#10 0x00007f89ab50ca05 in decltype ({parm#1}()) edm::convertException::wrap<edm::Worker::runModule<edm::OccurrenceTraits<edm::EventPrincipal, (edm::BranchActionType)1> >(edm::OccurrenceTraits<edm::EventPrincipal, (edm::BranchActionType)1>::TransitionInfoType const&, edm::StreamID, edm::ParentContext const&, edm::OccurrenceTraits<edm::EventPrincipal, (edm::BranchActionType)1>::Context const*)::{lambda()#1}>(edm::Worker::runModule<edm::OccurrenceTraits<edm::EventPrincipal, (edm::BranchActionType)1> >(edm::OccurrenceTraits<edm::EventPrincipal, (edm::BranchActionType)1>::TransitionInfoType const&, edm::StreamID, edm::ParentContext const&, edm::OccurrenceTraits<edm::EventPrincipal, (edm::BranchActionType)1>::Context const*)::{lambda()#1}) () from /cvmfs/cms.cern.ch/slc7_amd64_gcc900/cms/cmssw/CMSSW_11_3_1/lib/slc7_amd64_gcc900/libFWCoreFramework.so
+#11 0x00007f89ab50cbbd in bool edm::Worker::runModule<edm::OccurrenceTraits<edm::EventPrincipal, (edm::BranchActionType)1> >(edm::OccurrenceTraits<edm::EventPrincipal, (edm::BranchActionType)1>::TransitionInfoType const&, edm::StreamID, edm::ParentContext const&, edm::OccurrenceTraits<edm::EventPrincipal, (edm::BranchActionType)1>::Context const*) () from /cvmfs/cms.cern.ch/slc7_amd64_gcc900/cms/cmssw/CMSSW_11_3_1/lib/slc7_amd64_gcc900/libFWCoreFramework.so
+#12 0x00007f89ab50cec6 in std::__exception_ptr::exception_ptr edm::Worker::runModuleAfterAsyncPrefetch<edm::OccurrenceTraits<edm::EventPrincipal, (edm::BranchActionType)1> >(std::__exception_ptr::exception_ptr const*, edm::OccurrenceTraits<edm::EventPrincipal, (edm::BranchActionType)1>::TransitionInfoType const&, edm::StreamID, edm::ParentContext const&, edm::OccurrenceTraits<edm::EventPrincipal, (edm::BranchActionType)1>::Context const*) () from /cvmfs/cms.cern.ch/slc7_amd64_gcc900/cms/cmssw/CMSSW_11_3_1/lib/slc7_amd64_gcc900/libFWCoreFramework.so
+#13 0x00007f89ab50e7c6 in edm::Worker::RunModuleTask<edm::OccurrenceTraits<edm::EventPrincipal, (edm::BranchActionType)1> >::execute() () from /cvmfs/cms.cern.ch/slc7_amd64_gcc900/cms/cmssw/CMSSW_11_3_1/lib/slc7_amd64_gcc900/libFWCoreFramework.so
+#14 0x00007f89ab74eb25 in tbb::internal::function_task<edm::WaitingTaskList::announce()::{lambda()#1}>::execute() () from /cvmfs/cms.cern.ch/slc7_amd64_gcc900/cms/cmssw/CMSSW_11_3_1/lib/slc7_amd64_gcc900/libFWCoreConcurrency.so
+#15 0x00007f89a9d1626d in tbb::internal::custom_scheduler<tbb::internal::IntelSchedulerTraits>::process_bypass_loop (this=this@entry=0x7f89a5953200, context_guard=..., t=0x7f894bf2eb40, isolation=isolation@entry=0) at ../../include/tbb/task.h:1003
+#16 0x00007f89a9d16756 in tbb::internal::custom_scheduler<tbb::internal::IntelSchedulerTraits>::local_wait_for_all (this=0x7f89a5953200, parent=..., child=<optimized out>) at ../../src/tbb/scheduler.h:650
+#17 0x00007f89ab47e058 in edm::EventProcessor::processLumis(std::shared_ptr<void> const&) () from /cvmfs/cms.cern.ch/slc7_amd64_gcc900/cms/cmssw/CMSSW_11_3_1/lib/slc7_amd64_gcc900/libFWCoreFramework.so
+#18 0x00007f89ab487035 in edm::EventProcessor::runToCompletion() () from /cvmfs/cms.cern.ch/slc7_amd64_gcc900/cms/cmssw/CMSSW_11_3_1/lib/slc7_amd64_gcc900/libFWCoreFramework.so
+#19 0x000000000040bae6 in tbb::interface7::internal::delegated_function<main::{lambda()#1}::operator()() const::{lambda()#1} const, void>::operator()() const ()
+#20 0x00007f89a9d0f552 in tbb::interface7::internal::task_arena_base::internal_execute (this=0x7fff1ae3e6a0, d=...) at ../../src/tbb/arena.cpp:1105
+#21 0x000000000040ca13 in main::{lambda()#1}::operator()() const ()
+#22 0x000000000040b62c in main ()
+
+Current Modules:
+
+Module: SimPFProducer:simPFProducer (crashed)
+
+A fatal system signal has occurred: segmentation violation
+./run_TreeMaker_SingleElectron.sh: line 12: 30399 Segmentation fault      (core dumped) cmsRun EDAnalyzers/TreeMaker/python/ConfFile_cfg.py sourceFile=sourceFiles/SingleElectron_PT2to200_Phase2HLTTDRSummer20ReRECOMiniAOD-PU200_111X_mcRun4_realistic_T15_v1_ext2-v1_FEVT/SingleElectron_PT2to200_Phase2HLTTDRSummer20ReRECOMiniAOD-PU200_111X_mcRun4_realistic_T15_v1_ext2-v1_FEVT.txt genEleFilter=0 isGunSample=1 onRaw=1 debugFile=1 maxEvents=20

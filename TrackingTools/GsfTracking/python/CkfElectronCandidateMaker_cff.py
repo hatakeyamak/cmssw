@@ -56,6 +56,12 @@ electronCkfTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTr
     TrajectoryCleaner = 'electronTrajectoryCleanerBySharedHits'
 )
 
+from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
+phase2_hgcal.toModify(
+    electronCkfTrackCandidates,
+    src = 'electronMergedSeeds',
+)
+
 from TrackingTools.TrajectoryCleaning.TrajectoryCleanerBySharedHits_cfi import trajectoryCleanerBySharedHits
 electronTrajectoryCleanerBySharedHits = trajectoryCleanerBySharedHits.clone(
     ComponentName = 'electronTrajectoryCleanerBySharedHits',
@@ -70,6 +76,6 @@ from TrackingTools.GsfTracking.bwdGsfElectronPropagator_cff import *
 from TrackingTools.GsfTracking.fwdGsfElectronPropagator_cff import *
 # TrajectoryFilter
 
-electronCkfTrackCandidatesFromMultiCl = electronCkfTrackCandidates.clone(
-  src = 'electronMergedSeedsFromMultiCl'
-)
+#electronCkfTrackCandidatesFromMultiCl = electronCkfTrackCandidates.clone(
+#  src = 'electronMergedSeedsFromMultiCl'
+#)

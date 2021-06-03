@@ -26,5 +26,5 @@ egamma_lowPt_exclusive.toModify(ecalDrivenElectronSeeds,
                            applyHOverECut = False) 
 
 # create ecal driven seeds for electron using HGCal Multiclusters
-ecalDrivenElectronSeedsFromMultiCl = ecalDrivenElectronSeeds.clone(
-  endcapSuperClusters = 'particleFlowSuperClusterHGCalFromMultiCl')
+#ecalDrivenElectronSeedsFromMultiCl = ecalDrivenElectronSeeds.clone(
+#  endcapSuperClusters = 'particleFlowSuperClusterHGCalFromMultiCl')
