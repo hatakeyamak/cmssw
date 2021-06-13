@@ -71,3 +71,7 @@ particleFlowClusterHGCal = cms.EDProducer(
 #particleFlowClusterHGCalFromMultiCl = particleFlowClusterHGCal.clone(
 #    initialClusteringStep = _hgcalMultiClusterMapper_HGCal
 #)
+
+particleFlowClusterHGCalFromSimCl = particleFlowClusterHGCal.clone(
+    initialClusteringStep = _simClusterMapper_HGCal,
+)
