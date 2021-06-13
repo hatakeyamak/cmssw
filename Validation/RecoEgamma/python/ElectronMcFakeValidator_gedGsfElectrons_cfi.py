@@ -8,7 +8,7 @@ electronMcFakeHistosCfg = cms.PSet(
   Nbinfhits = cms.int32(30), Fhitsmax = cms.double(30.0),
   Nbinlhits = cms.int32(5), Lhitsmax = cms.double(10.0),
   Nbineta = cms.int32(50), Nbineta2D = cms.int32(50),Etamin = cms.double(-2.5), Etamax = cms.double(2.5),
-  Nbindeta = cms.int32(100), Detamin = cms.double(-0.005), Detamax = cms.double(0.005), 
+  Nbindeta = cms.int32(100), Detamin = cms.double(-0.005), Detamax = cms.double(0.005),
   Nbindetamatch = cms.int32(100), Nbindetamatch2D = cms.int32(50), Detamatchmin = cms.double(-0.05), Detamatchmax = cms.double(0.05),
   Nbinphi = cms.int32(64), Nbinphi2D = cms.int32(32), Phimin = cms.double(-3.2), Phimax = cms.double(3.2),
   Nbindphi = cms.int32(100), Dphimin = cms.double(-0.01), Dphimax = cms.double(0.01),
@@ -35,7 +35,7 @@ electronMcFakeValidator = DQMEDAnalyzer('ElectronMcFakeValidator',
   OutputFile = cms.string(""),
   InputFolderName = cms.string("EgammaV/ElectronMcFakeValidator"),
   OutputFolderName = cms.string("EgammaV/ElectronMcFakeValidator"),
-    
+
   matchingObjectCollection = cms.InputTag("ak4GenJets"),
   electronCollection = cms.InputTag("gedGsfElectrons"),
   electronCoreCollection = cms.InputTag("gedGsfElectronCores"),
@@ -44,10 +44,10 @@ electronMcFakeValidator = DQMEDAnalyzer('ElectronMcFakeValidator',
   # ajout 04/02/2015
   offlinePrimaryVertices = cms.InputTag("offlinePrimaryVertices"),
   # fin ajout
-  
+
   beamSpot = cms.InputTag("offlineBeamSpot"),
   readAOD = cms.bool(False),
-  
+
   isoFromDepsTk03            = cms.InputTag(""),
   isoFromDepsTk04            = cms.InputTag(""),
   isoFromDepsEcalFull03      = cms.InputTag(""),
@@ -56,7 +56,7 @@ electronMcFakeValidator = DQMEDAnalyzer('ElectronMcFakeValidator',
   isoFromDepsEcalReduced04   = cms.InputTag(""),
   isoFromDepsHcal03          = cms.InputTag(""),
   isoFromDepsHcal04          = cms.InputTag(""),
-  
+
   MaxPt = cms.double(100.0),
   DeltaR = cms.double(0.3),
   MaxAbsEta = cms.double(2.5),
@@ -66,17 +66,17 @@ electronMcFakeValidator = DQMEDAnalyzer('ElectronMcFakeValidator',
 from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
 phase2_hgcal.toModify(
     electronMcFakeValidator,
-    electronCollection = 'ecalDrivenGsfElectronsFromMultiCl',
-    electronCoreCollection = 'ecalDrivenGsfElectronCoresFromMultiCl',
-    electronTrackCollection = 'electronGsfTracksFromMultiCl',
-    electronSeedCollection = 'electronMergedSeedsFromMultiCl',
+    electronCollection = 'ecalDrivenGsfElectronsHGC',
+    electronCoreCollection = 'ecalDrivenGsfElectronCoresHGC',
+    electronTrackCollection = 'electronGsfTracks',
+    electronSeedCollection = 'electronMergedSeeds',
     MaxAbsEta = cms.double(3.0),
-    histosCfg = dict( 
+    histosCfg = dict(
         Nbineta = 60 ,
         Nbineta2D = 60 ,
         Etamin = -3.0 ,
         Etamax = 3.0 ,
-    
+
         NbinOPV = cms.int32(125), OPV_min = cms.double(-0.5), OPV_max = cms.double(249.5) ,
         NbinELE = cms.int32(100), ELE_min = cms.double(-0.5), ELE_max = cms.double(999.5) ,
         NbinCORE = cms.int32(100), CORE_min = cms.double(-0.5), CORE_max = cms.double(999.5) ,

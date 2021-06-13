@@ -7,7 +7,7 @@ electronMcSignalHistosCfg = cms.PSet(
   Nbinfhits = cms.int32(30), Fhitsmax = cms.double(30.0),
   Nbinlhits = cms.int32(5), Lhitsmax = cms.double(10.0),
   Nbineta = cms.int32(50), Nbineta2D = cms.int32(50),Etamin = cms.double(-2.5), Etamax = cms.double(2.5),
-  Nbindeta = cms.int32(100), Detamin = cms.double(-0.005), Detamax = cms.double(0.005), 
+  Nbindeta = cms.int32(100), Detamin = cms.double(-0.005), Detamax = cms.double(0.005),
   Nbindetamatch = cms.int32(100), Nbindetamatch2D = cms.int32(50), Detamatchmin = cms.double(-0.05), Detamatchmax = cms.double(0.05),
   Nbinphi = cms.int32(64), Nbinphi2D = cms.int32(32), Phimin = cms.double(-3.2), Phimax = cms.double(3.2),
   Nbindphi = cms.int32(100), Dphimin = cms.double(-0.01), Dphimax = cms.double(0.01),
@@ -35,7 +35,7 @@ electronMcSignalValidator = DQMEDAnalyzer('ElectronMcSignalValidator',
   InputFolderName = cms.string("EgammaV/ElectronMcSignalValidator"),
   OutputFolderName = cms.string("EgammaV/ElectronMcSignalValidator"),
 #  OutputMEsInRootFile = cms.bool(True),
-    
+
   mcTruthCollection = cms.InputTag("genParticles"),
   electronCollection = cms.InputTag("gedGsfElectrons"),
   electronCoreCollection = cms.InputTag("gedGsfElectronCores"),
@@ -55,7 +55,7 @@ electronMcSignalValidator = DQMEDAnalyzer('ElectronMcSignalValidator',
   isoFromDepsEcalReduced04   = cms.InputTag(""),
   isoFromDepsHcal03          = cms.InputTag(""),
   isoFromDepsHcal04          = cms.InputTag(""),
-  
+
 #  isoFromDepsTk03            = cms.InputTag("eleIsoFromDepsTk03"),
 #  isoFromDepsTk04            = cms.InputTag("eleIsoFromDepsTk04"),
 #  isoFromDepsEcalFull03      = cms.InputTag("eleIsoFromDepsEcalFromHitsByCrystalFull03"),
@@ -64,7 +64,7 @@ electronMcSignalValidator = DQMEDAnalyzer('ElectronMcSignalValidator',
 #  isoFromDepsEcalReduced04   = cms.InputTag("eleIsoFromDepsEcalFromHitsByCrystalReduced04"),
 #  isoFromDepsHcal03          = cms.InputTag("eleIsoFromDepsHcalFromTowers03"),
 #  isoFromDepsHcal04          = cms.InputTag("eleIsoFromDepsHcalFromTowers04"),
-  
+
   MaxPt = cms.double(100.0),
   DeltaR = cms.double(0.05),
   MaxAbsEta = cms.double(2.5),
@@ -78,17 +78,17 @@ phase2_hgcal.toModify(
     electronMcSignalValidator,
 #  electronCollection = cms.InputTag("ecalDrivenGsfElectrons"),
 #  electronCoreCollection = cms.InputTag("ecalDrivenGsfElectronCores"),
-    electronCollection = 'ecalDrivenGsfElectronsFromMultiCl',
-    electronCoreCollection = 'ecalDrivenGsfElectronCoresFromMultiCl',
-    electronTrackCollection = 'electronGsfTracksFromMultiCl',
-    electronSeedCollection = 'electronMergedSeedsFromMultiCl',
+    electronCollection = 'ecalDrivenGsfElectronsHGC',
+    electronCoreCollection = 'ecalDrivenGsfElectronCoresHGC',
+    electronTrackCollection = 'electronGsfTracks',
+    electronSeedCollection = 'electronMergedSeeds',
     MaxAbsEta = cms.double(3.0),
-    histosCfg = dict( 
+    histosCfg = dict(
         Nbineta = 60 ,
         Nbineta2D = 60 ,
         Etamin = -3.0 ,
         Etamax = 3.0 ,
- 
+
         NbinOPV = cms.int32(125), OPV_min = cms.double(-0.5), OPV_max = cms.double(249.5) ,
         NbinELE = cms.int32(100), ELE_min = cms.double(-0.5), ELE_max = cms.double(999.5) ,
         NbinCORE = cms.int32(100), CORE_min = cms.double(-0.5), CORE_max = cms.double(999.5) ,
