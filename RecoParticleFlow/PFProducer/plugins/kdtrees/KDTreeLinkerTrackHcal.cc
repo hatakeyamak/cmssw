@@ -258,7 +258,7 @@ void KDTreeLinkerTrackHcal::updatePFBlockEltWithLinks() {
       for (const auto& hcalElt : hcalEltSet) {
         double clusterphi = hcalElt->clusterRef()->positionREP().phi();
         double clustereta = hcalElt->clusterRef()->positionREP().eta();
-        multitracks.linkedClusters.push_back(std::make_pair(clusterphi, clustereta));
+        multitracks.linkedClusters.push_back(std::make_pair(hcalElt->clusterRef().id(), hcalElt->clusterRef().key()));
 
         // We set the multilinks flag of the track (for links to ECAL) to true. It will allow us to
         // use it in an optimized way in prefilter
@@ -318,7 +318,8 @@ void KDTreeLinkerTrackHcal::updatePFBlockEltWithLinks() {
         const BlockEltSet::iterator hcalEltIt = std::next(hcalEltSet.begin(), i);
         double clusterphi = (*hcalEltIt)->clusterRef()->positionREP().phi();
         double clustereta = (*hcalEltIt)->clusterRef()->positionREP().eta();
-        multitracks.linkedClusters.push_back(std::make_pair(clusterphi, clustereta));
+        multitracks.linkedClusters.push_back(
+            std::make_pair((*hcalEltIt)->clusterRef().id(), (*hcalEltIt)->clusterRef().key()));
 
         // We set the multilinks flag of the track (for links to ECAL) to true. It will allow us to
         // use it in an optimized way in prefilter

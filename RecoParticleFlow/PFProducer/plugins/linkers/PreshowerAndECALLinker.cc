@@ -67,7 +67,7 @@ double PreshowerAndECALLinker::testLink(const reco::PFBlockElement* elem1, const
     // Check if the link PS/Ecal exist
     reco::PFMultilinksType::const_iterator mlit = multilinks.begin();
     for (; mlit != multilinks.end(); ++mlit)
-      if ((mlit->first == ecalPhi) && (mlit->second == ecalEta))
+      if ((mlit->first == ecalref.id()) && (mlit->second == ecalref.key()))
         break;
 
     // If the link exist, we fill dist and linktest.

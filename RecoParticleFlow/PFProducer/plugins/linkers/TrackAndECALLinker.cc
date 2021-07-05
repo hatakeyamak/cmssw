@@ -65,7 +65,7 @@ double TrackAndECALLinker::testLink(const reco::PFBlockElement* elem1, const rec
     // Check if the link Track/Ecal exist
     reco::PFMultilinksType::const_iterator mlit = multilinks.begin();
     for (; mlit != multilinks.end(); ++mlit)
-      if ((mlit->first == trackphi) && (mlit->second == tracketa))
+      if ((mlit->first == trackref.id()) && (mlit->second == trackref.key()))
         break;
 
     // If the link exist, we fill dist and linktest.
