@@ -9,8 +9,8 @@ for lxplus with SLC7 (default since April 2019)
 
 ~~~
 export SCRAM_ARCH=slc7_amd64_gcc900
-cmsrel CMSSW_11_3_0_pre1
-cd CMSSW_11_3_0_pre1
+cmsrel CMSSW_11_3_0
+cd CMSSW_11_3_0
 cmsenv
 ~~~
 
@@ -116,7 +116,7 @@ python multicrab.py
 
 Once the jobs are done, move the step3_inMINIAODSIM root files
 from your GRID destination directory to test/tmp/QCD (etc) directory and proceed
-with QCD_dqm etc. 
+with QCD_dqm etc.
 Please note that any file matching 'step3\*MINIAODSIM\*.root' will
 be included in the DQM step, so delete files you don't want to study.
 
@@ -131,8 +131,8 @@ Take note that the CMSSW python configuration for running the RECO sequence is d
 ~~~
 # For example (default for 2021):
 #CONDITIONS=auto:phase1_2018_realistic ERA=Run2_2018 # for 2018 scenarios
-CONDITIONS=auto:phase1_2021_realistic ERA=Run3 # for run 3 
-#CONDITIONS=auto:phase2_realistic ERA=Phase2C9 # for phase2 
+CONDITIONS=auto:phase1_2021_realistic ERA=Run3 # for run 3
+#CONDITIONS=auto:phase2_realistic_T21 ERA=Phase2C11I13M9 # for phase2
 #Running with 2 threads allows to use more memory on grid
 NTHREADS=2 TMPDIR=tmp
 
@@ -161,4 +161,3 @@ cmsDriver.py step5 --conditions $CONDITIONS -s DQM:@pfDQM --datatier DQMIO --nTh
 ~~~
 cmsDriver.py step6 --conditions $CONDITIONS -s HARVESTING:@pfDQM --era $ERA --filetype DQM --filein file:step5.root --fileout file:step6.root >& step6.log &
 ~~~
-
