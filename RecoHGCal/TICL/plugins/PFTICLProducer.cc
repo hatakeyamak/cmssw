@@ -2,16 +2,14 @@
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
-
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "DataFormats/Common/interface/View.h"
-
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
-
 #include "DataFormats/HGCalReco/interface/TICLCandidate.h"
+#include "DataFormats/Candidate/interface/Candidate.h"
 
 #include "RecoParticleFlow/PFProducer/interface/PFMuonAlgo.h"
 
@@ -23,6 +21,10 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
   void produce(edm::Event&, const edm::EventSetup&) override;
+
+  reco::Candidate::LorentzVector averageCaloTrack(const reco::TrackRef& trackref, const reco::Candidate::LorentzVector& ticl_p4);
+
+  double hgcalEnergyResolution(const double energy, const double eta) const;
 
 private:
   // parameters
@@ -119,7 +121,13 @@ void PFTICLProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
         part_type = reco::PFCandidate::X;
     }
 
-    candidates->emplace_back(charge, four_mom, part_type);
+    if (part_type == reco::PFCandidate::h && ticl_cand.rawEnergy()!=0.) {  // for charged hadrons and rawEnergy is not zero
+                                                                           // if rawEnergy is zero, track p4 is already used.
+      reco::TrackRef trackref(ticl_cand.trackPtr().id(), int(ticl_cand.trackPtr().key()), &evt.productGetter());
+      const auto& four_mom_avg =  averageCaloTrack(trackref, four_mom);
+      candidates->emplace_back(charge, four_mom_avg, part_type);
+    } else
+      candidates->emplace_back(charge, four_mom, part_type);
 
     auto& candidate = candidates->back();
     candidate.setEcalEnergy(ecal_energy, ecal_energy);
@@ -172,4 +180,48 @@ void PFTICLProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
   }
 
   evt.put(std::move(candidates));
+}
+
+reco::Candidate::LorentzVector PFTICLProducer::averageCaloTrack(const reco::TrackRef& trackref, const reco::Candidate::LorentzVector& ticl_p4) {
+
+  const double trackPt = trackref->pt();
+  const double trackPtError = trackref->ptError();
+  const double trackPtFracError = trackPtError/trackPt;
+  constexpr double mpion2 = 0.13957 * 0.13957;
+  const double energy = std::sqrt(trackref->p2() + mpion2);
+  const reco::Candidate::LorentzVector track_p4(trackref->px(), trackref->px(), trackref->pz(), energy);
+
+  const double ticlE = ticl_p4.E();
+  const double ticlEFracError = hgcalEnergyResolution(track_p4.pt(), track_p4.eta());
+
+  const double weight_denominator = 1./(trackPtFracError*trackPtFracError) + 1./(ticlEFracError*ticlEFracError);
+  const double weight_ticl = 1./(ticlEFracError*ticlEFracError)/weight_denominator;
+  const double weight_trk  = 1./(trackPtFracError*trackPtFracError)/weight_denominator;
+
+  std::cout << trackPt << " " << trackPtFracError << " " << std::endl;
+  std::cout << trackPt << " " << trackPtFracError << " " << ticlE << " " <<  ticlEFracError << std::endl;
+  std::cout << weight_ticl << " " << weight_trk << " " << weight_ticl+weight_trk << std::endl;
+
+  return weight_ticl*ticl_p4 + weight_trk*track_p4;
+
+}
+
+double PFTICLProducer::hgcalEnergyResolution(const double energy, const double eta) const {
+  // Add a protection
+  const double energy_tmp = std::max(energy, 1.);
+
+  double stochastic = 0.659542;
+  double constant   = 0.0204779;
+  if (fabs(eta)>=2.1 && fabs(eta)<2.5){
+    stochastic = 0.749295;
+    constant   = 0.0215127;
+  }
+  else if (fabs(eta)>=2.5){
+    stochastic = 0.735896;
+    constant   = 0.0278864;
+  }
+
+  const double resol = sqrt(stochastic*stochastic / energy_tmp + constant*constant );
+
+  return resol;
 }
