@@ -51,6 +51,11 @@ def customiseCommon(process):
         replace_with(process.Status_OnCPU, cms.Path(process.statusOnGPU + ~process.statusOnGPUFilter))
     else:
         process.Status_OnCPU = cms.Path(process.statusOnGPU + ~process.statusOnGPUFilter)
+<<<<<<< HEAD
+=======
+        if 'HLTSchedule' in process.__dict__:
+            process.HLTSchedule.append(process.Status_OnCPU)
+>>>>>>> Cuda PFRecHitProducer for CMSSW_12_X
         if process.schedule is not None:
             process.schedule.append(process.Status_OnCPU)
 
@@ -58,9 +63,18 @@ def customiseCommon(process):
         replace_with(process.Status_OnGPU, cms.Path(process.statusOnGPU + process.statusOnGPUFilter))
     else:
         process.Status_OnGPU = cms.Path(process.statusOnGPU + process.statusOnGPUFilter)
+<<<<<<< HEAD
         if process.schedule is not None:
             process.schedule.append(process.Status_OnGPU)
 
+=======
+        if 'HLTSchedule' in process.__dict__:
+            process.HLTSchedule.append(process.Status_OnGPU)
+        if process.schedule is not None:
+            process.schedule.append(process.Status_OnGPU)
+
+
+>>>>>>> Cuda PFRecHitProducer for CMSSW_12_X
     # make the ScoutingCaloMuonOutput endpath compatible with using Tasks in the Scouting paths
     if 'hltOutputScoutingCaloMuon' in process.__dict__ and not 'hltPreScoutingCaloMuonOutputSmart' in process.__dict__:
         process.hltPreScoutingCaloMuonOutputSmart = cms.EDFilter( "TriggerResultsFilter",
@@ -94,7 +108,12 @@ def customisePixelLocalReconstruction(process):
     if not 'HLTDoLocalPixelSequence' in process.__dict__:
         return process
 
+<<<<<<< HEAD
     # FIXME replace the Sequences with empty ones to avoid expanding them during the (re)definition of Modules and EDAliases
+=======
+
+    # FIXME replace the Sequences with empty ones to avoid exanding them during the (re)definition of Modules and EDAliases
+>>>>>>> Cuda PFRecHitProducer for CMSSW_12_X
 
     process.HLTDoLocalPixelSequence = cms.Sequence()
 
@@ -118,11 +137,15 @@ def customisePixelLocalReconstruction(process):
 
     # reconstruct the pixel digis and clusters on the gpu
     from RecoLocalTracker.SiPixelClusterizer.siPixelRawToClusterCUDA_cfi import siPixelRawToClusterCUDA as _siPixelRawToClusterCUDA
+<<<<<<< HEAD
     process.hltSiPixelClustersCUDA = _siPixelRawToClusterCUDA.clone(
         # use the same thresholds as the legacy module
         clusterThreshold_layer1 = process.hltSiPixelClusters.ClusterThreshold_L1,
         clusterThreshold_otherLayers = process.hltSiPixelClusters.ClusterThreshold
     )
+=======
+    process.hltSiPixelClustersCUDA = _siPixelRawToClusterCUDA.clone()
+>>>>>>> Cuda PFRecHitProducer for CMSSW_12_X
     # use the pixel channel calibrations scheme for Run 3
     run3_common.toModify(process.hltSiPixelClustersCUDA, isRun2 = False)
 
@@ -132,12 +155,23 @@ def customisePixelLocalReconstruction(process):
         src = "hltSiPixelClustersCUDA"
     )
 
+<<<<<<< HEAD
+=======
+    # convert the pixel digis errors to the legacy format
+    from EventFilter.SiPixelRawToDigi.siPixelDigiErrorsFromSoA_cfi import siPixelDigiErrorsFromSoA as _siPixelDigiErrorsFromSoA
+    process.hltSiPixelDigiErrors = _siPixelDigiErrorsFromSoA.clone(
+        digiErrorSoASrc = "hltSiPixelDigiErrorsSoA",
+        UsePhase1 = True
+    )
+
+>>>>>>> Cuda PFRecHitProducer for CMSSW_12_X
     # copy the pixel digis (except errors) and clusters to the host
     from EventFilter.SiPixelRawToDigi.siPixelDigisSoAFromCUDA_cfi import siPixelDigisSoAFromCUDA as _siPixelDigisSoAFromCUDA
     process.hltSiPixelDigisSoA = _siPixelDigisSoAFromCUDA.clone(
         src = "hltSiPixelClustersCUDA"
     )
 
+<<<<<<< HEAD
     # reconstruct the pixel digis on the cpu
     process.hltSiPixelDigisLegacy = process.hltSiPixelDigis.clone()
 
@@ -147,10 +181,29 @@ def customisePixelLocalReconstruction(process):
         # legacy producer
         cpu = cms.EDAlias(
             hltSiPixelDigisLegacy = cms.VPSet(
+=======
+    # convert the pixel digis (except errors) and clusters to the legacy format
+    from RecoLocalTracker.SiPixelClusterizer.siPixelDigisClustersFromSoA_cfi import siPixelDigisClustersFromSoA as _siPixelDigisClustersFromSoA
+    process.hltSiPixelDigisClusters = _siPixelDigisClustersFromSoA.clone(
+        src = "hltSiPixelDigisSoA"
+    )
+
+    # SwitchProducer wrapping the legacy pixel digis producer or an alias combining the pixel digis information converted from SoA
+    process.hltSiPixelDigis = SwitchProducerCUDA(
+        # legacy producer
+        cpu = process.hltSiPixelDigis,
+        # alias used to access products from multiple conversion modules
+        cuda = cms.EDAlias(
+            hltSiPixelDigisClusters = cms.VPSet(
+                cms.PSet(type = cms.string("PixelDigiedmDetSetVector"))
+            ),
+            hltSiPixelDigiErrors = cms.VPSet(
+>>>>>>> Cuda PFRecHitProducer for CMSSW_12_X
                 cms.PSet(type = cms.string("DetIdedmEDCollection")),
                 cms.PSet(type = cms.string("SiPixelRawDataErroredmDetSetVector")),
                 cms.PSet(type = cms.string("PixelFEDChanneledmNewDetSetVector"))
             )
+<<<<<<< HEAD
         ),
         # conversion from SoA to legacy format
         cuda = _siPixelDigiErrorsFromSoA.clone(
@@ -181,6 +234,20 @@ def customisePixelLocalReconstruction(process):
             # use the same thresholds as the legacy module
             clusterThreshold_layer1 = process.hltSiPixelClusters.ClusterThreshold_L1,
             clusterThreshold_otherLayers = process.hltSiPixelClusters.ClusterThreshold
+=======
+        )
+    )
+
+    # SwitchProducer wrapping the legacy pixel cluster producer or an alias for the pixel clusters information converted from SoA
+    process.hltSiPixelClusters = SwitchProducerCUDA(
+        # legacy producer
+        cpu = process.hltSiPixelClusters,
+        # alias used to access products from multiple conversion modules
+        cuda = cms.EDAlias(
+            hltSiPixelDigisClusters = cms.VPSet(
+                cms.PSet(type = cms.string("SiPixelClusteredmNewDetSetVector"))
+            )
+>>>>>>> Cuda PFRecHitProducer for CMSSW_12_X
         )
     )
 
@@ -191,6 +258,7 @@ def customisePixelLocalReconstruction(process):
         beamSpot = "hltOnlineBeamSpotToCUDA"
     )
 
+<<<<<<< HEAD
     # cpu only: produce the pixel rechits in SoA and legacy format, from the legacy clusters
     from RecoLocalTracker.SiPixelRecHits.siPixelRecHitSoAFromLegacy_cfi import siPixelRecHitSoAFromLegacy as _siPixelRecHitSoAFromLegacy
     process.hltSiPixelRecHitSoA = _siPixelRecHitSoAFromLegacy.clone(
@@ -199,10 +267,13 @@ def customisePixelLocalReconstruction(process):
         convertToLegacy = True
     )
 
+=======
+>>>>>>> Cuda PFRecHitProducer for CMSSW_12_X
     # SwitchProducer wrapping the legacy pixel rechit producer or the transfer of the pixel rechits to the host and the conversion from SoA
     from RecoLocalTracker.SiPixelRecHits.siPixelRecHitFromCUDA_cfi import siPixelRecHitFromCUDA as _siPixelRecHitFromCUDA
     process.hltSiPixelRecHits = SwitchProducerCUDA(
         # legacy producer
+<<<<<<< HEAD
         cpu = cms.EDAlias(
            hltSiPixelRecHitSoA = cms.VPSet(
                 cms.PSet(type = cms.string("SiPixelRecHitedmNewDetSetVector")),
@@ -210,6 +281,10 @@ def customisePixelLocalReconstruction(process):
             )
         ),
         # conversion from SoA to legacy format
+=======
+        cpu = process.hltSiPixelRecHits,
+        # converter to legacy format
+>>>>>>> Cuda PFRecHitProducer for CMSSW_12_X
         cuda = _siPixelRecHitFromCUDA.clone(
             pixelRecHitSrc = "hltSiPixelRecHitsCUDA",
             src = "hltSiPixelClusters"
@@ -224,6 +299,7 @@ def customisePixelLocalReconstruction(process):
           process.hltSiPixelClustersCUDA,                   # reconstruct the pixel digis and clusters on the gpu
           process.hltSiPixelRecHitsCUDA,                    # reconstruct the pixel rechits on the gpu
           process.hltSiPixelDigisSoA,                       # copy the pixel digis (except errors) and clusters to the host
+<<<<<<< HEAD
           process.hltSiPixelDigiErrorsSoA,                  # copy the pixel digis errors to the host
           process.hltSiPixelDigisLegacy,                    # legacy pixel digis producer
           process.hltSiPixelDigis,                          # SwitchProducer wrapping a subset of the legacy pixel digis producer, or the conversion of the pixel digis errors from SoA
@@ -231,11 +307,20 @@ def customisePixelLocalReconstruction(process):
           process.hltSiPixelClusters,                       # SwitchProducer wrapping a subset of the legacy pixel cluster producer, or the conversion of the pixel digis (except errors) and clusters from SoA
           process.hltSiPixelClustersCache,                  # legacy module, used by the legacy pixel quadruplet producer
           process.hltSiPixelRecHitSoA,                      # pixel rechits on cpu, in SoA & legacy format
+=======
+          process.hltSiPixelDigisClusters,                  # convert the pixel digis (except errors) and clusters to the legacy format
+          process.hltSiPixelDigiErrorsSoA,                  # copy the pixel digis errors to the host
+          process.hltSiPixelDigiErrors,                     # convert the pixel digis errors to the legacy format
+          process.hltSiPixelDigis,                          # SwitchProducer wrapping the legacy pixel digis producer or an alias combining the pixel digis information converted from SoA
+          process.hltSiPixelClusters,                       # SwitchProducer wrapping the legacy pixel cluster producer or an alias for the pixel clusters information converted from SoA
+          process.hltSiPixelClustersCache,                  # legacy module, used by the legacy pixel quadruplet producer
+>>>>>>> Cuda PFRecHitProducer for CMSSW_12_X
           process.hltSiPixelRecHits)                        # SwitchProducer wrapping the legacy pixel rechit producer or the transfer of the pixel rechits to the host and the conversion from SoA
 
     process.HLTDoLocalPixelSequence = cms.Sequence(process.HLTDoLocalPixelTask)
 
 
+<<<<<<< HEAD
     # workaround for AlCa paths
 
     if 'AlCa_LumiPixelsCounts_Random_v1' in process.__dict__:
@@ -261,6 +346,8 @@ def customisePixelLocalReconstruction(process):
             process.hltAlcaPixelClusterCounts +
             process.HLTEndSequence )
 
+=======
+>>>>>>> Cuda PFRecHitProducer for CMSSW_12_X
     # done
     return process
 
@@ -271,6 +358,7 @@ def customisePixelTrackReconstruction(process):
     if not 'HLTRecoPixelTracksSequence' in process.__dict__:
         return process
 
+<<<<<<< HEAD
     hasHLTPixelVertexReco = 'HLTRecopixelvertexingSequence' in process.__dict__
 
     # FIXME replace the Sequences with empty ones to avoid expanding them during the (re)definition of Modules and EDAliases
@@ -278,12 +366,30 @@ def customisePixelTrackReconstruction(process):
     process.HLTRecoPixelTracksSequence = cms.Sequence()
     if hasHLTPixelVertexReco:
         process.HLTRecopixelvertexingSequence = cms.Sequence()
+=======
+
+    # FIXME replace the Sequences with empty ones to avoid exanding them during the (re)definition of Modules and EDAliases
+
+    process.HLTRecoPixelTracksSequence = cms.Sequence()
+    process.HLTRecopixelvertexingSequence = cms.Sequence()
+>>>>>>> Cuda PFRecHitProducer for CMSSW_12_X
 
 
     # Modules and EDAliases
 
     # referenced in process.HLTRecoPixelTracksTask
 
+<<<<<<< HEAD
+=======
+    # cpu only: convert the pixel rechits from legacy to SoA format
+    from RecoLocalTracker.SiPixelRecHits.siPixelRecHitSoAFromLegacy_cfi import siPixelRecHitSoAFromLegacy as _siPixelRecHitSoAFromLegacy
+    process.hltSiPixelRecHitSoA = _siPixelRecHitSoAFromLegacy.clone(
+        src = "hltSiPixelClusters",
+        beamSpot = "hltOnlineBeamSpot",
+        convertToLegacy = True
+    )
+
+>>>>>>> Cuda PFRecHitProducer for CMSSW_12_X
     # build pixel ntuplets and pixel tracks in SoA format on gpu
     from RecoPixelVertexing.PixelTriplets.pixelTracksCUDA_cfi import pixelTracksCUDA as _pixelTracksCUDA
     process.hltPixelTracksCUDA = _pixelTracksCUDA.clone(
@@ -321,6 +427,7 @@ def customisePixelTrackReconstruction(process):
 
 
     # referenced in process.HLTRecopixelvertexingTask
+<<<<<<< HEAD
     if hasHLTPixelVertexReco:
 
         # build pixel vertices in SoA format on gpu
@@ -351,12 +458,47 @@ def customisePixelTrackReconstruction(process):
             TrackCollection = "hltPixelTracks",
             beamSpot = "hltOnlineBeamSpot"
         )
+=======
+
+    # build pixel vertices in SoA format on gpu
+    from RecoPixelVertexing.PixelVertexFinding.pixelVerticesCUDA_cfi import pixelVerticesCUDA as _pixelVerticesCUDA
+    process.hltPixelVerticesCUDA = _pixelVerticesCUDA.clone(
+        pixelTrackSrc = "hltPixelTracksCUDA",
+        onGPU = True
+    )
+
+    # build or transfer pixel vertices in SoA format on cpu
+    from RecoPixelVertexing.PixelVertexFinding.pixelVerticesSoA_cfi import pixelVerticesSoA as _pixelVerticesSoA
+    process.hltPixelVerticesSoA = SwitchProducerCUDA(
+        # build pixel vertices in SoA format on cpu
+        cpu = _pixelVerticesCUDA.clone(
+            pixelTrackSrc = "hltPixelTracksSoA",
+            onGPU = False
+        ),
+        # transfer the pixel vertices in SoA format to cpu
+        cuda = _pixelVerticesSoA.clone(
+            src = "hltPixelVerticesCUDA"
+        )
+    )
+
+    # convert the pixel vertices from SoA to legacy format
+    from RecoPixelVertexing.PixelVertexFinding.pixelVertexFromSoA_cfi import pixelVertexFromSoA as _pixelVertexFromSoA
+    process.hltPixelVertices = _pixelVertexFromSoA.clone(
+        src = "hltPixelVerticesSoA",
+        TrackCollection = "hltPixelTracks",
+        beamSpot = "hltOnlineBeamSpot"
+    )
+>>>>>>> Cuda PFRecHitProducer for CMSSW_12_X
 
 
     # Tasks and Sequences
 
     process.HLTRecoPixelTracksTask = cms.Task(
           process.hltPixelTracksTrackingRegions,            # from the original sequence
+<<<<<<< HEAD
+=======
+          process.hltSiPixelRecHitSoA,                      # pixel rechits on cpu, converted to SoA
+>>>>>>> Cuda PFRecHitProducer for CMSSW_12_X
           process.hltPixelTracksCUDA,                       # pixel ntuplets on gpu, in SoA format
           process.hltPixelTracksSoA,                        # pixel ntuplets on cpu, in SoA format
           process.hltPixelTracks)                           # pixel tracks on cpu, in legacy format
@@ -364,6 +506,7 @@ def customisePixelTrackReconstruction(process):
 
     process.HLTRecoPixelTracksSequence = cms.Sequence(process.HLTRecoPixelTracksTask)
 
+<<<<<<< HEAD
     if hasHLTPixelVertexReco:
         process.HLTRecopixelvertexingTask = cms.Task(
               process.HLTRecoPixelTracksTask,
@@ -376,6 +519,19 @@ def customisePixelTrackReconstruction(process):
               process.hltPixelTracksFitter +                # not used here, kept for compatibility with legacy sequences
               process.hltPixelTracksFilter,                 # not used here, kept for compatibility with legacy sequences
               process.HLTRecopixelvertexingTask)
+=======
+    process.HLTRecopixelvertexingTask = cms.Task(
+          process.HLTRecoPixelTracksTask,
+          process.hltPixelVerticesCUDA,                     # pixel vertices on gpu, in SoA format
+          process.hltPixelVerticesSoA,                      # pixel vertices on cpu, in SoA format
+          process.hltPixelVertices,                         # pixel vertices on cpu, in legacy format
+          process.hltTrimmedPixelVertices)                  # from the original sequence
+
+    process.HLTRecopixelvertexingSequence = cms.Sequence(
+          process.hltPixelTracksFitter +                    # not used here, kept for compatibility with legacy sequences
+          process.hltPixelTracksFilter,                     # not used here, kept for compatibility with legacy sequences
+          process.HLTRecopixelvertexingTask)
+>>>>>>> Cuda PFRecHitProducer for CMSSW_12_X
 
 
     # done
@@ -385,6 +541,7 @@ def customisePixelTrackReconstruction(process):
 # customisation for offloading the ECAL local reconstruction via CUDA if a supported gpu is present
 def customiseEcalLocalReconstruction(process):
 
+<<<<<<< HEAD
     hasHLTEcalPreshowerSeq = any(seq in process.__dict__ for seq in ['HLTDoFullUnpackingEgammaEcalMFSequence', 'HLTDoFullUnpackingEgammaEcalSequence'])
     if not (hasHLTEcalPreshowerSeq or 'HLTDoFullUnpackingEgammaEcalWithoutPreshowerSequence' in process.__dict__):
         return process
@@ -395,6 +552,17 @@ def customiseEcalLocalReconstruction(process):
     if hasHLTEcalPreshowerSeq:
         process.HLTDoFullUnpackingEgammaEcalMFSequence = cms.Sequence()
         process.HLTDoFullUnpackingEgammaEcalSequence = cms.Sequence()
+=======
+    if not 'HLTDoFullUnpackingEgammaEcalSequence' in process.__dict__:
+        return process
+
+
+    # FIXME replace the Sequences with empty ones to avoid exanding them during the (re)definition of Modules and EDAliases
+
+    process.HLTDoFullUnpackingEgammaEcalMFSequence = cms.Sequence()
+    process.HLTDoFullUnpackingEgammaEcalWithoutPreshowerSequence = cms.Sequence()
+    process.HLTDoFullUnpackingEgammaEcalSequence = cms.Sequence()
+>>>>>>> Cuda PFRecHitProducer for CMSSW_12_X
 
 
     # Event Setup
@@ -540,6 +708,7 @@ def customiseEcalLocalReconstruction(process):
     process.HLTDoFullUnpackingEgammaEcalWithoutPreshowerSequence = cms.Sequence(
         process.HLTDoFullUnpackingEgammaEcalWithoutPreshowerTask)
 
+<<<<<<< HEAD
     if hasHLTEcalPreshowerSeq:
         process.HLTPreshowerTask = cms.Task(
             process.hltEcalPreshowerDigis,                  # unpack ECAL preshower digis on the host
@@ -556,6 +725,24 @@ def customiseEcalLocalReconstruction(process):
 
         process.HLTDoFullUnpackingEgammaEcalMFSequence = cms.Sequence(
             process.HLTDoFullUnpackingEgammaEcalTask)
+=======
+    process.HLTPreshowerTask = cms.Task(
+        process.hltEcalPreshowerDigis,                      # unpack ECAL preshower digis on the host
+        process.hltEcalPreshowerRecHit)                     # build ECAL preshower rechits on the host
+
+    process.HLTPreshowerSequence = cms.Sequence(process.HLTPreshowerTask)
+
+    process.HLTDoFullUnpackingEgammaEcalTask = cms.Task(
+        process.HLTDoFullUnpackingEgammaEcalWithoutPreshowerTask,
+        process.HLTPreshowerTask)
+
+    process.HLTDoFullUnpackingEgammaEcalSequence = cms.Sequence(
+        process.HLTDoFullUnpackingEgammaEcalTask)
+
+    process.HLTDoFullUnpackingEgammaEcalMFSequence = cms.Sequence(
+        process.HLTDoFullUnpackingEgammaEcalTask)
+
+>>>>>>> Cuda PFRecHitProducer for CMSSW_12_X
 
     # done
     return process
@@ -563,6 +750,7 @@ def customiseEcalLocalReconstruction(process):
 # customisation for offloading the HCAL local reconstruction via CUDA if a supported gpu is present
 def customiseHcalLocalReconstruction(process):
 
+<<<<<<< HEAD
     hasHLTDoLocalHcalSeq = 'HLTDoLocalHcalSequence' in process.__dict__
     if not (hasHLTDoLocalHcalSeq or 'HLTStoppedHSCPLocalHcalReco' in process.__dict__):
         return process
@@ -571,6 +759,15 @@ def customiseHcalLocalReconstruction(process):
 
     if hasHLTDoLocalHcalSeq:
         process.HLTDoLocalHcalSequence = cms.Sequence()
+=======
+    if not 'HLTDoLocalHcalSequence' in process.__dict__:
+        return process
+
+
+    # FIXME replace the Sequences with empty ones to avoid exanding them during the (re)definition of Modules and EDAliases
+
+    process.HLTDoLocalHcalSequence = cms.Sequence()
+>>>>>>> Cuda PFRecHitProducer for CMSSW_12_X
     process.HLTStoppedHSCPLocalHcalReco = cms.Sequence()
 
 
@@ -578,7 +775,10 @@ def customiseHcalLocalReconstruction(process):
 
     process.load("EventFilter.HcalRawToDigi.hcalElectronicsMappingGPUESProducer_cfi")
 
+<<<<<<< HEAD
     process.load("RecoLocalCalo.HcalRecProducers.hcalChannelQualityGPUESProducer_cfi")
+=======
+>>>>>>> Cuda PFRecHitProducer for CMSSW_12_X
     process.load("RecoLocalCalo.HcalRecProducers.hcalGainsGPUESProducer_cfi")
     process.load("RecoLocalCalo.HcalRecProducers.hcalGainWidthsGPUESProducer_cfi")
     process.load("RecoLocalCalo.HcalRecProducers.hcalLUTCorrsGPUESProducer_cfi")
@@ -644,6 +844,7 @@ def customiseHcalLocalReconstruction(process):
 
 
     # Tasks and Sequences
+<<<<<<< HEAD
     if hasHLTDoLocalHcalSeq:
         process.HLTDoLocalHcalTask = cms.Task(
             process.hltHcalDigis,                           # legacy producer, unpack HCAL digis on cpu
@@ -657,6 +858,21 @@ def customiseHcalLocalReconstruction(process):
 
         process.HLTDoLocalHcalSequence = cms.Sequence(
             process.HLTDoLocalHcalTask)
+=======
+
+    process.HLTDoLocalHcalTask = cms.Task(
+        process.hltHcalDigis,                               # legacy producer, unpack HCAL digis on cpu
+        process.hltHcalDigisGPU,                            # copy to gpu and convert to SoA format
+        process.hltHbherecoGPU,                             # run the HCAL local reconstruction (including Method 0 and MAHI) on gpu
+        process.hltHbherecoFromGPU,                         # transfer the HCAL rechits to the cpu, and convert them to the legacy format
+        process.hltHbhereco,                                # SwitchProducer between the legacy producer and the copy from gpu with conversion
+        process.hltHfprereco,                               # legacy producer
+        process.hltHfreco,                                  # legacy producer
+        process.hltHoreco)                                  # legacy producer
+
+    process.HLTDoLocalHcalSequence = cms.Sequence(
+        process.HLTDoLocalHcalTask)
+>>>>>>> Cuda PFRecHitProducer for CMSSW_12_X
 
     process.HLTStoppedHSCPLocalHcalRecoTask = cms.Task(
         process.hltHcalDigis,                               # legacy producer, unpack HCAL digis on cpu
@@ -676,6 +892,7 @@ def customiseHcalLocalReconstruction(process):
 # customisation to enable pixel triplets instead of quadruplets
 def enablePatatrackPixelTriplets(process):
 
+<<<<<<< HEAD
   if 'hltPixelTracksCUDA' in process.__dict__:
       # configure GPU pixel tracks for triplets
       process.hltPixelTracksCUDA.minHitsPerNtuplet = 3
@@ -685,6 +902,15 @@ def enablePatatrackPixelTriplets(process):
       # configure CPU pixel tracks for triplets
       process.hltPixelTracksSoA.cpu.minHitsPerNtuplet = 3
       process.hltPixelTracksSoA.cpu.includeJumpingForwardDoublets = True
+=======
+  # configure GPU pixel tracks for triplets
+  process.hltPixelTracksCUDA.minHitsPerNtuplet = 3
+  process.hltPixelTracksCUDA.includeJumpingForwardDoublets = True
+
+  # configure CPU pixel tracks for triplets
+  process.hltPixelTracksSoA.cpu.minHitsPerNtuplet = 3
+  process.hltPixelTracksSoA.cpu.includeJumpingForwardDoublets = True
+>>>>>>> Cuda PFRecHitProducer for CMSSW_12_X
 
   # done
   return process
@@ -725,6 +951,11 @@ def _addConsumerPath(process):
         process.HLTDoLocalHcalTask,
     )
 
+<<<<<<< HEAD
+=======
+    if 'HLTSchedule' in process.__dict__:
+        process.HLTSchedule.append(process.Consumer)
+>>>>>>> Cuda PFRecHitProducer for CMSSW_12_X
     if process.schedule is not None:
         process.schedule.append(process.Consumer)
 
