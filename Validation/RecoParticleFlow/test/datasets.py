@@ -129,8 +129,8 @@ if __name__ == "__main__":
     #prefix = "root://xrootd-cms.infn.it//"
     tmpdir = "tmp"
     datasets = [
-        Dataset("/RelValQCD_FlatPt_15_3000HS_14/CMSSW_12_1_0_pre2-121X_mcRun3_2021_realistic_v1-v1/GEN-SIM-DIGI-RAW", "QCD_noPU", prefix, None, False, tmpdir),
-        Dataset("/RelValQCD_FlatPt_15_3000HS_14/CMSSW_12_1_0_pre2-PU_121X_mcRun3_2021_realistic_v1-v1/GEN-SIM-DIGI-RAW", "QCD_PU", prefix, None, False, tmpdir),
+        Dataset("/RelValQCD_FlatPt_15_3000HS_14/CMSSW_12_4_0_pre2-123X_mcRun3_2021_realistic_v12-v1/GEN-SIM-DIGI-RAW", "QCD_noPU", prefix, None, False, tmpdir),
+        Dataset("/RelValQCD_FlatPt_15_3000HS_14/CMSSW_12_4_0_pre2-PU_123X_mcRun3_2021_realistic_v12-v2/GEN-SIM-DIGI-RAW", "QCD_PU", prefix, None, False, tmpdir),
         Dataset("/RelValZEE_14/CMSSW_12_1_0_pre2-PU_121X_mcRun3_2021_realistic_v1-v1/GEN-SIM-DIGI-RAW", "ZEE_PU", prefix, None, False, tmpdir),
         Dataset("/RelValZMM_14/CMSSW_12_1_0_pre2-PU_121X_mcRun3_2021_realistic_v1-v1/GEN-SIM-DIGI-RAW", "ZMM_PU", prefix, None, False, tmpdir),
         Dataset("/RelValTenTau_15_500/CMSSW_12_1_0_pre2-PU_121X_mcRun3_2021_realistic_v1-v1/GEN-SIM-DIGI-RAW", "TenTau_PU", prefix, None, False, tmpdir),
