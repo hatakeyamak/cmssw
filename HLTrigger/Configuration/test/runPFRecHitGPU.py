@@ -30,7 +30,7 @@ process.maxEvents = cms.untracked.PSet(
 
 # Input source
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('/store/relval/CMSSW_12_3_0_pre5/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/PU_123X_mcRun3_2021_realistic_v6-v1/10000/3f4a564a-b65a-4f45-87df-5d908f0757d3.root'),
+    fileNames = cms.untracked.vstring('/store/relval/CMSSW_12_3_1/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/123X_mcRun3_2021_realistic_v13-v1/2580000/02de0d0d-1c1e-45c5-9c97-2cf40a558b48.root'),
     secondaryFileNames = cms.untracked.vstring()
 )
 
@@ -90,7 +90,7 @@ process = ProcessName(process)
 
 from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2021_realistic', '')
-process.FEVTDEBUGHLToutput.outputCommands.append('keep *_*articleFlow*HBHE*_*_*')
+process.FEVTDEBUGHLToutput.outputCommands.append('keep *_*particleFlow*HBHE*_*_*')
 
 # Path and EndPath definitions
 process.endjob_step = cms.EndPath(process.endOfProcess)
