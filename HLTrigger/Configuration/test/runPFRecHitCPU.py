@@ -90,7 +90,7 @@ process = ProcessName(process)
 
 from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2021_realistic', '')
-process.FEVTDEBUGHLToutput.outputCommands.append('keep *_*articleFlow*HBHE*_*_*')
+process.FEVTDEBUGHLToutput.outputCommands.append('keep *_*particleFlow*HBHE*_*_*')
 
 # Path and EndPath definitions
 process.endjob_step = cms.EndPath(process.endOfProcess)
@@ -105,13 +105,13 @@ associatePatAlgosToolsTask(process)
 # customisation of the process.
 
 # Automatic addition of the customisation function from HLTrigger.Configuration.customizeHLTforPatatrack
-from HLTrigger.Configuration.customizeHLTforPatatrack import customizeHLTforPatatrack 
+#from HLTrigger.Configuration.customizeHLTforPatatrack import customizeHLTforPatatrack
 
 #call to customisation function customizeHLTforPatatrack imported from HLTrigger.Configuration.customizeHLTforPatatrack
-process = customizeHLTforPatatrack(process)
+#process = customizeHLTforPatatrack(process)
 
 # Automatic addition of the customisation function from HLTrigger.Configuration.customizeHLTforMC
-from HLTrigger.Configuration.customizeHLTforMC import customizeHLTforMC 
+from HLTrigger.Configuration.customizeHLTforMC import customizeHLTforMC
 
 #call to customisation function customizeHLTforMC imported from HLTrigger.Configuration.customizeHLTforMC
 process = customizeHLTforMC(process)

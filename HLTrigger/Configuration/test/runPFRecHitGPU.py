@@ -30,7 +30,7 @@ process.maxEvents = cms.untracked.PSet(
 
 # Input source
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('/store/relval/CMSSW_12_3_1/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/123X_mcRun3_2021_realistic_v13-v1/2580000/02de0d0d-1c1e-45c5-9c97-2cf40a558b48.root'),
+    fileNames = cms.untracked.vstring('/store/relval/CMSSW_12_3_1/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/PU_123X_mcRun3_2021_realistic_v13-v1/2580000/0b001ecf-751f-4008-b35b-2bc1bf92582a.root'),
     secondaryFileNames = cms.untracked.vstring()
 )
 
@@ -105,11 +105,11 @@ associatePatAlgosToolsTask(process)
 # customisation of the process.
 
 # Automatic addition of the customisation function from HLTrigger.Configuration.customizeHLTforPatatrack
-from HLTrigger.Configuration.customizeHLTforPatatrack import customizeHLTforPatatrack, customiseCommon, customiseHcalLocalReconstruction 
+#from HLTrigger.Configuration.customizeHLTforPatatrack import customizeHLTforPatatrack, customiseCommon, customiseHcalLocalReconstruction
 
 # only enable Hcal GPU
-process = customiseCommon(process)
-process = customiseHcalLocalReconstruction(process)
+#process = customiseCommon(process)
+#process = customiseHcalLocalReconstruction(process)
 
 #call to customisation function customizeHLTforPatatrack imported from HLTrigger.Configuration.customizeHLTforPatatrack
 #process = customizeHLTforPatatrack(process)
