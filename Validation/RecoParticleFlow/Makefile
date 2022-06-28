@@ -1,4 +1,4 @@
-TMPDIR=tmp
+TMPDIR=test/tmp
 RELVALCMD=${CMSSW_BASE}/src/Validation/RecoParticleFlow/test/run_relval.sh
 DQM_MC=DQM_V0001_R000000001__Global__CMSSW_X_Y_Z__RECO
 

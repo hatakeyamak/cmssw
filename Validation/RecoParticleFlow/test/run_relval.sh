@@ -29,7 +29,7 @@ CONDITIONS=auto:phase1_2018_realistic ERA=Run2_2018 GEOM=DB:Extended
 #CONDITIONS=auto:phase2_realistic ERA=Phase2C8_timing_layer_bar GEOM=Extended2023D41
 
 #Running with 2 threads allows to use more memory on grid
-NTHREADS=2
+NTHREADS=8
 
 #Argument parsing
 if [ "$#" -ne 3 ]; then
@@ -57,22 +57,22 @@ fi
 
 ##RelVal samples
 if [ "$1" == "QCD" ]; then
-    INPUT_FILELIST=${CMSSW_BASE}/src/Validation/RecoParticleFlow/tmp/das_cache/QCD_noPU.txt
+    INPUT_FILELIST=${CMSSW_BASE}/src/Validation/RecoParticleFlow/test/tmp/das_cache/QCD_noPU.txt
     NAME=QCD
 elif [ "$1" == "QCDPU" ]; then
-    INPUT_FILELIST=${CMSSW_BASE}/src/Validation/RecoParticleFlow/tmp/das_cache/QCD_PU.txt
+    INPUT_FILELIST=${CMSSW_BASE}/src/Validation/RecoParticleFlow/test/tmp/das_cache/QCD_PU.txt
     NAME=QCDPU
 elif [ "$1" == "ZMM" ]; then
-    INPUT_FILELIST=${CMSSW_BASE}/src/Validation/RecoParticleFlow/tmp/das_cache/ZMM.txt
+    INPUT_FILELIST=${CMSSW_BASE}/src/Validation/RecoParticleFlow/test/tmp/das_cache/ZMM.txt
     NAME=ZMM
 elif [ "$1" == "MinBias" ]; then
-    INPUT_FILELIST=${CMSSW_BASE}/src/Validation/RecoParticleFlow/tmp/das_cache/MinBias.txt
+    INPUT_FILELIST=${CMSSW_BASE}/src/Validation/RecoParticleFlow/test/tmp/das_cache/MinBias.txt
     NAME=MinBias
 elif [ "$1" == "NuGunPU" ]; then
-    INPUT_FILELIST=${CMSSW_BASE}/src/Validation/RecoParticleFlow/tmp/das_cache/NuGun_PU.txt
+    INPUT_FILELIST=${CMSSW_BASE}/src/Validation/RecoParticleFlow/test/tmp/das_cache/NuGun_PU.txt
     NAME=NuGunPU
 elif [ "$1" == "conf" ]; then  # special switch for creating conf file, 
-    INPUT_FILELIST=${CMSSW_BASE}/src/Validation/RecoParticleFlow/tmp/das_cache/NuGun_PU.txt # dummy
+    INPUT_FILELIST=${CMSSW_BASE}/src/Validation/RecoParticleFlow/test/tmp/das_cache/NuGun_PU.txt # dummy
     NAME=conf
 else
     echo "Argument 1 must be [QCD|QCDPU|ZMM|MinBias|NuGunPU|conf] but was $1"

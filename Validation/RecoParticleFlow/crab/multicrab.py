@@ -1,5 +1,5 @@
 from CRABAPI.RawCommand import crabCommand
-from CRABClient.UserUtilities import getUsernameFromSiteDB
+#from CRABClient.UserUtilities import getUsernameFromSiteDB
 from CRABClient.UserUtilities import config
 from copy import deepcopy
 import os
@@ -34,8 +34,8 @@ if __name__ == "__main__":
         conf.JobType.maxJobRuntimeMin = 4*60
         conf.JobType.allowUndistributedCMSSW = True
         conf.JobType.outputFiles = ["step3_inMINIAODSIM.root"]
-        conf.JobType.maxMemoryMB = 5000
-        conf.JobType.numCores = 2
+        conf.JobType.maxMemoryMB = 20000
+        conf.JobType.numCores = 8
         
         conf.Data.inputDataset = dataset
         conf.Data.splitting = 'LumiBased'
@@ -43,11 +43,11 @@ if __name__ == "__main__":
         #conf.Data.totalUnits = 50
         conf.Data.publication = False
         conf.Data.outputDatasetTag = 'pfvalidation'
-        #conf.Data.ignoreLocality = True
+        conf.Data.ignoreLocality = True
         
         # Where the output files will be transmitted to
-        #conf.Site.storageSite = 'T3_US_Baylor'
-        conf.Site.storageSite = 'T2_US_Caltech'
-        #conf.Site.whitelist = ["T2_US_Caltech", "T2_CH_CERN"]
+        conf.Site.storageSite = 'T3_US_Baylor'
+        #conf.Site.storageSite = 'T2_US_Caltech'
+        conf.Site.whitelist = ["T3_US_Baylor", "T2_US_*", "T1_US_FNAL", "T2_CH_CERN"]
         
         submit(conf) 
