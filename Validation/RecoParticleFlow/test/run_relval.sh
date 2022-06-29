@@ -20,7 +20,7 @@ fi
 
 #
 #set default conditions - 2018
-CONDITIONS=auto:phase1_2018_realistic ERA=Run2_2018 GEOM=DB:Extended
+CONDITIONS=106X_upgrade2018_realistic_v15_L1v1 ERA=Run2_2018 GEOM=DB:Extended
 #
 #conditions - 2017
 #CONDITIONS=auto:phase1_2017_realistic ERA=Run2_2017,run2_nanoAOD_94XMiniAODv1 GEOM=DB.Extended
@@ -105,7 +105,7 @@ if [ $STEP == "RECO" ]; then
 	FILENAME=`sed -n "${NJOB}p" $INPUT_FILELIST`
 	echo "FILENAME="$FILENAME
 
-	cmsDriver.py step3 --runUnscheduled  --conditions $CONDITIONS -s RAW2DIGI,L1Reco,RECO,RECOSIM,EI,PAT --datatier MINIAODSIM --nThreads $NTHREADS -n -1 --era $ERA --eventcontent MINIAODSIM --geometry=$GEOM --filein step2.root --fileout file:step3.root --no_exec --python_filename=step3.py
+	cmsDriver.py step3 --runUnscheduled  --conditions $CONDITIONS -s RAW2DIGI,L1Reco,RECO,RECOSIM,EI,PAT --datatier MINIAODSIM --nThreads $NTHREADS -n -1 --era $ERA --eventcontent MINIAODSIM --geometry=$GEOM --filein step2.root --fileout file:step3_inMINIAODSIM.root --no_exec --python_filename=step3.py
 	
     else
 	
@@ -124,7 +124,7 @@ if [ $STEP == "RECO" ]; then
 	echo "FILENAME="$FILENAME
 	#Run the actual CMS reco with particle flow.
 	echo "Running step RECO" 
-	cmsDriver.py step3 --runUnscheduled  --conditions $CONDITIONS -s RAW2DIGI,L1Reco,RECO,RECOSIM,EI,PAT --datatier MINIAODSIM --nThreads $NTHREADS -n -1 --era $ERA --eventcontent MINIAODSIM --geometry=$GEOM --filein $FILENAME --fileout file:step3.root | tee step3.log  2>&1
+	cmsDriver.py step3 --runUnscheduled  --conditions $CONDITIONS -s RAW2DIGI,L1Reco,RECO,RECOSIM,EI,PAT --datatier MINIAODSIM --nThreads $NTHREADS -n -1 --era $ERA --eventcontent MINIAODSIM --geometry=$GEOM --filein $FILENAME --fileout file:step3_inMINIAODSIM.root | tee step3.log  2>&1
    
 	#NanoAOD
 	#On lxplus, this step takes about 1 minute / 1000 events
