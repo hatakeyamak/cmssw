@@ -40,6 +40,8 @@
 #include "DataFormats/HcalRecHit/interface/CaloRecHitAuxSetter.h"
 #include "DataFormats/METReco/interface/HcalPhase1FlagLabels.h"
 
+#include "CUDADataFormats/HcalRecHitSoA/interface/RecHitCollection.h"
+
 #include "CalibFormats/HcalObjects/interface/HcalDbService.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
 #include "CalibFormats/HcalObjects/interface/HcalCoderDb.h"
@@ -305,6 +307,7 @@ private:
   bool recoParamsFromDB_;
   bool saveEffectivePedestal_;
   bool use8ts_;
+
   int sipmQTSShift_;
   int sipmQNTStoSum_;
 
