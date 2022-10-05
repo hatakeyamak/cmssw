@@ -74,8 +74,8 @@ private:
   PFClustering::HCAL::ConfigurationParameters cudaConfig_;
   PFClustering::common::CudaHCALConstants cudaConstants;
 
-  PFClustering::HCAL::InputDataCPU inputCPU;
-  PFClustering::HCAL::InputDataGPU inputGPU;
+  // PFClustering::HCAL::InputDataCPU inputCPU;
+  // PFClustering::HCAL::InputDataGPU inputGPU;
 
   PFClustering::HCAL::OutputDataCPU outputCPU;
   PFClustering::HCAL::OutputDataGPU outputGPU;
@@ -295,8 +295,8 @@ void PFClusterProducerCudaHCAL::acquire(edm::Event const& event,
     // Only allocate Cuda memory on first event
     PFClusterCudaHCAL::initializeCudaConstants(cudaConstants, cudaStream);
 
-    inputCPU.allocate(cudaConfig_, cudaStream);
-    inputGPU.allocate(cudaConfig_, cudaStream);
+    //inputCPU.allocate(cudaConfig_, cudaStream);
+    //inputGPU.allocate(cudaConfig_, cudaStream);
 
     outputCPU.allocate(cudaConfig_, cudaStream);
     outputGPU.allocate(cudaConfig_, cudaStream);
@@ -328,18 +328,18 @@ void PFClusterProducerCudaHCAL::acquire(edm::Event const& event,
     cudaCheck(cudaStreamSynchronize(cudaStream));
 
   // Calling cuda kernels
-  PFClusterCudaHCAL::PFRechitToPFCluster_HCAL_entryPoint(cudaStream, totalNeighbours, PFRecHits, inputGPU, outputCPU, outputGPU, scratchGPU, kernelTimers);
+  PFClusterCudaHCAL::PFRechitToPFCluster_HCAL_entryPoint(cudaStream, totalNeighbours, PFRecHits, outputCPU, outputGPU, scratchGPU, kernelTimers);
 
   // Data transfer from GPU
   if (cudaStreamQuery(cudaStream) != cudaSuccess)
     cudaCheck(cudaStreamSynchronize(cudaStream));
 
-  cudaCheck(cudaMemcpyAsync(
-      outputCPU.topoIter.get(), outputGPU.topoIter.get(), sizeof(int), cudaMemcpyDeviceToHost, cudaStream));
+  // cudaCheck(cudaMemcpyAsync(
+  //     outputCPU.topoIter.get(), outputGPU.topoIter.get(), sizeof(int), cudaMemcpyDeviceToHost, cudaStream));
   cudaCheck(cudaMemcpyAsync(
       outputCPU.pcrhFracSize.get(), outputGPU.pcrhFracSize.get(), sizeof(int), cudaMemcpyDeviceToHost, cudaStream));
-  cudaCheck(
-      cudaMemcpyAsync(outputCPU.nEdges.get(), outputGPU.nEdges.get(), sizeof(int), cudaMemcpyDeviceToHost, cudaStream));
+  // cudaCheck(
+  //     cudaMemcpyAsync(outputCPU.nEdges.get(), outputGPU.nEdges.get(), sizeof(int), cudaMemcpyDeviceToHost, cudaStream));
 
   if (cudaStreamQuery(cudaStream) != cudaSuccess)
     cudaCheck(cudaStreamSynchronize(cudaStream));
@@ -347,8 +347,8 @@ void PFClusterProducerCudaHCAL::acquire(edm::Event const& event,
   // Total size of allocated rechit fraction arrays (includes some extra padding for rechits that don't end up passing cuts)
   const Int_t nFracs = outputCPU.pcrhFracSize[0];
 
-  cudaCheck(cudaMemcpyAsync(
-      outputCPU.pfc_iter.get(), outputGPU.pfc_iter.get(), numbytes_int, cudaMemcpyDeviceToHost, cudaStream));
+  // cudaCheck(cudaMemcpyAsync(
+  //     outputCPU.pfc_iter.get(), outputGPU.pfc_iter.get(), numbytes_int, cudaMemcpyDeviceToHost, cudaStream));
 
   cudaCheck(cudaMemcpyAsync(
       outputCPU.topoSeedCount.get(), outputGPU.topoSeedCount.get(), numbytes_int, cudaMemcpyDeviceToHost, cudaStream));
@@ -368,8 +368,8 @@ void PFClusterProducerCudaHCAL::acquire(edm::Event const& event,
                             cudaMemcpyDeviceToHost,
                             cudaStream));
 
-  cudaCheck(cudaMemcpyAsync(
-      outputCPU.topoSeedList.get(), outputGPU.topoSeedList.get(), numbytes_int, cudaMemcpyDeviceToHost, cudaStream));
+  // cudaCheck(cudaMemcpyAsync(
+  //     outputCPU.topoSeedList.get(), outputGPU.topoSeedList.get(), numbytes_int, cudaMemcpyDeviceToHost, cudaStream));
 
   cudaCheck(cudaMemcpyAsync(outputCPU.pcrh_fracInd.get(),
                             outputGPU.pcrh_fracInd.get(),
@@ -384,11 +384,11 @@ void PFClusterProducerCudaHCAL::acquire(edm::Event const& event,
   cudaCheck(cudaMemcpyAsync(
       outputCPU.pfrh_topoId.get(), outputGPU.pfrh_topoId.get(), numbytes_int, cudaMemcpyDeviceToHost, cudaStream));
 
-  cudaCheck(cudaMemcpyAsync(outputCPU.pfrh_passTopoThresh.get(),
-                            outputGPU.pfrh_passTopoThresh.get(),
-                            sizeof(int) * nRH_,
-                            cudaMemcpyDeviceToHost,
-                            cudaStream));
+  // cudaCheck(cudaMemcpyAsync(outputCPU.pfrh_passTopoThresh.get(),
+  //                           outputGPU.pfrh_passTopoThresh.get(),
+  //                           sizeof(int) * nRH_,
+  //                           cudaMemcpyDeviceToHost,
+  //                           cudaStream));
 
   if (cudaStreamQuery(cudaStream) != cudaSuccess)
     cudaCheck(cudaStreamSynchronize(cudaStream));
