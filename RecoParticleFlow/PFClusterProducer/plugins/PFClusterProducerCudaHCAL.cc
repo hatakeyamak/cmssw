@@ -74,10 +74,10 @@ private:
   //Output Product Type
   using PFClusterSoAProductType = cms::cuda::Product<PFClustering::HCAL::OutputPFClusterDataGPU>;
   //Output Token
-  using OProductType = cms::cuda::Product<hcal::PFClusterCollection<pf::common::DevStoragePolicy>>;
-  edm::EDPutTokenT<OProductType> OutputPFClusterSoA_Token_;
+  //using OProductType = cms::cuda::Product<hcal::PFClusterCollection<pf::common::DevStoragePolicy>>;
+  //edm::EDPutTokenT<OProductType> OutputPFClusterSoA_Token_;
 
-  PFClustering::HCAL::OutputPFClusterDataGPU outputPFC_GPU;
+  //PFClustering::HCAL::OutputPFClusterDataGPU outputPFC_GPU;
   cms::cuda::ContextState cudaState_;
 
   PFClustering::HCAL::ConfigurationParameters cudaConfig_;
@@ -93,8 +93,8 @@ PFClusterProducerCudaHCAL::PFClusterProducerCudaHCAL(const edm::ParameterSet& co
   : _produceSoA{conf.getParameter<bool>("produceSoA")},
     _produceLegacy{conf.getParameter<bool>("produceLegacy")},
     _rechitsLabel{consumes(conf.getParameter<edm::InputTag>("recHitsSource"))},
-    InputPFRecHitSoA_Token_{consumes<IProductType>(conf.getParameter<edm::InputTag>("PFRecHitsLabelIn"))},
-    OutputPFClusterSoA_Token_{produces<OProductType>(conf.getParameter<std::string>("PFClustersGPUOut"))} {
+    InputPFRecHitSoA_Token_{consumes<IProductType>(conf.getParameter<edm::InputTag>("PFRecHitsLabelIn"))} {
+    //OutputPFClusterSoA_Token_{produces<OProductType>(conf.getParameter<std::string>("PFClustersGPUOut"))} {
   edm::ConsumesCollector cc = consumesCollector();
 
   //setup rechit cleaners
@@ -316,10 +316,11 @@ void PFClusterProducerCudaHCAL::acquire(edm::Event const& event,
   if (cudaStreamQuery(cudaStream) != cudaSuccess)
     cudaCheck(cudaStreamSynchronize(cudaStream));
 
-  outputPFC_GPU.allocate(nRH_, ctx.stream()); //
+  //outputPFC_GPU.allocate(nRH_, ctx.stream()); //
 
   // Calling cuda kernels
-  PFClusterCudaHCAL::PFRechitToPFCluster_HCAL_entryPoint(cudaStream, totalNeighbours, PFRecHits, outputPFC_GPU, outputCPU, outputGPU, scratchGPU, kernelTimers);
+  //PFClusterCudaHCAL::PFRechitToPFCluster_HCAL_entryPoint(cudaStream, totalNeighbours, PFRecHits, outputPFC_GPU, outputCPU, outputGPU, scratchGPU, kernelTimers);
+  PFClusterCudaHCAL::PFRechitToPFCluster_HCAL_entryPoint(cudaStream, totalNeighbours, PFRecHits, outputCPU, outputGPU, scratchGPU, kernelTimers);
   //std::cout << " aaa " << outputPFC_GPU.PFClusters.pfc_energy[0] << std::endl;
 
   if (_produceLegacy) {

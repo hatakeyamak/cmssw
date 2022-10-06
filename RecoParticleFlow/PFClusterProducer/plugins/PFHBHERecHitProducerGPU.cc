@@ -252,6 +252,12 @@ void PFHBHERecHitProducerGPU::acquire(edm::Event const& event,
                                                        validDetIdPositions.at(nRHTotal).y(),
                                                        validDetIdPositions.at(nRHTotal).z());
       persistentDataCPU.rh_detId[nRHTotal] = hid.rawId();
+      //std::cout << hid.rawId() << std::endl;
+				  /*
+      uint32_t detid = recHits_did[i];
+      uint32_t subdet = (detid >> DetId::kSubdetOffset) & DetId::kSubdetMask;
+      uint32_t depth = (detid >> HcalDetId::kHcalDepthOffset2) & HcalDetId::kHcalDepthMask2;
+				  */
       auto neigh = reinterpret_cast<PFRecHitHCALDenseIdNavigator*>(&(*navigator_))->getNeighbours(denseId);
       for (uint32_t n = 0; n < 8; n++) {
         // cmssdt.cern.ch/lxr/source/RecoParticleFlow/PFClusterProducer/interface/PFHCALDenseIdNavigator.h#0087
