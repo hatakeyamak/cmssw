@@ -2891,6 +2891,8 @@ namespace PFClusterCudaHCAL {
           printf("ERROR: Topo cluster %d has %d seeds and %d rechits. SKIPPING!!\n", topoId, nSeeds, nRHTopo);
       }
     }
+    //nSeedsOut = nSeeds;
+    
   }
 
   __global__ void hcalFastCluster_serialize(size_t nRH,
@@ -4537,13 +4539,16 @@ namespace PFClusterCudaHCAL {
       cudaStream_t cudaStream,
       int nEdges,
       ::hcal::PFRecHitCollection<::pf::common::DevStoragePolicy> const& inputPFRecHits,
-      //::PFClustering::HCAL::InputDataGPU& inputGPU,
+      ::PFClustering::HCAL::OutputPFClusterDataGPU& HBHEPFClusters_asOutput,
       ::PFClustering::HCAL::OutputDataCPU& outputCPU,
       ::PFClustering::HCAL::OutputDataGPU& outputGPU,
       ::PFClustering::HCAL::ScratchDataGPU& scratchGPU,
       float (&timer)[8]) {
 
     int nRH = inputPFRecHits.size;
+    if (nRH == 0)
+      HBHEPFClusters_asOutput.PFClusters.size = 0;
+    //int nSeeds = 0;
 
     // Combined seeding & topo clustering thresholds, array initialization
     seedingTopoThreshKernel_HCAL<<<(nRH + 31) / 32, 64, 0, cudaStream>>>(nRH,
@@ -4633,7 +4638,11 @@ namespace PFClusterCudaHCAL {
                                                            outputGPU.topoSeedList.get(),
                                                            scratchGPU.pfc_pos4.get(),
                                                            scratchGPU.pfc_prevPos4.get(),
-                                                           outputGPU.pfc_energy.get(),
+                                                           HBHEPFClusters_asOutput.PFClusters.pfc_energy.get(), //outputGPU.pfc_energy.get(),
                                                            outputGPU.pfc_iter.get());
+    
+    //printf("aaa nSeeds: %d\n",nSeeds);
+    //HBHEPFClusters_asOutput.PFClusters.size = ...; # to be filled
+
   }
 }  // namespace PFClusterCudaHCAL
