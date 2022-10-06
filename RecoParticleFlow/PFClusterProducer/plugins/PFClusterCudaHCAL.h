@@ -54,7 +54,7 @@ namespace PFClusterCudaHCAL {
       cudaStream_t cudaStream,
       int nEdges,
       ::hcal::PFRecHitCollection<::pf::common::DevStoragePolicy> const& inputPFRecHits,
-      ::PFClustering::HCAL::InputDataGPU& inputGPU,
+      //::PFClustering::HCAL::OutputPFClusterDataGPU& HBHEPFClusters_asOutput,
       ::PFClustering::HCAL::OutputDataCPU& outputCPU,
       ::PFClustering::HCAL::OutputDataGPU& outputGPU,
       ::PFClustering::HCAL::ScratchDataGPU& scratchGPU,

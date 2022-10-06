@@ -10,6 +10,7 @@
 #include <vector>
 
 #include "CUDADataFormats/PFRecHitSoA/interface/PFRecHitCollection.h"
+#include "CUDADataFormats/PFClusterSoA/interface/PFClusterCollection.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -36,7 +37,7 @@
 
 class PFClusterProducerCudaHCAL : public edm::stream::EDProducer<edm::ExternalWork> {
 public:
-  PFClusterProducerCudaHCAL(const edm::ParameterSet &);
+  explicit PFClusterProducerCudaHCAL(const edm::ParameterSet &);
   ~PFClusterProducerCudaHCAL() override;
   static void fillDescriptions(edm::ConfigurationDescriptions &);
 
@@ -56,8 +57,6 @@ private:
   void acquire(edm::Event const &, edm::EventSetup const &, edm::WaitingTaskWithArenaHolder) override;
   void produce(edm::Event &, const edm::EventSetup &) override;
 
-  edm::EDGetTokenT<cms::cuda::Product<hcal::PFRecHitCollection<pf::common::DevStoragePolicy>>> InputPFRecHitSoA_Token_;
-
   bool initCuda_ = true;
   int nRH_ = 0;
 
@@ -67,15 +66,22 @@ private:
   // // options
   // const bool _prodInitClusters;
 
-  edm::EDGetTokenT<reco::PFRecHitCollection> _rechitsLabel;
+  // Input token
+  edm::EDGetTokenT<reco::PFRecHitCollection> _rechitsLabel; // Legacy
+  using IProductType = cms::cuda::Product<hcal::PFRecHitCollection<pf::common::DevStoragePolicy>>;
+  edm::EDGetTokenT<cms::cuda::Product<hcal::PFRecHitCollection<pf::common::DevStoragePolicy>>> InputPFRecHitSoA_Token_; // SoA
 
-  //cms::cuda::ContextState cudaState_;
+  //Output Product Type
+  using PFClusterSoAProductType = cms::cuda::Product<PFClustering::HCAL::OutputPFClusterDataGPU>;
+  //Output Token
+  //using OProductType = cms::cuda::Product<hcal::PFClusterCollection<pf::common::DevStoragePolicy>>;
+  //edm::EDPutTokenT<OProductType> OutputPFClusterSoA_Token_;
+
+  //PFClustering::HCAL::OutputPFClusterDataGPU outputPFC_GPU;
+  cms::cuda::ContextState cudaState_;
 
   PFClustering::HCAL::ConfigurationParameters cudaConfig_;
   PFClustering::common::CudaHCALConstants cudaConstants;
-
-  PFClustering::HCAL::InputDataCPU inputCPU;
-  PFClustering::HCAL::InputDataGPU inputGPU;
 
   PFClustering::HCAL::OutputDataCPU outputCPU;
   PFClustering::HCAL::OutputDataGPU outputGPU;
@@ -84,10 +90,11 @@ private:
 };
 
 PFClusterProducerCudaHCAL::PFClusterProducerCudaHCAL(const edm::ParameterSet& conf)
-  : InputPFRecHitSoA_Token_{consumes(conf.getParameter<edm::InputTag>("PFRecHitsLabelIn"))},
-    _produceSoA{conf.getParameter<bool>("produceSoA")},
+  : _produceSoA{conf.getParameter<bool>("produceSoA")},
     _produceLegacy{conf.getParameter<bool>("produceLegacy")},
-    _rechitsLabel{consumes(conf.getParameter<edm::InputTag>("recHitsSource"))} {
+    _rechitsLabel{consumes(conf.getParameter<edm::InputTag>("recHitsSource"))},
+    InputPFRecHitSoA_Token_{consumes<IProductType>(conf.getParameter<edm::InputTag>("PFRecHitsLabelIn"))} {
+    //OutputPFClusterSoA_Token_{produces<OProductType>(conf.getParameter<std::string>("PFClustersGPUOut"))} {
   edm::ConsumesCollector cc = consumesCollector();
 
   //setup rechit cleaners
@@ -260,6 +267,8 @@ void PFClusterProducerCudaHCAL::fillDescriptions(edm::ConfigurationDescriptions&
   desc.add<edm::InputTag>("PFRecHitsLabelIn", edm::InputTag("hltParticleFlowRecHitHBHE"));
   desc.add<bool>("produceSoA", true);
   desc.add<bool>("produceLegacy", true);
+
+  desc.add<std::string>("PFClustersGPUOut", "");
   // Prevents the producer and navigator parameter sets from throwing an exception
   // TODO: Replace with a proper parameter set description: twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideConfigurationValidationAndHelp
   desc.setAllowAnything();
@@ -268,13 +277,6 @@ void PFClusterProducerCudaHCAL::fillDescriptions(edm::ConfigurationDescriptions&
 }
 
 void PFClusterProducerCudaHCAL::beginLuminosityBlock(const edm::LuminosityBlock& lumi, const edm::EventSetup& es) {
-  /* KenH
-  _initialClustering->update(es);
-  if (_pfClusterBuilder)
-    _pfClusterBuilder->update(es);
-  if (_positionReCalc)
-    _positionReCalc->update(es);
-  */
   initCuda_ = true;  // (Re)initialize cuda arrays
 }
 
@@ -295,25 +297,12 @@ void PFClusterProducerCudaHCAL::acquire(edm::Event const& event,
     // Only allocate Cuda memory on first event
     PFClusterCudaHCAL::initializeCudaConstants(cudaConstants, cudaStream);
 
-    inputCPU.allocate(cudaConfig_, cudaStream);
-    inputGPU.allocate(cudaConfig_, cudaStream);
-
     outputCPU.allocate(cudaConfig_, cudaStream);
     outputGPU.allocate(cudaConfig_, cudaStream);
     scratchGPU.allocate(cudaConfig_, cudaStream);
 
     initCuda_ = false;
   }
-
-  /* KenH
-  _initialClustering->reset();
-  if (_pfClusterBuilder)
-    _pfClusterBuilder->reset();
-  */
-
-  /* KenH
-  _initialClustering->updateEvent(event);
-  */
 
   nRH_ = PFRecHits.size;
   if (nRH_ == 0) return;
@@ -327,77 +316,70 @@ void PFClusterProducerCudaHCAL::acquire(edm::Event const& event,
   if (cudaStreamQuery(cudaStream) != cudaSuccess)
     cudaCheck(cudaStreamSynchronize(cudaStream));
 
+  //outputPFC_GPU.allocate(nRH_, ctx.stream()); //
+
   // Calling cuda kernels
-  PFClusterCudaHCAL::PFRechitToPFCluster_HCAL_entryPoint(cudaStream, totalNeighbours, PFRecHits, inputGPU, outputCPU, outputGPU, scratchGPU, kernelTimers);
+  //PFClusterCudaHCAL::PFRechitToPFCluster_HCAL_entryPoint(cudaStream, totalNeighbours, PFRecHits, outputPFC_GPU, outputCPU, outputGPU, scratchGPU, kernelTimers);
+  PFClusterCudaHCAL::PFRechitToPFCluster_HCAL_entryPoint(cudaStream, totalNeighbours, PFRecHits, outputCPU, outputGPU, scratchGPU, kernelTimers);
+  //std::cout << " aaa " << outputPFC_GPU.PFClusters.pfc_energy[0] << std::endl;
 
-  // Data transfer from GPU
-  if (cudaStreamQuery(cudaStream) != cudaSuccess)
-    cudaCheck(cudaStreamSynchronize(cudaStream));
+  if (_produceLegacy) {
 
-  cudaCheck(cudaMemcpyAsync(
-      outputCPU.topoIter.get(), outputGPU.topoIter.get(), sizeof(int), cudaMemcpyDeviceToHost, cudaStream));
-  cudaCheck(cudaMemcpyAsync(
+    // Data transfer from GPU
+    if (cudaStreamQuery(cudaStream) != cudaSuccess)
+      cudaCheck(cudaStreamSynchronize(cudaStream));
+
+    cudaCheck(cudaMemcpyAsync(
       outputCPU.pcrhFracSize.get(), outputGPU.pcrhFracSize.get(), sizeof(int), cudaMemcpyDeviceToHost, cudaStream));
-  cudaCheck(
-      cudaMemcpyAsync(outputCPU.nEdges.get(), outputGPU.nEdges.get(), sizeof(int), cudaMemcpyDeviceToHost, cudaStream));
 
-  if (cudaStreamQuery(cudaStream) != cudaSuccess)
-    cudaCheck(cudaStreamSynchronize(cudaStream));
+    if (cudaStreamQuery(cudaStream) != cudaSuccess)
+      cudaCheck(cudaStreamSynchronize(cudaStream));
 
-  // Total size of allocated rechit fraction arrays (includes some extra padding for rechits that don't end up passing cuts)
-  const Int_t nFracs = outputCPU.pcrhFracSize[0];
+    // Total size of allocated rechit fraction arrays (includes some extra padding for rechits that don't end up passing cuts)
+    const Int_t nFracs = outputCPU.pcrhFracSize[0];
 
-  cudaCheck(cudaMemcpyAsync(
-      outputCPU.pfc_iter.get(), outputGPU.pfc_iter.get(), numbytes_int, cudaMemcpyDeviceToHost, cudaStream));
-
-  cudaCheck(cudaMemcpyAsync(
+    cudaCheck(cudaMemcpyAsync(
       outputCPU.topoSeedCount.get(), outputGPU.topoSeedCount.get(), numbytes_int, cudaMemcpyDeviceToHost, cudaStream));
 
-  cudaCheck(cudaMemcpyAsync(
+    cudaCheck(cudaMemcpyAsync(
       outputCPU.topoRHCount.get(), outputGPU.topoRHCount.get(), numbytes_int, cudaMemcpyDeviceToHost, cudaStream));
 
-  cudaCheck(cudaMemcpyAsync(outputCPU.seedFracOffsets.get(),
+    cudaCheck(cudaMemcpyAsync(outputCPU.seedFracOffsets.get(),
                             outputGPU.seedFracOffsets.get(),
                             numbytes_int,
                             cudaMemcpyDeviceToHost,
                             cudaStream));
 
-  cudaCheck(cudaMemcpyAsync(outputCPU.topoSeedOffsets.get(),
+    cudaCheck(cudaMemcpyAsync(outputCPU.topoSeedOffsets.get(),
                             outputGPU.topoSeedOffsets.get(),
                             numbytes_int,
                             cudaMemcpyDeviceToHost,
                             cudaStream));
 
-  cudaCheck(cudaMemcpyAsync(
-      outputCPU.topoSeedList.get(), outputGPU.topoSeedList.get(), numbytes_int, cudaMemcpyDeviceToHost, cudaStream));
-
-  cudaCheck(cudaMemcpyAsync(outputCPU.pcrh_fracInd.get(),
+    cudaCheck(cudaMemcpyAsync(outputCPU.pcrh_fracInd.get(),
                             outputGPU.pcrh_fracInd.get(),
                             sizeof(int) * nFracs,
                             cudaMemcpyDeviceToHost,
                             cudaStream));
 
-  cudaCheck(cudaMemcpyAsync(
+    cudaCheck(cudaMemcpyAsync(
       outputCPU.pcrh_frac.get(), outputGPU.pcrh_frac.get(), sizeof(int) * nFracs, cudaMemcpyDeviceToHost, cudaStream));
-  cudaCheck(cudaMemcpyAsync(
+    cudaCheck(cudaMemcpyAsync(
       outputCPU.pfrh_isSeed.get(), outputGPU.pfrh_isSeed.get(), numbytes_int, cudaMemcpyDeviceToHost, cudaStream));
-  cudaCheck(cudaMemcpyAsync(
+    cudaCheck(cudaMemcpyAsync(
       outputCPU.pfrh_topoId.get(), outputGPU.pfrh_topoId.get(), numbytes_int, cudaMemcpyDeviceToHost, cudaStream));
 
-  cudaCheck(cudaMemcpyAsync(outputCPU.pfrh_passTopoThresh.get(),
-                            outputGPU.pfrh_passTopoThresh.get(),
-                            sizeof(int) * nRH_,
-                            cudaMemcpyDeviceToHost,
-                            cudaStream));
+    if (cudaStreamQuery(cudaStream) != cudaSuccess)
+      cudaCheck(cudaStreamSynchronize(cudaStream));
 
-  if (cudaStreamQuery(cudaStream) != cudaSuccess)
-    cudaCheck(cudaStreamSynchronize(cudaStream));
+  } // if (_produceLegacy)
+
 }
 
 void PFClusterProducerCudaHCAL::produce(edm::Event& event, const edm::EventSetup& setup) {
   // cms::cuda::ScopedContextProduce ctx{cudaState_};
   // if (_produceSoA)
-  //   ctx.emplace(event, OutputPFRecHitSoA_Token_, std::move(outputGPU.PFClusters)); // SoA "PFClusters" still need to be defined.
+  //   ctx.emplace(event, OutputPFClusterSoA_Token_, std::move(outputPFC_GPU.PFClusters)); // SoA "PFClusters" still need to be defined.
 
   if (_produceLegacy) {
 
@@ -447,7 +429,8 @@ void PFClusterProducerCudaHCAL::produce(edm::Event& event, const edm::EventSetup
     }
 
     event.put(std::move(pfClustersFromCuda));
-  }
+  } // if (_produceLegacy)
+
 }
 
 DEFINE_FWK_MODULE(PFClusterProducerCudaHCAL);

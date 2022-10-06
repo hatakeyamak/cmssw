@@ -5,6 +5,7 @@
 #include <optional>
 
 #include "CUDADataFormats/PFRecHitSoA/interface/PFRecHitCollection.h"
+#include "CUDADataFormats/PFClusterSoA/interface/PFClusterCollection.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/device_unique_ptr.h"
@@ -166,31 +167,22 @@ namespace PFClustering {
       uint32_t maxNeighbors = 8;
     };
 
-    struct InputDataCPU {
-      cms::cuda::host::unique_ptr<float[]> pfrh_x;
-      cms::cuda::host::unique_ptr<float[]> pfrh_y;
-      cms::cuda::host::unique_ptr<float[]> pfrh_z;
-      cms::cuda::host::unique_ptr<float[]> pfrh_energy;
+    // eventually better coordinate between OutputPFClusterDataGPU and OutputDataGPU
+    struct OutputPFClusterDataGPU {
+      ::hcal::PFClusterCollection<::pf::common::DevStoragePolicy> PFClusters;
 
-      cms::cuda::host::unique_ptr<int[]> pfrh_layer;
-      cms::cuda::host::unique_ptr<int[]> pfrh_depth;
-      cms::cuda::host::unique_ptr<int[]> pfNeighFourInd;
-      cms::cuda::host::unique_ptr<int[]> pfNeighEightInd;
-      cms::cuda::host::unique_ptr<int[]> pfrh_edgeId;
-      cms::cuda::host::unique_ptr<int[]> pfrh_edgeList;
+      void allocate(size_t Num_clusters, cudaStream_t cudaStream) {
+        PFClusters.pfc_depth = cms::cuda::make_device_unique<int[]>(Num_clusters, cudaStream);
+        PFClusters.pfc_layer = cms::cuda::make_device_unique<int[]>(Num_clusters, cudaStream);
+        PFClusters.pfc_detId = cms::cuda::make_device_unique<int[]>(Num_clusters, cudaStream);
+        //PFClusters.pfc_neighbours = cms::cuda::make_device_unique<int[]>(Num_clusters * 8, cudaStream); // instead consider hitandfraction
+        //PFClusters.pfc_neighbourInfos = cms::cuda::make_device_unique<short[]>(Num_clusters * 8, cudaStream); // instead consider hitandfraction
 
-      void allocate(ConfigurationParameters const& config, cudaStream_t cudaStream = cudaStreamDefault) {
-        pfrh_x = cms::cuda::make_host_unique<float[]>(sizeof(float) * config.maxRH, cudaStream);
-        pfrh_y = cms::cuda::make_host_unique<float[]>(sizeof(float) * config.maxRH, cudaStream);
-        pfrh_z = cms::cuda::make_host_unique<float[]>(sizeof(float) * config.maxRH, cudaStream);
-        pfrh_energy = cms::cuda::make_host_unique<float[]>(sizeof(float) * config.maxRH, cudaStream);
-        pfrh_layer = cms::cuda::make_host_unique<int[]>(sizeof(int) * config.maxRH, cudaStream);
-        pfrh_depth = cms::cuda::make_host_unique<int[]>(sizeof(int) * config.maxRH, cudaStream);
-        pfNeighFourInd = cms::cuda::make_host_unique<int[]>(sizeof(int) * config.maxRH * 4, cudaStream);
-        pfNeighEightInd = cms::cuda::make_host_unique<int[]>(sizeof(int) * config.maxRH * 8, cudaStream);
-        pfrh_edgeId = cms::cuda::make_host_unique<int[]>(sizeof(int) * config.maxRH * config.maxNeighbors, cudaStream);
-        pfrh_edgeList =
-            cms::cuda::make_host_unique<int[]>(sizeof(int) * config.maxRH * config.maxNeighbors, cudaStream);
+        PFClusters.pfc_time = cms::cuda::make_device_unique<float[]>(Num_clusters, cudaStream);
+        PFClusters.pfc_energy = cms::cuda::make_device_unique<float[]>(Num_clusters, cudaStream);
+        PFClusters.pfc_x = cms::cuda::make_device_unique<float[]>(Num_clusters, cudaStream);
+        PFClusters.pfc_y = cms::cuda::make_device_unique<float[]>(Num_clusters, cudaStream);
+        PFClusters.pfc_z = cms::cuda::make_device_unique<float[]>(Num_clusters, cudaStream);
       }
     };
 
@@ -218,7 +210,6 @@ namespace PFClustering {
         pfrh_isSeed = cms::cuda::make_host_unique<int[]>(sizeof(int) * config.maxRH, cudaStream);
         pcrh_frac = cms::cuda::make_host_unique<float[]>(sizeof(float) * config.maxPFCFracs, cudaStream);
         pcrh_fracInd = cms::cuda::make_host_unique<int[]>(sizeof(int) * config.maxPFCFracs, cudaStream);
-        //pfrh_passTopoThresh = cms::cuda::make_host_unique<bool[]>(sizeof(bool)*config.maxRH, cudaStream);
         pfrh_passTopoThresh = cms::cuda::make_host_unique<int[]>(sizeof(int) * config.maxRH, cudaStream);
 
         topoSeedCount = cms::cuda::make_host_unique<int[]>(sizeof(int) * config.maxRH, cudaStream);
@@ -234,46 +225,6 @@ namespace PFClustering {
       }
     };
 
-    struct InputDataGPU {
-      cms::cuda::device::unique_ptr<float[]> pfrh_x;
-      cms::cuda::device::unique_ptr<float[]> pfrh_y;
-      cms::cuda::device::unique_ptr<float[]> pfrh_z;
-      cms::cuda::device::unique_ptr<float[]> pfrh_energy;
-      cms::cuda::device::unique_ptr<float[]> pcrh_fracSum;
-
-      cms::cuda::device::unique_ptr<int[]> pfrh_layer;
-      cms::cuda::device::unique_ptr<int[]> pfrh_depth;
-      cms::cuda::device::unique_ptr<int[]> pfNeighFourInd;
-      cms::cuda::device::unique_ptr<int[]> pfNeighEightInd;
-      cms::cuda::device::unique_ptr<int[]> pfrh_edgeId;
-      cms::cuda::device::unique_ptr<int[]> pfrh_edgeList;
-
-      cms::cuda::device::unique_ptr<float4[]> pfc_pos4;
-      cms::cuda::device::unique_ptr<float4[]> pfc_prevPos4;
-      cms::cuda::device::unique_ptr<float[]> pfc_energy;
-
-      void allocate(ConfigurationParameters const& config, cudaStream_t cudaStream = cudaStreamDefault) {
-        pfrh_x = cms::cuda::make_device_unique<float[]>(sizeof(float) * config.maxRH, cudaStream);
-        pfrh_y = cms::cuda::make_device_unique<float[]>(sizeof(float) * config.maxRH, cudaStream);
-        pfrh_z = cms::cuda::make_device_unique<float[]>(sizeof(float) * config.maxRH, cudaStream);
-        pfrh_energy = cms::cuda::make_device_unique<float[]>(sizeof(float) * config.maxRH, cudaStream);
-        pcrh_fracSum = cms::cuda::make_device_unique<float[]>(sizeof(float) * config.maxRH, cudaStream);
-
-        pfrh_layer = cms::cuda::make_device_unique<int[]>(sizeof(int) * config.maxRH, cudaStream);
-        pfrh_depth = cms::cuda::make_device_unique<int[]>(sizeof(int) * config.maxRH, cudaStream);
-        pfNeighFourInd = cms::cuda::make_device_unique<int[]>(sizeof(int) * config.maxRH * 4, cudaStream);
-        pfNeighEightInd = cms::cuda::make_device_unique<int[]>(sizeof(int) * config.maxRH * 8, cudaStream);
-        pfrh_edgeId =
-            cms::cuda::make_device_unique<int[]>(sizeof(int) * config.maxRH * config.maxNeighbors, cudaStream);
-        pfrh_edgeList =
-            cms::cuda::make_device_unique<int[]>(sizeof(int) * config.maxRH * config.maxNeighbors, cudaStream);
-
-        pfc_pos4 = cms::cuda::make_device_unique<float4[]>(sizeof(float4) * config.maxRH, cudaStream);
-        pfc_prevPos4 = cms::cuda::make_device_unique<float4[]>(sizeof(float4) * config.maxRH, cudaStream);
-        pfc_energy = cms::cuda::make_device_unique<float[]>(sizeof(float) * config.maxRH, cudaStream);
-      }
-    };
-
     struct OutputDataGPU {
       cms::cuda::device::unique_ptr<int[]> pfrh_topoId;
       cms::cuda::device::unique_ptr<int[]> pfrh_isSeed;
@@ -281,6 +232,8 @@ namespace PFClustering {
       cms::cuda::device::unique_ptr<int[]> pcrh_fracInd;
       //cms::cuda::device::unique_ptr<bool[]> pfrh_passTopoThresh;
       cms::cuda::device::unique_ptr<int[]> pfrh_passTopoThresh;
+
+      cms::cuda::device::unique_ptr<float[]> pfc_energy;
 
       cms::cuda::device::unique_ptr<int[]> topoSeedCount;
       cms::cuda::device::unique_ptr<int[]> topoRHCount;
@@ -299,8 +252,9 @@ namespace PFClustering {
         pfrh_isSeed = cms::cuda::make_device_unique<int[]>(sizeof(int) * config.maxRH, cudaStream);
         pcrh_frac = cms::cuda::make_device_unique<float[]>(sizeof(float) * config.maxPFCFracs, cudaStream);
         pcrh_fracInd = cms::cuda::make_device_unique<int[]>(sizeof(int) * config.maxPFCFracs, cudaStream);
-        //pfrh_passTopoThresh = cms::cuda::make_device_unique<bool[]>(sizeof(bool)*config.maxRH, cudaStream);
         pfrh_passTopoThresh = cms::cuda::make_device_unique<int[]>(sizeof(int) * config.maxRH, cudaStream);
+
+        pfc_energy = cms::cuda::make_device_unique<float[]>(sizeof(float) * config.maxRH, cudaStream);
 
         topoSeedCount = cms::cuda::make_device_unique<int[]>(sizeof(int) * config.maxRH, cudaStream);
         topoRHCount = cms::cuda::make_device_unique<int[]>(sizeof(int) * config.maxRH, cudaStream);
@@ -320,6 +274,9 @@ namespace PFClustering {
       cms::cuda::device::unique_ptr<int[]> pfrh_edgeId;
       cms::cuda::device::unique_ptr<int[]> pfrh_edgeList;
       cms::cuda::device::unique_ptr<int[]> pfrh_edgeMask;
+      cms::cuda::device::unique_ptr<float[]> pcrh_fracSum;
+      cms::cuda::device::unique_ptr<float4[]> pfc_pos4;
+      cms::cuda::device::unique_ptr<float4[]> pfc_prevPos4;
 
       void allocate(ConfigurationParameters const& config, cudaStream_t cudaStream = cudaStreamDefault) {
         rhcount = cms::cuda::make_device_unique<int[]>(sizeof(int) * config.maxRH, cudaStream);
@@ -329,6 +286,9 @@ namespace PFClustering {
             cms::cuda::make_device_unique<int[]>(sizeof(int) * config.maxRH * config.maxNeighbors, cudaStream);
         pfrh_edgeMask =
             cms::cuda::make_device_unique<int[]>(sizeof(int) * config.maxRH * config.maxNeighbors, cudaStream);
+        pcrh_fracSum = cms::cuda::make_device_unique<float[]>(sizeof(float) * config.maxRH, cudaStream);
+        pfc_pos4 = cms::cuda::make_device_unique<float4[]>(sizeof(float4) * config.maxRH, cudaStream);
+        pfc_prevPos4 = cms::cuda::make_device_unique<float4[]>(sizeof(float4) * config.maxRH, cudaStream);
       }
     };
   }  // namespace HCAL
