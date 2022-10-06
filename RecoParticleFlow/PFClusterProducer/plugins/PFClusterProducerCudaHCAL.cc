@@ -307,8 +307,7 @@ void PFClusterProducerCudaHCAL::acquire(edm::Event const& event,
   nRH_ = PFRecHits.size;
   if (nRH_ == 0) return;
   if (nRH_>4000) std::cout << "nRH(PFRecHitSize)>4000: " << nRH_ << std::endl;
-  std::cout << "Inside : " << nRH_ << std::endl;
-  
+
   const int numbytes_int = nRH_ * sizeof(int);
   int totalNeighbours = 0;  // Running count of 8 neighbour edges for edgeId, edgeList
 
@@ -318,11 +317,11 @@ void PFClusterProducerCudaHCAL::acquire(edm::Event const& event,
     cudaCheck(cudaStreamSynchronize(cudaStream));
 
   outputPFC_GPU.allocate(nRH_, ctx.stream()); //
-  
+
   // Calling cuda kernels
   PFClusterCudaHCAL::PFRechitToPFCluster_HCAL_entryPoint(cudaStream, totalNeighbours, PFRecHits, outputPFC_GPU, outputCPU, outputGPU, scratchGPU, kernelTimers);
   //std::cout << " aaa " << outputPFC_GPU.PFClusters.pfc_energy[0] << std::endl;
-  
+
   if (_produceLegacy) {
 
     // Data transfer from GPU

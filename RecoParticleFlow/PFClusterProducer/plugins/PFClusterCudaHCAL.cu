@@ -2892,7 +2892,7 @@ namespace PFClusterCudaHCAL {
       }
     }
     //nSeedsOut = nSeeds;
-    
+
   }
 
   __global__ void hcalFastCluster_serialize(size_t nRH,
@@ -4640,7 +4640,7 @@ namespace PFClusterCudaHCAL {
                                                            scratchGPU.pfc_prevPos4.get(),
                                                            HBHEPFClusters_asOutput.PFClusters.pfc_energy.get(), //outputGPU.pfc_energy.get(),
                                                            outputGPU.pfc_iter.get());
-    
+
     //printf("aaa nSeeds: %d\n",nSeeds);
     //HBHEPFClusters_asOutput.PFClusters.size = ...; # to be filled
 
