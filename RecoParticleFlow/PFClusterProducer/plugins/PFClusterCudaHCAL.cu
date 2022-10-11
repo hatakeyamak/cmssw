@@ -837,7 +837,7 @@ namespace PFClusterCudaHCAL {
                                                       const int* __restrict__ pfrh_layer,
                                                       const int* __restrict__ pfrh_depth,
                                                       float* pcrhfrac,
-                                                      int* pcrhfracind,
+                                                      short* pcrhfracind,
                                                       int* topoSeedOffsets,
                                                       int* topoSeedList,
                                                       int* seedFracOffsets,
@@ -987,7 +987,7 @@ namespace PFClusterCudaHCAL {
                                                        const int* __restrict__ pfrh_depth,
                                                        const int* __restrict__ pfrh_neighbours,
                                                        float* pcrhfrac,
-                                                       int* pcrhfracind,
+                                                       short* pcrhfracind,
                                                        int* seedFracOffsets,
                                                        int* topoSeedOffsets,
                                                        int* topoSeedList,
@@ -1284,7 +1284,7 @@ namespace PFClusterCudaHCAL {
                                                const int* __restrict__ pfrh_depth,
                                                const int* __restrict__ pfrh_neighbours,
                                                float* pcrhfrac,
-                                               int* pcrhfracind,
+                                               short* pcrhfracind,
                                                int* seedFracOffsets,
                                                int* topoSeedOffsets,
                                                int* topoSeedList,
@@ -2804,7 +2804,7 @@ namespace PFClusterCudaHCAL {
                                             const int* __restrict__ pfrh_depth,
                                             const int* __restrict__ pfrh_neighbours,
                                             float* pcrhfrac,
-                                            int* pcrhfracind,
+                                            short* pcrhfracind,
                                             float* fracSum,
                                             int* rhCount,
                                             int* topoSeedCount,
@@ -3525,7 +3525,7 @@ namespace PFClusterCudaHCAL {
                                          int* seedFracOffsets,
                                          int* topoSeedOffsets,
                                          int* topoSeedList,
-                                         int* pcrhfracind,
+                                         short* pcrhfracind,
                                          float* pcrhfrac,
                                          int* pcrhFracSize) {
     __shared__ int notDone, totalSeedOffset, totalSeedFracOffset;
@@ -3622,7 +3622,7 @@ namespace PFClusterCudaHCAL {
                                int* topoRHCount,
                                int* seedFracOffsets,
                                int* rhCount,
-                               int* pcrhfracind) {
+                               short* pcrhfracind) {
     int i = threadIdx.x + blockIdx.x * blockDim.x;  // i is the seed index
     int j = threadIdx.y + blockIdx.y * blockDim.y;  // j is NOT a seed
 

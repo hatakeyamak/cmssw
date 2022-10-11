@@ -172,7 +172,7 @@ namespace PFClustering {
       cms::cuda::host::unique_ptr<int[]> pfrh_topoId;
       cms::cuda::host::unique_ptr<int[]> pfrh_isSeed;
       cms::cuda::host::unique_ptr<float[]> pcrh_frac;
-      cms::cuda::host::unique_ptr<int[]> pcrh_fracInd;
+      cms::cuda::host::unique_ptr<short[]> pcrh_fracInd;
       //cms::cuda::host::unique_ptr<bool[]> pfrh_passTopoThresh;
       cms::cuda::host::unique_ptr<int[]> pfrh_passTopoThresh;
 
@@ -191,7 +191,7 @@ namespace PFClustering {
         pfrh_topoId = cms::cuda::make_host_unique<int[]>(sizeof(int) * config.maxRH, cudaStream);
         pfrh_isSeed = cms::cuda::make_host_unique<int[]>(sizeof(int) * config.maxRH, cudaStream);
         pcrh_frac = cms::cuda::make_host_unique<float[]>(sizeof(float) * config.maxPFCFracs, cudaStream);
-        pcrh_fracInd = cms::cuda::make_host_unique<int[]>(sizeof(int) * config.maxPFCFracs, cudaStream);
+        pcrh_fracInd = cms::cuda::make_host_unique<short[]>(sizeof(short) * config.maxPFCFracs, cudaStream);
         //pfrh_passTopoThresh = cms::cuda::make_host_unique<bool[]>(sizeof(bool)*config.maxRH, cudaStream);
         pfrh_passTopoThresh = cms::cuda::make_host_unique<int[]>(sizeof(int) * config.maxRH, cudaStream);
 
@@ -212,7 +212,7 @@ namespace PFClustering {
       cms::cuda::device::unique_ptr<int[]> pfrh_topoId;
       cms::cuda::device::unique_ptr<int[]> pfrh_isSeed;
       cms::cuda::device::unique_ptr<float[]> pcrh_frac;
-      cms::cuda::device::unique_ptr<int[]> pcrh_fracInd;
+      cms::cuda::device::unique_ptr<short[]> pcrh_fracInd;
       //cms::cuda::device::unique_ptr<bool[]> pfrh_passTopoThresh;
       cms::cuda::device::unique_ptr<int[]> pfrh_passTopoThresh;
 
@@ -235,7 +235,7 @@ namespace PFClustering {
         pfrh_topoId = cms::cuda::make_device_unique<int[]>(sizeof(int) * config.maxRH, cudaStream);
         pfrh_isSeed = cms::cuda::make_device_unique<int[]>(sizeof(int) * config.maxRH, cudaStream);
         pcrh_frac = cms::cuda::make_device_unique<float[]>(sizeof(float) * config.maxPFCFracs, cudaStream);
-        pcrh_fracInd = cms::cuda::make_device_unique<int[]>(sizeof(int) * config.maxPFCFracs, cudaStream);
+        pcrh_fracInd = cms::cuda::make_device_unique<short[]>(sizeof(short) * config.maxPFCFracs, cudaStream);
         //pfrh_passTopoThresh = cms::cuda::make_device_unique<bool[]>(sizeof(bool)*config.maxRH, cudaStream);
         pfrh_passTopoThresh = cms::cuda::make_device_unique<int[]>(sizeof(int) * config.maxRH, cudaStream);
 

@@ -341,7 +341,7 @@ void PFClusterProducerCudaHCAL::acquire(edm::Event const& event,
                             cudaStream));
 
   cudaCheck(cudaMemcpyAsync(
-      outputCPU.pcrh_frac.get(), outputGPU.pcrh_frac.get(), sizeof(int) * nFracs, cudaMemcpyDeviceToHost, cudaStream));
+      outputCPU.pcrh_frac.get(), outputGPU.pcrh_frac.get(), sizeof(float) * nFracs, cudaMemcpyDeviceToHost, cudaStream));
   cudaCheck(cudaMemcpyAsync(
       outputCPU.pfrh_isSeed.get(), outputGPU.pfrh_isSeed.get(), numbytes_int, cudaMemcpyDeviceToHost, cudaStream));
   cudaCheck(cudaMemcpyAsync(
@@ -394,11 +394,13 @@ void PFClusterProducerCudaHCAL::produce(edm::Event& event, const edm::EventSetup
         }
         // Now PFRecHitFraction of this PFCluster is set. Now compute calculateAndSetPosition (energy, position etc)
         // Check if this topoId has one only one seed
+	/*
         if (nTopoSeeds.count(outputCPU.pfrh_topoId[n]) && nTopoSeeds[outputCPU.pfrh_topoId[n]] == 1 && _allCellsPositionCalc) {
           _allCellsPositionCalc->calculateAndSetPosition(temp);
         } else {
           _positionCalc->calculateAndSetPosition(temp);
         }
+	*/
         pfClustersFromCuda->emplace_back(std::move(temp));
       }
     }
