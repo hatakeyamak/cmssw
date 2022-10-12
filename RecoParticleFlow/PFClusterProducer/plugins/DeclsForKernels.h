@@ -161,6 +161,7 @@ namespace PFRecHit {
 }  //  namespace PFRecHit
 
 namespace PFClustering {
+
   namespace HCAL {
     struct ConfigurationParameters {
       uint32_t maxRH = 4000;          // previously: 2000
@@ -258,8 +259,10 @@ namespace PFClustering {
     struct ScratchDataGPU {
       cms::cuda::device::unique_ptr<int[]> rhcount;
       cms::cuda::device::unique_ptr<int[]> pfrh_edgeId;
+      cms::cuda::device::unique_ptr<int[]> pfrh_edgeIdx;
       cms::cuda::device::unique_ptr<int[]> pfrh_edgeList;
       cms::cuda::device::unique_ptr<int[]> pfrh_edgeMask;
+      cms::cuda::device::unique_ptr<int[]> wl_d;
 
       cms::cuda::device::unique_ptr<float[]> pcrh_fracSum;
       cms::cuda::device::unique_ptr<float4[]> pfc_prevPos4;
@@ -268,10 +271,14 @@ namespace PFClustering {
         rhcount = cms::cuda::make_device_unique<int[]>(sizeof(int) * config.maxRH, cudaStream);
         pfrh_edgeId =
             cms::cuda::make_device_unique<int[]>(sizeof(int) * config.maxRH * config.maxNeighbors, cudaStream);
+        pfrh_edgeIdx =
+            cms::cuda::make_device_unique<int[]>(sizeof(int) * config.maxRH+1, cudaStream);
         pfrh_edgeList =
             cms::cuda::make_device_unique<int[]>(sizeof(int) * config.maxRH * config.maxNeighbors, cudaStream);
         pfrh_edgeMask =
             cms::cuda::make_device_unique<int[]>(sizeof(int) * config.maxRH * config.maxNeighbors, cudaStream);
+        wl_d =
+            cms::cuda::make_device_unique<int[]>(sizeof(int) * config.maxRH, cudaStream);
 
         pcrh_fracSum = cms::cuda::make_device_unique<float[]>(sizeof(float) * config.maxRH, cudaStream);
         pfc_prevPos4 = cms::cuda::make_device_unique<float4[]>(sizeof(float4) * config.maxRH, cudaStream);
