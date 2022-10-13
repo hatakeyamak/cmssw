@@ -312,7 +312,7 @@ namespace PFClusterCudaHCAL {
     }
   }
   //
-  // ECL-CC
+  // ECL-CC ends
   //
 
   void initializeCudaConstants(const PFClustering::common::CudaHCALConstants& cudaConstants,
