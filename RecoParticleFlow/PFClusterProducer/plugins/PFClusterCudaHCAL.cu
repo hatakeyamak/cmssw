@@ -18,8 +18,8 @@ using PFClustering::common::PFLayer;
 // Uncomment for debugging
 //#define DEBUG_GPU_HCAL
 
-constexpr int sizeof_float = sizeof(float);
-constexpr int sizeof_int = sizeof(int);
+//constexpr int sizeof_float = sizeof(float);
+//constexpr int sizeof_int = sizeof(int);
 constexpr const float PI_F = 3.141592654f;
 
 namespace PFClusterCudaHCAL {
@@ -3112,6 +3112,32 @@ namespace PFClusterCudaHCAL {
     }
   }
 
+  // pfrh_parent: RecHit index -> first parent
+  // pfrh_parent_new (after this kernel): RecHit index -> oldest parent in the chain
+  __global__ void contractRecHitParentArray(size_t size, int* pfrh_parent, int* pfrh_parent_new) {
+    auto const thread = threadIdx.x + blockIdx.x * blockDim.x;
+    auto const stride = blockDim.x * gridDim.x;
+
+    for (auto idx = thread; idx < size; idx += stride) {
+      int parent = pfrh_parent[idx];
+      while (parent >= 0 and parent != pfrh_parent[parent]) {
+        parent = pfrh_parent[parent];
+      }
+      pfrh_parent_new[idx] = parent;
+    }
+  }
+
+  // copies foo[idx] to bar[idx], and sets foo[idx] to val
+  __global__ void arrayCopyAndReset(size_t size, int* foo, int* bar, int val) {
+    auto const thread = threadIdx.x + blockIdx.x * blockDim.x;
+    auto const stride = blockDim.x * gridDim.x;
+
+    for (auto idx = thread; idx < size; idx += stride) {
+      bar[idx] = foo[idx];
+      foo[idx] = val;
+    }
+  }
+
   // Contraction in a single block
   __global__ void topoClusterContraction(size_t size,
                                          int* pfrh_parent,
@@ -4132,6 +4158,7 @@ namespace PFClusterCudaHCAL {
       float (&timer)[8]) {
     const int threadsPerBlock = 256;
     const int nRH = inputPFRecHits.size;
+    auto const numBlocks = (nRH + threadsPerBlock - 1) / threadsPerBlock;
 
     // Combined seeding & topo clustering thresholds, array initialization
     seedingTopoThreshKernel_HCAL<<<(nRH + threadsPerBlock - 1) / threadsPerBlock, threadsPerBlock, 0, cudaStream>>>(
@@ -4156,25 +4183,36 @@ namespace PFClusterCudaHCAL {
 
     // Topo clustering
     // Fill edgeId, edgeList arrays with rechit neighbors
-    // Has a bug when using more than 128 threads..
-    // prepareTopoInputsSerial<<<1, 1, 4 * (8+4) * sizeof(int), cudaStream>>>(
-    prepareTopoInputs<<<1, 128, 128 * (8 + 4) * sizeof(int), cudaStream>>>(nRH,
-                                                                           outputGPU.nEdges.get(),
-                                                                           outputGPU.pfrh_passTopoThresh.get(),
-                                                                           inputPFRecHits.pfrh_neighbours.get(),
-                                                                           scratchGPU.pfrh_edgeId.get(),
-                                                                           scratchGPU.pfrh_edgeList.get());
+    // Has a bug when using more than 128 threads.. KenH: still the case? to be checked.
+    //prepareTopoInputs<<<1, 128, 128 * (8 + 4) * sizeof(int), cudaStream>>>(nRH,
+    prepareTopoInputsSerial<<<1, 1, 4 * (8 + 4) * sizeof(int), cudaStream>>>(nRH,
+                                                                             outputGPU.nEdges.get(),
+                                                                             outputGPU.pfrh_passTopoThresh.get(),
+                                                                             inputPFRecHits.pfrh_neighbours.get(),
+                                                                             scratchGPU.pfrh_edgeId.get(),
+                                                                             scratchGPU.pfrh_edgeList.get());
 
     // Topo clustering
-    //topoClusterLinking<<<1, 512, 0, cudaStream>>>(nRH,
-    topoClusterLinkingKH<<<1, 512, 0, cudaStream>>>(nRH,
-                                                    outputGPU.nEdges.get(),
-                                                    outputGPU.pfrh_topoId.get(),
-                                                    scratchGPU.pfrh_edgeId.get(),
-                                                    scratchGPU.pfrh_edgeList.get(),
-                                                    scratchGPU.pfrh_edgeMask.get(),
-                                                    outputGPU.pfrh_passTopoThresh.get(),
-                                                    outputGPU.topoIter.get());
+    //topoClusterLinkingKH<<<1, 512, 0, cudaStream>>>(nRH,
+    topoClusterLinking<<<1, 512, 0, cudaStream>>>(nRH,
+                                                  outputGPU.nEdges.get(),
+                                                  outputGPU.pfrh_topoId.get(),
+                                                  scratchGPU.pfrh_edgeId.get(),
+                                                  scratchGPU.pfrh_edgeList.get(),
+                                                  scratchGPU.pfrh_edgeMask.get(),
+                                                  outputGPU.pfrh_passTopoThresh.get(),
+                                                  outputGPU.topoIter.get());
+    cudaCheck(cudaStreamSynchronize(cudaStream));
+
+    // find the oldest grandparent of every RecHit, and
+    // save this information temporarily in the array scratchGPU.rhcount
+    contractRecHitParentArray<<<numBlocks, threadsPerBlock, 0, cudaStream>>>(
+        nRH, outputGPU.pfrh_topoId.get(), scratchGPU.rhcount.get());
+
+    // copy the oldest-grandparent array to outputGPU.pfrh_topoId, and
+    // re-initialise all elements of scratchGPU.rhcount to 0
+    arrayCopyAndReset<<<numBlocks, threadsPerBlock, 0, cudaStream>>>(
+        nRH, scratchGPU.rhcount.get(), outputGPU.pfrh_topoId.get(), 0);
 
     topoClusterContraction<<<1, 512, 0, cudaStream>>>(nRH,
                                                       outputGPU.pfrh_topoId.get(),
