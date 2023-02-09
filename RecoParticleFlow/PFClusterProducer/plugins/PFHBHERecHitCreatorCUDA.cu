@@ -635,7 +635,7 @@ namespace PFRecHit {
       uint32_t nRHIn = HBHERecHits_asInput.size;  // Number of input rechits
       if (nRHIn == 0) {
         HBHEPFRecHits_asOutput.PFRecHits.size = 0;
-        HBHEPFRecHits_asOutput.PFRecHits.sizeCleaned = 0;
+        //HBHEPFRecHits_asOutput.PFRecHits.sizeCleaned = 0;
         return;
       }
 
@@ -815,7 +815,7 @@ namespace PFRecHit {
 #endif
 
       HBHEPFRecHits_asOutput.PFRecHits.size = *(h_nPFRHOut.get());
-      HBHEPFRecHits_asOutput.PFRecHits.sizeCleaned = *(h_nPFRHCleaned.get());
+      //HBHEPFRecHits_asOutput.PFRecHits.sizeCleaned = *(h_nPFRHCleaned.get());
 
       // cudaCheck(cudaFree(d_nPFRHOut));
       // cudaCheck(cudaFree(d_nPFRHCleaned));

@@ -353,7 +353,7 @@ void PFHBHERecHitProducerGPU::acquire(edm::Event const& event,
     cudaCheck(cudaMemcpyAsync(dest.data(), src, size * sizeof(type), cudaMemcpyDeviceToHost, ctx.stream()));
   };
 
-  num_rechits = outputGPU.PFRecHits.size + outputGPU.PFRecHits.sizeCleaned; // transfer only what become PFRecHits
+  num_rechits = outputGPU.PFRecHits.size; // transfer only what become PFRecHits
   tmpPFRecHits.resize(num_rechits);
   lambdaToTransferSize(tmpPFRecHits.pfrh_detId, outputGPU.PFRecHits.pfrh_detId.get(), num_rechits);
   if (fullLegacy_)
@@ -380,13 +380,13 @@ void PFHBHERecHitProducerGPU::produce(edm::Event& event, edm::EventSetup const& 
     //const CaloSubdetectorGeometry* hcalBarrelGeo = geoHandle->getSubdetectorGeometry(DetId::Hcal, HcalBarrel);
     //const CaloSubdetectorGeometry* hcalEndcapGeo = geoHandle->getSubdetectorGeometry(DetId::Hcal, HcalEndcap);
 
-    auto nPFRHTotal = outputGPU.PFRecHits.size + outputGPU.PFRecHits.sizeCleaned;
+    auto nPFRHTotal = outputGPU.PFRecHits.size;
     tmpPFRecHits.size = outputGPU.PFRecHits.size;
-    tmpPFRecHits.sizeCleaned = outputGPU.PFRecHits.sizeCleaned;
+    //tmpPFRecHits.sizeCleaned = outputGPU.PFRecHits.sizeCleaned;
 
     pfrhLegacy->reserve(tmpPFRecHits.size);
     if (produceCleanedLegacy_)
-      pfrhLegacyCleaned->reserve(tmpPFRecHits.sizeCleaned);
+      pfrhLegacyCleaned->reserve(tmpPFRecHits.size);
 
     for (unsigned i = 0; i < nPFRHTotal; i++) {
       HcalDetId hid(tmpPFRecHits.pfrh_detId[i]);

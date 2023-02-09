@@ -137,16 +137,16 @@ void PFHBHERecHitProducerCPU::acquire(edm::Event const& event,
   nRechitsTotal = 0;    // Total number of PFRecHits to copy
 
   if (produceSoA_)
-    nRechitsTotal = PFHBHERecHitSoA.size + PFHBHERecHitSoA.sizeCleaned;
+    nRechitsTotal = PFHBHERecHitSoA.size;
   else if (produceLegacy_ && produceCleanedLegacy_)
-    nRechitsTotal = PFHBHERecHitSoA.size + PFHBHERecHitSoA.sizeCleaned;
+    nRechitsTotal = PFHBHERecHitSoA.size;
   else if (produceLegacy_ && PFHBHERecHitSoA.size > 0) {
     // Passing PFRecHits only
     nRechitsTotal = PFHBHERecHitSoA.size;
-  } else if (produceCleanedLegacy_ && PFHBHERecHitSoA.sizeCleaned > 0) {
+  } else if (produceCleanedLegacy_ && PFHBHERecHitSoA.size > 0) {
     // Cleaned PFRecHits only
     offset = PFHBHERecHitSoA.size;
-    nRechitsTotal = PFHBHERecHitSoA.sizeCleaned;
+    nRechitsTotal = PFHBHERecHitSoA.size;
   } else {
     // Nothing to do. Exit
     return;
@@ -157,8 +157,8 @@ void PFHBHERecHitProducerCPU::acquire(edm::Event const& event,
 
   tmpPFRecHits.resize(nRechitsTotal);
   tmpPFRecHits.size = PFHBHERecHitSoA.size;  // Total number of rechits passing cuts: size
-  tmpPFRecHits.sizeCleaned =
-      PFHBHERecHitSoA.sizeCleaned;  // Total number of rechits cleaned (failing cuts): sizeCleaned
+  // tmpPFRecHits.sizeCleaned =
+  //     PFHBHERecHitSoA.sizeCleaned;  // Total number of rechits cleaned (failing cuts): sizeCleaned
 
   lambdaToTransferSize(tmpPFRecHits.pfrh_depth, PFHBHERecHitSoA.pfrh_depth.get() + offset, nRechitsTotal);
   lambdaToTransferSize(tmpPFRecHits.pfrh_layer, PFHBHERecHitSoA.pfrh_layer.get() + offset, nRechitsTotal);
@@ -184,7 +184,7 @@ void PFHBHERecHitProducerCPU::produce(edm::Event& event, edm::EventSetup const& 
     auto pfrhCleanedLegacy = std::make_unique<reco::PFRecHitCollection>();
 
     pfrhLegacy->reserve(tmpPFRecHits.size);
-    pfrhCleanedLegacy->reserve(tmpPFRecHits.sizeCleaned);
+    //pfrhCleanedLegacy->reserve(tmpPFRecHits.sizeCleaned);
     for (unsigned i = 0; i < nRechitsTotal; i++) {
       HcalDetId hid(tmpPFRecHits.pfrh_detId[i]);
 
