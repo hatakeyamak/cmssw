@@ -103,11 +103,9 @@ void PFClusterMatchedToPhotonsSelector::fillDescriptions(edm::ConfigurationDescr
   desc.add<edm::InputTag>("recHitsEELabel", edm::InputTag("ecalRecHit", "EcalRecHitsEE"));
   desc.add<double>("maxDR2", 0.3 * 0.3);
   desc.add<double>("maxDEDR2", 0.5 * 0.5);
-  //desc.add<double>("volumeZ_EB", 300.0);
-  desc.add<double>("volumeZ_EB", 304.5);  //SJ taking from recent changes by D. Lange
+  desc.add<double>("volumeZ_EB", 304.5);
   desc.add<double>("volumeRadius_EB", 123.0);
-  //desc.add<double>("volumeZ_EE", 300.0);
-  desc.add<double>("volumeZ_EE", 317.0);  //SJ taking from recent changes by D. Lange
+  desc.add<double>("volumeZ_EE", 317.0);
   descriptions.add("pfClusterMatchedToPhotonsSelector", desc);
 }
 
