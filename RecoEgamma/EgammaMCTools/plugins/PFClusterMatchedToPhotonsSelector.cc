@@ -87,7 +87,6 @@ PFClusterMatchedToPhotonsSelector::PFClusterMatchedToPhotonsSelector(const edm::
   volumeZ_EE_ = iConfig.getParameter<double>("volumeZ_EE");
 
   produces<reco::PFClusterCollection>();
-  //  produces<reco::PFCluster::EEtoPSAssociation>();
   produces<edm::ValueMap<reco::GenParticleRef> >();
   produces<edm::ValueMap<int> >();
   produces<edm::ValueMap<float> >("PS1");
@@ -101,10 +100,10 @@ void PFClusterMatchedToPhotonsSelector::fillDescriptions(edm::ConfigurationDescr
   desc.add<edm::InputTag>("genParticleTag", edm::InputTag("genParticles"));
   desc.add<edm::InputTag>("recHitsEBLabel", edm::InputTag("ecalRecHit", "EcalRecHitsEB"));
   desc.add<edm::InputTag>("recHitsEELabel", edm::InputTag("ecalRecHit", "EcalRecHitsEE"));
-  desc.add<double>("maxDR2", 0.3 * 0.3);
+  desc.add<double>("maxDR2", 0.1 * 0.1);
   desc.add<double>("maxDEDR2", 0.5 * 0.5);
   desc.add<double>("volumeZ_EB", 304.5);
-  desc.add<double>("volumeRadius_EB", 123.0);
+  desc.add<double>("volumeRadius_EB", 123.8);
   desc.add<double>("volumeZ_EE", 317.0);
   descriptions.add("pfClusterMatchedToPhotonsSelector", desc);
 }
