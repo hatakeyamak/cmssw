@@ -225,6 +225,7 @@ DQMOfflinePOGMC = cms.Sequence( DQMOfflinePrePOGMC *
 from DQM.TrackingMonitorSource.pixelTracksMonitoring_cff import *
 from DQMOffline.RecoB.PixelVertexMonitor_cff import *
 from Validation.RecoTau.DQMSequences_cfi import *
+from DQMOffline.ParticleFlow.runBasic_cff import PFAnalyzer as DQMOfflinePFAnalyzer
 
 DQMOfflinePixelTracking = cms.Sequence( pixelTracksMonitoring *
                                         pixelPVMonitor *
@@ -255,7 +256,8 @@ DQMOfflineCommon = cms.Sequence( DQMOfflineDCS *
                                  DQMOfflineBeam *
                                  DQMOfflineCASTOR *
                                  DQMOfflinePhysics *
-				 DQMOfflineTAU
+				 DQMOfflineTAU *
+                                 DQMOfflinePFAnalyzer
                                 )
 
 DQMOfflineCommonFakeHLT = cms.Sequence( DQMOfflineCommon )
@@ -313,8 +315,9 @@ from DQM.TrackingMonitor.tracksDQMMiniAOD_cff import *
 from DQMOffline.RecoB.bTagMiniDQM_cff import *
 from DQMOffline.Muon.miniAOD_cff import *
 from DQM.Physics.DQMTopMiniAOD_cff import *
+from DQMOffline.ParticleFlow.runMini_cfi import PFAnalyzer as PFAnalyzerMiniAOD
 
-DQMOfflineMiniAOD = cms.Sequence(jetMETDQMOfflineRedoProductsMiniAOD*bTagMiniDQMSource*muonMonitors_miniAOD*MuonMiniAOD*DQMOfflinePF)
+DQMOfflineMiniAOD = cms.Sequence(jetMETDQMOfflineRedoProductsMiniAOD*bTagMiniDQMSource*muonMonitors_miniAOD*MuonMiniAOD*DQMOfflinePF*PFAnalyzerMiniAOD)
 DQMOfflineMiniAODBTagOnly = cms.Sequence(bTagMiniDQMSource)
 
 #Post sequences are automatically placed in the EndPath by ConfigBuilder if PAT is run.
