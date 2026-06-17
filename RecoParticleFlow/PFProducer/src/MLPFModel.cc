@@ -495,6 +495,11 @@ namespace reco::mlpf {
         const auto& ref = eltTrack->GsftrackRef();
         cand.setGsfTrackRef(ref);
         cand.setVertex(ref->vertex());
+      } else if (elem->type() == reco::PFBlockElement::TRACK && elem->trackRef().isNonnull()) {
+        const auto* eltTrack = dynamic_cast<const reco::PFBlockElementTrack*>(elem);
+        cand.setTrackRef(eltTrack->trackRef());
+        cand.setVertex(eltTrack->trackRef()->vertex());
+        cand.setPositionAtECALEntrance(eltTrack->positionAtECALEntrance());
       }
     }
   }
