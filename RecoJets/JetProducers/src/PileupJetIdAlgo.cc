@@ -458,8 +458,13 @@ PileupJetIdentifier PileupJetIdAlgo::computeIdVariables(const reco::Jet* jet,
             internalId_.dZ_ = std::abs(lPack->dz(vtx->position()));
           } else if (lPF != nullptr) {
             pfTrk = (lPF->trackRef().get() == nullptr) ? lPF->gsfTrackRef().get() : lPF->trackRef().get();
-            internalId_.d0_ = std::abs(pfTrk->dxy(vtx->position()));
-            internalId_.dZ_ = std::abs(pfTrk->dz(vtx->position()));
+            if (pfTrk != nullptr) {
+              internalId_.d0_ = std::abs(pfTrk->dxy(vtx->position()));
+              internalId_.dZ_ = std::abs(pfTrk->dz(vtx->position()));
+            } else {
+              std::cout << "KenH PileupJetIdAlgo::computeIdVariables charged but no pfTrk found. pdgId: "
+                        << icand->pdgId() << std::endl;
+            }
           }
         } else {
           internalId_.d0_ = std::abs(pfTrk->dxy(vtx->position()));
